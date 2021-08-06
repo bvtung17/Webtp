@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -137,6 +138,38 @@ namespace Webthucpham.Data.Extensions
 
             new ProductInCategory() { ProductId = 1, CategoryId = 1 }
              );
+            // tao admin voi Identity
+            var roleId = new Guid("C78E8003-1877-44F1-A4E8-EBFEC06C3279");
+            var adminId = new Guid("447EB2AE-81CA-4EBF-A4A0-D085DEF1879A");
+            modelBuilder.Entity<AppRole>().HasData(new AppRole
+            {
+                Id = roleId,
+                Name = "admin",
+                NormalizedName = "admin",
+                Description = "Administrator role"
+            });
+
+            var hasher = new PasswordHasher<AppUser>();
+            modelBuilder.Entity<AppUser>().HasData(new AppUser
+            {
+                Id = adminId,
+                UserName = "admin",
+                NormalizedUserName = "admin",
+                Email = "bvtung17@gmail.com",
+                NormalizedEmail = "bvtung17@gmail.com",
+                EmailConfirmed = true,
+                PasswordHash = hasher.HashPassword(null, "Abcdxyz1@"),
+                SecurityStamp = string.Empty,
+                FirstName = "Tung",
+                LastName = "Bui",
+                Dob = new DateTime(2000, 01, 01)
+            });
+
+            modelBuilder.Entity<IdentityUserRole<Guid>>().HasData(new IdentityUserRole<Guid>
+            {
+                RoleId = roleId,
+                UserId = adminId
+            });
 
         }
     }
