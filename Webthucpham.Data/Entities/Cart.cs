@@ -17,6 +17,8 @@ namespace Webthucpham.Data.Entities
             public Product Product { get; set; }
 
             public DateTime DateCreated { get; set; }
-        
+
+        // them app user
+            public AppUser AppUser { get; set; }
     }
 }
