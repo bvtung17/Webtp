@@ -19,6 +19,7 @@ namespace Webthucpham.Data.EF
         {
 
             //Configue Using Fluent API
+            //gọi Configurations
             modelBuilder.ApplyConfiguration(new CartConfiguration());
 
             modelBuilder.ApplyConfiguration(new AppConfigConfiguration());

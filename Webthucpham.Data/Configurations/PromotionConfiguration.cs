@@ -11,7 +11,7 @@ namespace Webthucpham.Data.Configurations
     {
         public void Configure(EntityTypeBuilder<Promotion> builder)
         {
-            builder.ToTable("Promotions");
+            builder.ToTable("Promotions"); // tên bảng multi calls can be chained
 
             builder.HasKey(x => x.Id);
             builder.Property(x => x.Id).UseIdentityColumn();

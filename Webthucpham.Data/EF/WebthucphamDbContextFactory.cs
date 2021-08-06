@@ -16,6 +16,7 @@ namespace Webthucpham.Data.EF
               .SetBasePath(Directory.GetCurrentDirectory())
               .AddJsonFile("appsettings.json")
               .Build();
+            // tạo connectiongString
             var connectionString = configuration.GetConnectionString("WebthucphamDb");
             var optionsBuilder = new DbContextOptionsBuilder<WebthucphamDbContext>();
             optionsBuilder.UseSqlServer(connectionString);

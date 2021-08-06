@@ -16,7 +16,7 @@ namespace Webthucpham.Data.Configurations
 
             builder.Property(x => x.Id).UseIdentityColumn();
 
-
+            // khóa một nhiều với Car và một khóa ngoại
             builder.HasOne(x => x.Product).WithMany(x => x.Carts).HasForeignKey(x => x.ProductId);
         }
     }

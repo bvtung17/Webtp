@@ -11,7 +11,7 @@ namespace Webthucpham.Data.Configurations
     {
         public void Configure(EntityTypeBuilder<Transaction> builder)
         {
-            builder.ToTable("Transactions");
+            builder.ToTable("Transactions"); // tên bảng
            
             builder.HasKey(x => x.Id);
              

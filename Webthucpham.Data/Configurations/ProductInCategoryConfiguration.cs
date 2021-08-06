@@ -15,6 +15,7 @@ namespace Webthucpham.Data.Configurations
 
             builder.ToTable("ProductInCategories");
 
+            // khóa một nhiều và khóa ngoại
             builder.HasOne(t => t.Product).WithMany(pc => pc.ProductInCategories)
                 .HasForeignKey(pc => pc.ProductId);
 
