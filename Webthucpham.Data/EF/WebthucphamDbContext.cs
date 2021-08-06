@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Text;
 using Webthucpham.Data.Configurations;
 using Webthucpham.Data.Entities;
+using Webthucpham.Data.Extensions;
 
 namespace Webthucpham.Data.EF
 {
@@ -17,6 +18,7 @@ namespace Webthucpham.Data.EF
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
 
+            //Configue Using Fluent API
             modelBuilder.ApplyConfiguration(new CartConfiguration());
 
             modelBuilder.ApplyConfiguration(new AppConfigConfiguration());
@@ -31,6 +33,9 @@ namespace Webthucpham.Data.EF
             modelBuilder.ApplyConfiguration(new ProductTranslationConfiguration());
             modelBuilder.ApplyConfiguration(new PromotionConfiguration());
             modelBuilder.ApplyConfiguration(new TransactionConfiguration());
+
+            //Data seeding
+            modelBuilder.Seed();
             //base.OnModelCreating(modelBuilder);
         }
         public DbSet<Product> Products { get; set; }
