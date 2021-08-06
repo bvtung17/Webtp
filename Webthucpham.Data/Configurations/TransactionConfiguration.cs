@@ -16,6 +16,8 @@ namespace Webthucpham.Data.Configurations
             builder.HasKey(x => x.Id);
              
             builder.Property(x => x.Id).UseIdentityColumn();
+            // one with many
+            builder.HasOne(x => x.AppUser).WithMany(x => x.Transactions).HasForeignKey(x => x.UserID);
         }
     }
 }
