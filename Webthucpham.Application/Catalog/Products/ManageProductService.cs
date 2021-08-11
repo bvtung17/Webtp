@@ -69,7 +69,10 @@ namespace Webthucpham.Application.Catalog.Products
             return await _context.SaveChangesAsync();
         }
 
-
+        public Task<List<ProductViewModel>> GetAll()
+        {
+            throw new NotImplementedException();
+        }
 
         public async Task<PagedResult<ProductViewModel>> GetAllPaging(GetProductPagingRequest request)
         {
@@ -110,13 +113,14 @@ namespace Webthucpham.Application.Catalog.Products
                     ViewCount = x.p.ViewCount
 
                 }).ToListAsync();
-         
+
             // 4 :  Select and Project
             var pagedResult = new PagedResult<ProductViewModel>
             {
                 TotalRecord = totalRow,
                 Items = data
-            }
+            };
+            return pagedResult;
 
 
         }
