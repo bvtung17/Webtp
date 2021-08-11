@@ -50,8 +50,6 @@ namespace Webthucpham.Application.Catalog.Products
                         SeoAlias = request.SeoAlias,
                         SeoTitle = request.SeoTitle,
                         LanguageId = request.LanguageId,
-
-                       
                     }
 
                 }
@@ -69,11 +67,7 @@ namespace Webthucpham.Application.Catalog.Products
             return await _context.SaveChangesAsync();
         }
 
-        public Task<List<ProductViewModel>> GetAll()
-        {
-            throw new NotImplementedException();
-        }
-
+     
         public async Task<PagedResult<ProductViewModel>> GetAllPaging(GetProductPagingRequest request)
         {
             //using linq
@@ -125,19 +119,36 @@ namespace Webthucpham.Application.Catalog.Products
 
         }
 
-        public Task<int> Update(ProductUpdateRequest request)
+        public async Task<int> Update(ProductUpdateRequest request)
         {
-            throw new NotImplementedException();
+            var product = await _context.Products.FindAsync(request.Id);
+            var productTranslations = await _context.ProductTranslations.FirstOrDefaultAsync(x => x.ProductId == request.Id && x.LanguageId==request.LanguageId); // sửa riêng cho ngôn ngữ
+            if (product == null || productTranslations==null) throw new WebthucphamException($"Không thể tìm thấy sản phẩm với Id: {request.Id}");
+
+            productTranslations.Name = request.Name;
+            productTranslations.SeoAlias = request.SeoAlias;
+            productTranslations.SeoDescription = request.SeoDescription;
+            productTranslations.SeoTitle = request.SeoTitle;
+            productTranslations.Description = request.Description;
+            return await _context.SaveChangesAsync();
+
+
         }
 
-        public Task<bool> UpdatePrice(int productId, decimal newPrice)
+        public async Task<bool> UpdatePrice(int productId, decimal newPrice)
         {
-            throw new NotImplementedException();
+            var product = await _context.Products.FindAsync(productId);
+            if (product == null ) throw new WebthucphamException($"Không thể tìm thấy sản phẩm với Id: {productId}");
+            product.Price = newPrice;
+            return await _context.SaveChangesAsync()>0;
         }
 
-        public Task<bool> UpdateStock(int productId, int addedQuantity)
+        public async Task<bool> UpdateStock(int productId, int addedQuantity)
         {
-            throw new NotImplementedException();
+            var product = await _context.Products.FindAsync(productId);
+            if (product == null) throw new WebthucphamException($"Không thể tìm thấy sản phẩm với Id: {productId}");
+            product.Stock += addedQuantity;
+            return await _context.SaveChangesAsync() > 0;
         }
     }
 }

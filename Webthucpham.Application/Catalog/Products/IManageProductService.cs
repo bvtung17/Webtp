@@ -20,7 +20,7 @@ namespace Webthucpham.Application.Catalog.Products
 
         Task AddViewcount(int productId);
 
-        Task<List<ProductViewModel>> GetAll();
+   
         Task<PagedResult<ProductViewModel>> GetAllPaging(GetProductPagingRequest request);
 
     }
