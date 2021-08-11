@@ -19,6 +19,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Webthucpham.Data\Webthucpham.Data.csproj" />
+    <ProjectReference Include="..\Webthucpham.Utilities\Webthucpham.Utilities.csproj" />
   </ItemGroup>
 
 </Project>
