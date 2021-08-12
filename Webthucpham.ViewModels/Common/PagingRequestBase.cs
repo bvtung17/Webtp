@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Webthucpham.Application.Dtos
+namespace Webthucpham.ViewModels.Common
 {
-   public class PagingRequestBase
+    public class PagingRequestBase
     {
         public int PageIndex { get; set; }
         public int PageSize { get; set; }

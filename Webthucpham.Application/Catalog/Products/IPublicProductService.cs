@@ -2,14 +2,14 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
-using Webthucpham.Application.Catalog.Products.Dtos;
-using Webthucpham.Application.Catalog.Products.Dtos.Public;
-using Webthucpham.Application.Dtos;
+using Webthucpham.ViewModels.Catalog.Products;
+using Webthucpham.ViewModels.Common;
 
 namespace Webthucpham.Application.Catalog.Products
 {
     public interface IPublicProductService //Công khai
     {
-        Task<PagedResult<ProductViewModel>> GetAllByCategory(GetProductPagingRequest request);
+        Task<PagedResult<ProductViewModel>> GetAllByCategory(GetPublicProductPagingRequest request);
+        Task<List<ProductViewModel>> GetAll();
     }
 }
