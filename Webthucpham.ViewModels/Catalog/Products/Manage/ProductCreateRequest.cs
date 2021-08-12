@@ -1,8 +1,10 @@
-﻿using System;
+﻿
+using Microsoft.AspNetCore.Http;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Webthucpham.Application.Catalog.Products.Dtos.Manage
+namespace Webthucpham.ViewModels.Catalog.Products.Manage
 {
     public class ProductCreateRequest
     {
@@ -18,5 +20,6 @@ namespace Webthucpham.Application.Catalog.Products.Dtos.Manage
         public string SeoAlias { get; set; }
         public string LanguageId { set; get; }
 
+        public IFormFile ThumbnailImage { get; set; }
     }
 }

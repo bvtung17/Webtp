@@ -2,12 +2,12 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
-using Webthucpham.Application.Catalog.Products.Dtos;
-using Webthucpham.Application.Catalog.Products.Dtos.Manage;
-using Webthucpham.Application.Dtos;
 using Webthucpham.Data.EF;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
+using Webthucpham.ViewModels.Catalog.Products;
+using Webthucpham.ViewModels.Common;
+using Webthucpham.ViewModels.Catalog.Products.Public;
 
 namespace Webthucpham.Application.Catalog.Products
 {
@@ -18,7 +18,7 @@ namespace Webthucpham.Application.Catalog.Products
         {
             _context = context; //gán 1 lần
         }
-        public async Task<PagedResult<ProductViewModel>> GetAllByCategory(Dtos.Public.GetProductPagingRequest request)
+        public async Task<PagedResult<ProductViewModel>> GetAllByCategory(GetProductPagingRequest request)
         {
             //using linq
 

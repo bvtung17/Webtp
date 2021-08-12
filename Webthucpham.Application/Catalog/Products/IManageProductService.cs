@@ -1,10 +1,11 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Http;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
-using Webthucpham.Application.Catalog.Products.Dtos;
-using Webthucpham.Application.Catalog.Products.Dtos.Manage;
-using Webthucpham.Application.Dtos;
+using Webthucpham.ViewModels.Catalog.Products;
+using Webthucpham.ViewModels.Catalog.Products.Manage;
+using Webthucpham.ViewModels.Common;
 
 namespace Webthucpham.Application.Catalog.Products
 {
@@ -22,6 +23,14 @@ namespace Webthucpham.Application.Catalog.Products
 
    
         Task<PagedResult<ProductViewModel>> GetAllPaging(GetProductPagingRequest request);
+
+        Task<int> AddImages(int productId, List<IFormFile> files);
+
+        Task<int> RemoveImages(int imageId);
+
+        Task<int> UpdateImages(int imageId, string caption, bool isDefault);
+
+        Task<List<ProductImageViewModel>> GetListImage(int productId);
 
     }
 }
