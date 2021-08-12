@@ -5,7 +5,7 @@ using Webthucpham.ViewModels.Common;
 
 namespace Webthucpham.ViewModels.Catalog.Products.Manage
 {
-    public class GetProductPagingRequest : PagingRequestBase
+    public class GetManageProductPagingRequest : PagingRequestBase
     {
         public string Keyword { get; set; }
         public List<int> CategoryIds { get; set; }

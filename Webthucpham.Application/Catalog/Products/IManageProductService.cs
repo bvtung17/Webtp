@@ -22,7 +22,7 @@ namespace Webthucpham.Application.Catalog.Products
         Task AddViewcount(int productId);
 
    
-        Task<PagedResult<ProductViewModel>> GetAllPaging(GetProductPagingRequest request);
+        Task<PagedResult<ProductViewModel>> GetAllPaging(GetManageProductPagingRequest request);
 
         Task<int> AddImages(int productId, List<IFormFile> files);
 

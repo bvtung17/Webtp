@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Webthucpham.ViewModels.Catalog.Products.Manage
+namespace Webthucpham.ViewModels.Catalog.Products
 {
     public class ProductUpdateRequest
     {

@@ -99,7 +99,7 @@ namespace Webthucpham.Application.Catalog.Products
             var images = _context.ProductImages.Where(i => i.ProductId == productId);
             foreach (var image in images)
             {
-                _storageService.DeleteFileAsync(image.ImagePath);
+                await _storageService.DeleteFileAsync(image.ImagePath);
             }
 
             _context.Products.Remove(product);
@@ -107,7 +107,7 @@ namespace Webthucpham.Application.Catalog.Products
         }
 
      
-        public async Task<PagedResult<ProductViewModel>> GetAllPaging(GetProductPagingRequest request)
+        public async Task<PagedResult<ProductViewModel>> GetAllPaging(GetManageProductPagingRequest request)
         {
             //using linq
 
