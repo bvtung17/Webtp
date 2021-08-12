@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Webthucpham.Data.EF;
 
 namespace Webthucpham.Data.Migrations
 {
     [DbContext(typeof(WebthucphamDbContext))]
-    partial class WebthucphamDbContextModelSnapshot : ModelSnapshot
+    [Migration("20210811115229_AddProductImageTable")]
+    partial class AddProductImageTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -180,7 +182,7 @@ namespace Webthucpham.Data.Migrations
                         new
                         {
                             Id = new Guid("c78e8003-1877-44f1-a4e8-ebfec06c3279"),
-                            ConcurrencyStamp = "f6b19544-2a05-42f3-80ba-f36394288c8b",
+                            ConcurrencyStamp = "f973c511-718f-4f00-94eb-dc1187e6e83a",
                             Description = "Administrator role",
                             Name = "admin",
                             NormalizedName = "admin"
@@ -257,7 +259,7 @@ namespace Webthucpham.Data.Migrations
                         {
                             Id = new Guid("447eb2ae-81ca-4ebf-a4a0-d085def1879a"),
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "1d82a51a-8ebc-42bd-b22a-993cdadc998e",
+                            ConcurrencyStamp = "5daf7797-943a-466f-aaed-44ce34fb8709",
                             Dob = new DateTime(2000, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Email = "bvtung17@gmail.com",
                             EmailConfirmed = true,
@@ -266,7 +268,7 @@ namespace Webthucpham.Data.Migrations
                             LockoutEnabled = false,
                             NormalizedEmail = "bvtung17@gmail.com",
                             NormalizedUserName = "admin",
-                            PasswordHash = "AQAAAAEAACcQAAAAEIo7dHs5yVYP5wJ10FKOLnk3x9PJ1r9K34qn1JRcOTsP39e2sMTI250g6ban4gaB6A==",
+                            PasswordHash = "AQAAAAEAACcQAAAAEDrYslnXvdZqjDqC4P38IUylCeozJ5DLQpFGgUOm4AUtHd88mMSzwthuBA8ljmekOg==",
                             PhoneNumberConfirmed = false,
                             SecurityStamp = "",
                             TwoFactorEnabled = false,
@@ -612,7 +614,7 @@ namespace Webthucpham.Data.Migrations
                         new
                         {
                             Id = 1,
-                            DateCreated = new DateTime(2021, 8, 12, 16, 32, 32, 316, DateTimeKind.Local).AddTicks(9834),
+                            DateCreated = new DateTime(2021, 8, 11, 18, 52, 28, 156, DateTimeKind.Local).AddTicks(1074),
                             OriginalPrice = 100000m,
                             Price = 200000m,
                             Stock = 0,
@@ -636,8 +638,8 @@ namespace Webthucpham.Data.Migrations
                     b.Property<DateTime>("DateCreated")
                         .HasColumnType("datetime2");
 
-                    b.Property<long>("FileSize")
-                        .HasColumnType("bigint");
+                    b.Property<int>("FileSize")
+                        .HasColumnType("int");
 
                     b.Property<string>("ImagePath")
                         .IsRequired()

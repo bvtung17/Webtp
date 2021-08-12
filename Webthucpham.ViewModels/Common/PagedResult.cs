@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Webthucpham.Application.Dtos
+namespace Webthucpham.ViewModels.Common
 {
-    public class PagedViewModel <T>
+    public class PagedResult<T>
     {
         public List<T> Items { set; get; }
         public int TotalRecord { set; get; }
