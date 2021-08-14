@@ -11,30 +11,22 @@ namespace Webthucpham.BackendApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class ProductController : ControllerBase
+    public class ProductsController : ControllerBase
     {
         private readonly IPublicProductService _pubicProductService;
         private readonly IManageProductService _manageProductService;
-        public ProductController(IPublicProductService pubicProductService, IManageProductService manageProductService)
+        public ProductsController(IPublicProductService pubicProductService, IManageProductService manageProductService)
         {
             _pubicProductService = pubicProductService;
 
             _manageProductService = manageProductService;
         }
-        //http://locahost:port/product
-        [HttpGet("languageId")]
-        public async Task<IActionResult> Get(string languageId)
-        {
-            var products = await _pubicProductService.GetAll(languageId);
-
-
-            return Ok(products);
-        }
-        //http://locahost:port/product/public-paging
+    
+        //http://locahost:port/product/PageIndex=1&pagesize=10&CategoryId=
         [HttpGet("public-paging/{languageId}")]
-        public async Task<IActionResult> Get([FromQuery] GetPublicProductPagingRequest request) // lay tu query
+        public async Task<IActionResult> GetAllPaging(string languageId, [FromQuery] GetPublicProductPagingRequest request) // lay tu query
         {
-            var products = await _pubicProductService.GetAllByCategoryId(request);
+            var products = await _pubicProductService.GetAllByCategoryId(languageId,request);
             return Ok(products);
         }
 
@@ -42,10 +34,10 @@ namespace Webthucpham.BackendApi.Controllers
         //GetByid
 
         //http://locahost:port/product/id
-        [HttpGet("{id}/{languageId}")]
-        public async Task<IActionResult> GetById(int id , string languageId)
+        [HttpGet("{productId}/{languageId}")]
+        public async Task<IActionResult> GetById(int productId, string languageId)
         {
-            var product = await _manageProductService.GetById(id, languageId);
+            var product = await _manageProductService.GetById(productId, languageId);
             if (product == null)
             {
                 return BadRequest("Không tìm thấy sản phẩm");
@@ -57,6 +49,11 @@ namespace Webthucpham.BackendApi.Controllers
         [HttpPost]
         public async Task<IActionResult> Create([FromForm] ProductCreateRequest request)
         {
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
             var productId = await _manageProductService.Create(request);
             if (productId == 0)
             {
@@ -79,10 +76,10 @@ namespace Webthucpham.BackendApi.Controllers
         }
 
         //phuong thuc Delete product
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(int id)
+        [HttpDelete("{productId}")]
+        public async Task<IActionResult> Delete(int productId)
         {
-            var affecterResult = await _manageProductService.Delete(id);
+            var affecterResult = await _manageProductService.Delete(productId);
             if (affecterResult == 0)
             {
                 return BadRequest();
@@ -90,10 +87,10 @@ namespace Webthucpham.BackendApi.Controllers
             return Ok();
         }
         //phuong thuc UpDATE PRICE
-        [HttpPut("price/{id}/{newPrice}")]
-        public async Task<IActionResult> UpdatePrice(int id, decimal newPrice)
+        [HttpPatch("{productId}/{newPrice}")]
+        public async Task<IActionResult> UpdatePrice(int productId, decimal newPrice)
         {
-            var isSuccesfull = await _manageProductService.UpdatePrice(id,newPrice);
+            var isSuccesfull = await _manageProductService.UpdatePrice(productId, newPrice);
             if (isSuccesfull)
             {
                 return Ok();
