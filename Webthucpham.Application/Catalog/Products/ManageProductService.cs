@@ -30,8 +30,10 @@ namespace Webthucpham.Application.Catalog.Products
         }
 
         //thêm ảnh
-        public Task<int> AddImages(int productId, List<IFormFile> files)
+        public  Task<int> AddImages(int productId, List<IFormFile> files)
         {
+            //var product = await _context.Products.FindAsync(productId);
+            //return product;
             throw new NotImplementedException();
         }
 
@@ -68,8 +70,8 @@ namespace Webthucpham.Application.Catalog.Products
 
                 }
             };
-           
-        
+
+
             //Save image
 
             if (request.ThumbnailImage != null)
@@ -88,7 +90,8 @@ namespace Webthucpham.Application.Catalog.Products
                 };
             }
             _context.Products.Add(product);
-            return await _context.SaveChangesAsync(); // giúp giảm thời gian chờ
+            await _context.SaveChangesAsync(); // giúp giảm thời gian chờ
+            return product.Id;
         }
         //delete
         public async Task<int> Delete(int productId)
@@ -106,7 +109,7 @@ namespace Webthucpham.Application.Catalog.Products
             return await _context.SaveChangesAsync();
         }
 
-     
+
         public async Task<PagedResult<ProductViewModel>> GetAllPaging(GetManageProductPagingRequest request)
         {
             //using linq
@@ -116,18 +119,18 @@ namespace Webthucpham.Application.Catalog.Products
                         join pt in _context.ProductTranslations on p.Id equals pt.ProductId // với bảng Translation
                         join pic in _context.ProductInCategories on p.Id equals pic.ProductId //với bảng ProcutInCategory
                         join c in _context.Categories on pic.CategoryId equals c.Id           // với bảng Category
-                        select new { p, pt ,pic }; 
-            
+                        select new { p, pt, pic };
+
             // 2 : filter
             if (!string.IsNullOrEmpty(request.Keyword))
                 query = query.Where(x => x.pt.Name.Contains(request.Keyword));
-            if (request.CategoryIds.Count >0)
+            if (request.CategoryIds.Count > 0)
             {
-                query = query.Where(p=> request.CategoryIds.Contains(p.pic.CategoryId));
+                query = query.Where(p => request.CategoryIds.Contains(p.pic.CategoryId));
             }
             //3 : Paging
             int totalRow = await query.CountAsync();
-                //add data
+            //add data
             var data = await query.Skip((request.PageIndex - 1) * request.PageSize)
                 .Take(request.PageSize)
                 .Select(x => new ProductViewModel()
@@ -158,9 +161,34 @@ namespace Webthucpham.Application.Catalog.Products
 
         }
 
-    
-        //List ảnh
-        public Task<List<ViewModels.Catalog.Products.ProductImageViewModel>> GetListImage(int productId)
+        //Lay id san pham
+        public async Task<ProductViewModel> GetById(int productId, string languageId)
+        {
+            var product = await _context.Products.FindAsync(productId);
+            var productTranslation = await _context.ProductTranslations.FirstOrDefaultAsync(x => x.ProductId == productId
+            && x.LanguageId == languageId);
+
+            var productViewModel = new ProductViewModel()
+            {
+                Id = product.Id,
+                DateCreated = product.DateCreated,
+                Description = productTranslation != null ? productTranslation.Description : null,
+                LanguageId = productTranslation.LanguageId,
+                Details = productTranslation != null ? productTranslation.Details : null,
+                Name = productTranslation != null ? productTranslation.Name : null,
+                OriginalPrice = product.OriginalPrice,
+                Price = product.Price,
+                SeoAlias = productTranslation != null ? productTranslation.SeoAlias : null,
+                SeoDescription = productTranslation != null ? productTranslation.SeoDescription : null,
+                SeoTitle = productTranslation != null ? productTranslation.SeoTitle : null,
+                Stock = product.Stock,
+                ViewCount = product.ViewCount
+            };
+            return productViewModel;
+
+        }
+            //List ảnh
+            public Task<List<ViewModels.Catalog.Products.ProductImageViewModel>> GetListImage(int productId)
         {
             throw new NotImplementedException();
         }
@@ -176,8 +204,8 @@ namespace Webthucpham.Application.Catalog.Products
         public async Task<int> Update(ProductUpdateRequest request)
         {
             var product = await _context.Products.FindAsync(request.Id);
-            var productTranslations = await _context.ProductTranslations.FirstOrDefaultAsync(x => x.ProductId == request.Id && x.LanguageId==request.LanguageId); // sửa riêng cho ngôn ngữ
-            if (product == null || productTranslations==null) throw new WebthucphamException($"Không thể tìm thấy sản phẩm với Id: {request.Id}");
+            var productTranslations = await _context.ProductTranslations.FirstOrDefaultAsync(x => x.ProductId == request.Id && x.LanguageId == request.LanguageId); // sửa riêng cho ngôn ngữ
+            if (product == null || productTranslations == null) throw new WebthucphamException($"Không thể tìm thấy sản phẩm với Id: {request.Id}");
 
             productTranslations.Name = request.Name;
             productTranslations.SeoAlias = request.SeoAlias;
@@ -213,9 +241,9 @@ namespace Webthucpham.Application.Catalog.Products
         public async Task<bool> UpdatePrice(int productId, decimal newPrice)
         {
             var product = await _context.Products.FindAsync(productId);
-            if (product == null ) throw new WebthucphamException($"Không thể tìm thấy sản phẩm với Id: {productId}");
+            if (product == null) throw new WebthucphamException($"Không thể tìm thấy sản phẩm với Id: {productId}");
             product.Price = newPrice;
-            return await _context.SaveChangesAsync()>0;
+            return await _context.SaveChangesAsync() > 0;
         }
 
         // cập nhập số lượng

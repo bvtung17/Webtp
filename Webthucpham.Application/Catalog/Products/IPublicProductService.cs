@@ -9,7 +9,7 @@ namespace Webthucpham.Application.Catalog.Products
 {
     public interface IPublicProductService //Công khai
     {
-        Task<PagedResult<ProductViewModel>> GetAllByCategory(GetPublicProductPagingRequest request);
-        Task<List<ProductViewModel>> GetAll();
+        Task<PagedResult<ProductViewModel>> GetAllByCategoryId(GetPublicProductPagingRequest request);
+        Task<List<ProductViewModel>> GetAll(string languageId);
     }
 }
