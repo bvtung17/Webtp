@@ -5,9 +5,9 @@ using System.Threading.Tasks;
 using Webthucpham.Data.EF;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
-using Webthucpham.ViewModels.Catalog.Products;
+using Webthucpham.ViewModels.Catalog.ProductImages;
 using Webthucpham.ViewModels.Common;
-
+using Azure.Core;
 
 namespace Webthucpham.Application.Catalog.Products
 {
@@ -19,36 +19,9 @@ namespace Webthucpham.Application.Catalog.Products
             _context = context; //gán 1 lần
         }
 
-        public async Task<List<ProductViewModel>> GetAll()
-        {
-            var query = from p in _context.Products
-                        join pt in _context.ProductTranslations on p.Id equals pt.ProductId // với bảng Translation
-                        join pic in _context.ProductInCategories on p.Id equals pic.ProductId //với bảng ProcutInCategory
-                        join c in _context.Categories on pic.CategoryId equals c.Id           // với bảng Category
-                        select new { p, pt, pic };
-           
-            
-            var data = await query
-                .Select(x => new ProductViewModel()
-                {
-                    Id = x.p.Id,
-                    Name = x.pt.Name,
-                    DateCreated = x.p.DateCreated,
-                    Description = x.pt.Description,
-                    Details = x.pt.Details,
-                    LanguageId = x.pt.LanguageId,
-                    OriginalPrice = x.p.OriginalPrice,
-                    Price = x.p.Price,
-                    SeoAlias = x.pt.SeoAlias,
-                    SeoDescription = x.pt.SeoDescription,
-                    Stock = x.p.Stock,
-                    ViewCount = x.p.ViewCount
 
-                }).ToListAsync();
-            return data;
-        }
 
-        public async Task<PagedResult<ProductViewModel>> GetAllByCategory(GetPublicProductPagingRequest request)
+        public async Task<PagedResult<ProductViewModel>> GetAllByCategoryId(string languageId,GetPublicProductPagingRequest request)
         {
             //using linq
 
@@ -57,6 +30,7 @@ namespace Webthucpham.Application.Catalog.Products
                         join pt in _context.ProductTranslations on p.Id equals pt.ProductId // với bảng Translation
                         join pic in _context.ProductInCategories on p.Id equals pic.ProductId //với bảng ProcutInCategory
                         join c in _context.Categories on pic.CategoryId equals c.Id           // với bảng Category
+                        where pt.LanguageId == languageId
                         select new { p, pt, pic };
 
 

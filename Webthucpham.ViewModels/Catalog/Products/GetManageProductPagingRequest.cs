@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using Webthucpham.ViewModels.Common;
 
-namespace Webthucpham.ViewModels.Catalog.Products.Manage
+namespace Webthucpham.ViewModels.Catalog.ProductImages.Manage
 {
     public class GetManageProductPagingRequest : PagingRequestBase
     {

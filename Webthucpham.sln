@@ -13,7 +13,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Webthucpham.Utilities", "We
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Webthucpham.ViewModels", "Webthucpham.ViewModels\Webthucpham.ViewModels.csproj", "{8157271A-EDFA-49DB-96F6-AC7D4F312290}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Webthucpham.BackendApi", "Webthucpham.BackendApi\Webthucpham.BackendApi.csproj", "{3AB5E828-45B6-4A5D-8ED9-969A0866CE1B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Webthucpham.BackendApi", "Webthucpham.BackendApi\Webthucpham.BackendApi.csproj", "{3AB5E828-45B6-4A5D-8ED9-969A0866CE1B}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "1. infrastructure", "1. infrastructure", "{159EC637-129F-44E0-BE8B-EA373DD54A0B}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "2. Domain", "2. Domain", "{FD31348D-E721-4247-BB5F-B09B11122CD8}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "host", "host", "{E8844FF8-ED12-4629-8F7F-37519AE82748}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -48,6 +54,14 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{4E8A74F2-1763-4D31-8CBF-03BB6FF7DCAA} = {E8844FF8-ED12-4629-8F7F-37519AE82748}
+		{EE811E66-ED25-45F2-A2A4-BC3CA792988E} = {FD31348D-E721-4247-BB5F-B09B11122CD8}
+		{DC9C4CDC-4844-4A12-95D8-A3EAA30DFB7B} = {FD31348D-E721-4247-BB5F-B09B11122CD8}
+		{32B17630-313E-4757-BBA0-5AC356091A1F} = {159EC637-129F-44E0-BE8B-EA373DD54A0B}
+		{8157271A-EDFA-49DB-96F6-AC7D4F312290} = {159EC637-129F-44E0-BE8B-EA373DD54A0B}
+		{3AB5E828-45B6-4A5D-8ED9-969A0866CE1B} = {E8844FF8-ED12-4629-8F7F-37519AE82748}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {5F67F04F-F7DA-40FB-92E9-D1E8DDFCCD5B}
