@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using Webthucpham.Data.EF;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
-using Webthucpham.ViewModels.Catalog.Products;
+using Webthucpham.ViewModels.Catalog.ProductImages;
 using Webthucpham.ViewModels.Common;
 using Azure.Core;
 
