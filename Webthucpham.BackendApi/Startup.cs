@@ -11,6 +11,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using Webthucpham.Application.Catalog.Products;
+using Webthucpham.Application.Common;
 using Webthucpham.Data.EF;
 using Webthucpham.Utilities.Constants;
 
@@ -31,7 +32,9 @@ namespace Webthucpham.BackendApi
             services.AddDbContext<WebthucphamDbContext>(options =>
             options.UseSqlServer(Configuration.GetConnectionString(SystemContants.MainConnectionString)));
 
-            services.AddTransient<IPublicProductService, PublicProductService>(); 
+            services.AddTransient<IStorageService, FileStorageService>();
+            services.AddTransient<IPublicProductService, PublicProductService>();
+            services.AddTransient<IManageProductService, ManageProductService>();
             services.AddControllersWithViews();
 
             services.AddSwaggerGen(c =>
