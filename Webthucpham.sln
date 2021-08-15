@@ -19,7 +19,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "1. infrastructure", "1. inf
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "2. Domain", "2. Domain", "{FD31348D-E721-4247-BB5F-B09B11122CD8}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "host", "host", "{E8844FF8-ED12-4629-8F7F-37519AE82748}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "3. host", "3. host", "{E8844FF8-ED12-4629-8F7F-37519AE82748}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

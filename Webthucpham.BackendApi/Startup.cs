@@ -1,10 +1,11 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -12,7 +13,9 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using Webthucpham.Application.Catalog.Products;
 using Webthucpham.Application.Common;
+using Webthucpham.Application.System.Users;
 using Webthucpham.Data.EF;
+using Webthucpham.Data.Entities;
 using Webthucpham.Utilities.Constants;
 
 namespace Webthucpham.BackendApi
@@ -32,9 +35,21 @@ namespace Webthucpham.BackendApi
             services.AddDbContext<WebthucphamDbContext>(options =>
             options.UseSqlServer(Configuration.GetConnectionString(SystemContants.MainConnectionString)));
 
+            services.AddIdentity<AppUser, AppRole>()
+                .AddEntityFrameworkStores<WebthucphamDbContext>()
+                .AddDefaultTokenProviders();
+            //DECLARE DI
             services.AddTransient<IStorageService, FileStorageService>();
             services.AddTransient<IPublicProductService, PublicProductService>();
             services.AddTransient<IManageProductService, ManageProductService>();
+
+            // đăng nhập đăng ký 
+            services.AddTransient < UserManager<AppUser>, UserManager <AppUser>>();
+            services.AddTransient<SignInManager<AppUser>, SignInManager<AppUser>>();
+            services.AddTransient<RoleManager<AppRole>, RoleManager<AppRole>>();
+            services.AddTransient<IUserService, UserService> ();
+
+
             services.AddControllersWithViews();
 
             services.AddSwaggerGen(c =>
