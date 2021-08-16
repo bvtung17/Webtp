@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using FluentValidation;
+using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -19,6 +21,7 @@ using Webthucpham.Application.System.Users;
 using Webthucpham.Data.EF;
 using Webthucpham.Data.Entities;
 using Webthucpham.Utilities.Constants;
+using Webthucpham.ViewModels.System.Users;
 
 namespace Webthucpham.BackendApi
 {
@@ -51,8 +54,11 @@ namespace Webthucpham.BackendApi
             services.AddTransient<RoleManager<AppRole>, RoleManager<AppRole>>();
             services.AddTransient<IUserService, UserService> ();
 
-
-            services.AddControllers();
+            //ràng buộc đăng nhập đăng ký
+            //services.AddTransient<IValidator<LoginRequest>, LoginRequestValidator>();
+            //services.AddTransient<IValidator<RegisterRequest>, RegisterRequestValidator>();
+            services.AddControllers()
+                .AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<LoginRequestValidator>());
 
             services.AddSwaggerGen(c =>
             {
