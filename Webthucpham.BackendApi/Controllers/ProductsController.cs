@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using Webthucpham.Application.Catalog.Products;
 using Webthucpham.ViewModels.Catalog.ProductImages;
 
@@ -11,6 +12,7 @@ namespace Webthucpham.BackendApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class ProductsController : ControllerBase
     {
         private readonly IPublicProductService _pubicProductService;
@@ -23,7 +25,7 @@ namespace Webthucpham.BackendApi.Controllers
         }
 
         //http://locahost:port/product/PageIndex=1&pagesize=10&CategoryId=
-        [HttpGet("public-paging/{languageId}")]
+        [HttpGet("{languageId}")]
         public async Task<IActionResult> GetAllPaging(string languageId, [FromQuery] GetPublicProductPagingRequest request) // lay tu query
         {
             var products = await _pubicProductService.GetAllByCategoryId(languageId, request);
