@@ -37,7 +37,7 @@ namespace Webthucpham.BackendApi.Controllers
             {
                 return BadRequest("Tài khoản hoặc mật khẩu không đúng");
             }
-            return Ok(new { token = resultToken });
+            return Ok(resultToken);
         }
 
 
