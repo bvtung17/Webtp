@@ -1,13 +1,16 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using Webthucpham.Data.Entities;
+using Webthucpham.ViewModels.Common;
 using Webthucpham.ViewModels.System.Users;
 
 namespace Webthucpham.Application.System.Users
@@ -27,6 +30,7 @@ namespace Webthucpham.Application.System.Users
             _roleManager = roleManager;
             _config = config;
         }
+        // đăng nhập
         public async Task<string> Authencate(LoginRequest request)
         {
             var user = await _userManager.FindByNameAsync(request.UserName);
@@ -35,7 +39,7 @@ namespace Webthucpham.Application.System.Users
                 return null;
                 //throw new WebthucphamException("Không thể tìm thấy");
             }
-            var result = await _signInManager.PasswordSignInAsync(user,request.Password,request.RememberMe, true);
+            var result = await _signInManager.PasswordSignInAsync(user, request.Password, request.RememberMe, true);
             if (!result.Succeeded)
             {
                 return null;
@@ -60,6 +64,7 @@ namespace Webthucpham.Application.System.Users
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
 
+        //Đăng ký
         public async Task<bool> Register(RegisterRequest request)
         {
             var user = new AppUser()
@@ -77,6 +82,42 @@ namespace Webthucpham.Application.System.Users
                 return true;
             }
             return false;
+
         }
+        //Get user
+        public async Task<PagedResult<UserVm>> GetUsersPaging(GetUserPagingRequest request)
+        {
+            var query = _userManager.Users;
+            if (!string.IsNullOrEmpty(request.Keyword))
+            {
+                query = query.Where(x => x.UserName.Contains(request.Keyword)
+                 || x.PhoneNumber.Contains(request.Keyword));
+            }
+
+            //3. Paging
+            int totalRow = await query.CountAsync();
+
+            var data = await query.Skip((request.PageIndex - 1) * request.PageSize)
+                .Take(request.PageSize)
+                .Select(x => new UserVm()
+                {
+                    Email = x.Email,
+                    PhoneNumber = x.PhoneNumber,
+                    UserName = x.UserName,
+                    FirstName = x.FirstName,
+                    Id = x.Id,
+                    LastName = x.LastName
+                }).ToListAsync();
+
+            //4. Select and projection
+            var pagedResult = new PagedResult<UserVm>()
+            {
+                TotalRecord = totalRow,
+                Items = data
+            };
+            return pagedResult;
+        }
+
+
     }
 }

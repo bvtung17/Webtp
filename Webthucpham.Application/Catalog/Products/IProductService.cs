@@ -10,7 +10,7 @@ using Webthucpham.ViewModels.Common;
 
 namespace Webthucpham.Application.Catalog.Products
 {
-    public interface IManageProductService //quan ly
+    public interface IProductService //quan ly
     {
         Task<int> Create(ProductCreateRequest request);
         Task<int> Update(ProductUpdateRequest request);
@@ -34,6 +34,9 @@ namespace Webthucpham.Application.Catalog.Products
 
         Task<ProductImageViewModel> GetImageById(int imageId);
         Task<List<ProductImageViewModel>> GetListImages(int productId);
-   
+
+        Task<PagedResult<ProductViewModel>> GetAllByCategoryId(string languageId, GetPublicProductPagingRequest request);
+
+
     }
 }

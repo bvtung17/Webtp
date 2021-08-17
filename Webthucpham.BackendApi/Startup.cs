@@ -45,8 +45,8 @@ namespace Webthucpham.BackendApi
                 .AddDefaultTokenProviders();
             //DECLARE DI
             services.AddTransient<IStorageService, FileStorageService>();
-            services.AddTransient<IPublicProductService, PublicProductService>();
-            services.AddTransient<IManageProductService, ManageProductService>();
+            services.AddTransient<IProductService, ProductService>();
+            services.AddTransient<IProductService, ProductService>();
 
             // đăng nhập đăng ký 
             services.AddTransient < UserManager<AppUser>, UserManager <AppUser>>();

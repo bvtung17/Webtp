@@ -18,12 +18,12 @@ using Webthucpham.ViewModels.Catalog.ProductImages;
 
 namespace Webthucpham.Application.Catalog.Products
 {
-    public class ManageProductService : IManageProductService // kế thừa
+    public class ProductService : IProductService // kế thừa
     {
 
         private readonly WebthucphamDbContext _context; //đọc dataBase
         private readonly IStorageService _storageService; // đọc
-        public ManageProductService(WebthucphamDbContext context, IStorageService storageService)
+        public ProductService(WebthucphamDbContext context, IStorageService storageService)
         {
             _context = context; //gán 1 lần
             _storageService = storageService;
@@ -337,6 +337,58 @@ namespace Webthucpham.Application.Catalog.Products
             return fileName;
         }
 
-       
+
+        // Product
+        public async Task<PagedResult<ProductViewModel>> GetAllByCategoryId(string languageId, GetPublicProductPagingRequest request)
+        {
+            //using linq
+
+            //1 : select join
+            var query = from p in _context.Products
+                        join pt in _context.ProductTranslations on p.Id equals pt.ProductId // với bảng Translation
+                        join pic in _context.ProductInCategories on p.Id equals pic.ProductId //với bảng ProcutInCategory
+                        join c in _context.Categories on pic.CategoryId equals c.Id           // với bảng Category
+                        where pt.LanguageId == languageId
+                        select new { p, pt, pic };
+
+
+            // 2 : filter
+
+            if (request.CategoryId.HasValue && request.CategoryId.Value > 0)
+            {
+                query = query.Where(p => p.pic.CategoryId == request.CategoryId);
+            }
+            //3 : Paging
+            int totalRow = await query.CountAsync();
+            //add data
+            var data = await query.Skip((request.PageIndex - 1) * request.PageSize)
+                .Take(request.PageSize)
+                .Select(x => new ProductViewModel()
+                {
+                    Id = x.p.Id,
+                    Name = x.pt.Name,
+                    DateCreated = x.p.DateCreated,
+                    Description = x.pt.Description,
+                    Details = x.pt.Details,
+                    LanguageId = x.pt.LanguageId,
+                    OriginalPrice = x.p.OriginalPrice,
+                    Price = x.p.Price,
+                    SeoAlias = x.pt.SeoAlias,
+                    SeoDescription = x.pt.SeoDescription,
+                    Stock = x.p.Stock,
+                    ViewCount = x.p.ViewCount
+
+                }).ToListAsync();
+
+            // 4 :  Select and Project
+            var pagedResult = new PagedResult<ProductViewModel>
+            {
+                TotalRecord = totalRow,
+                Items = data
+            };
+            return pagedResult;
+
+        }
+
     }
 }

@@ -17,6 +17,7 @@ namespace Webthucpham.AdminApp
 {
     public class Startup
     {
+
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
@@ -29,6 +30,7 @@ namespace Webthucpham.AdminApp
         {
             services.AddHttpClient();
 
+           
             services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
                 .AddCookie(options =>
                 {
@@ -39,6 +41,12 @@ namespace Webthucpham.AdminApp
 
             services.AddControllersWithViews()
                 .AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<LoginRequestValidator>()); ;
+
+
+            services.AddSession(options =>
+            {
+                options.IdleTimeout = TimeSpan.FromMinutes(30);
+            });
 
             services.AddTransient<IUserApiClient, UserApiClient>();
         }
@@ -64,6 +72,8 @@ namespace Webthucpham.AdminApp
             app.UseRouting();
 
             app.UseAuthorization();
+
+            app.UseSession();
 
             app.UseEndpoints(endpoints =>
             {

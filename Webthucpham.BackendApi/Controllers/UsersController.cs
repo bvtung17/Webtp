@@ -32,17 +32,19 @@ namespace Webthucpham.BackendApi.Controllers
                 return BadRequest(ModelState);
             }
 
+
             var resultToken = await _userservice.Authencate(request);
             if (string.IsNullOrEmpty(resultToken))
             {
                 return BadRequest("Tài khoản hoặc mật khẩu không đúng");
             }
+        
             return Ok(resultToken);
         }
 
 
         // ĐĂNG KÝ
-        [HttpPost("register")]
+        [HttpPost]
         [AllowAnonymous]
         public async Task<IActionResult> Register([FromBody] RegisterRequest request)
         {
@@ -57,6 +59,14 @@ namespace Webthucpham.BackendApi.Controllers
                 return BadRequest("Không hỗ trợ đăng ký");
             }
             return Ok();
+        }
+
+        //localhost/api/user/paging?pageIndex=1&
+        [HttpGet("paging")]
+        public async Task<IActionResult> GetAllPaging([FromQuery] GetUserPagingRequest request) // lay tu query
+        {
+            var products = await _userservice.GetUsersPaging(request);
+            return Ok(products);
         }
 
     }
