@@ -97,6 +97,8 @@ namespace Webthucpham.Application.System.Users
             //3. Paging
             int totalRow = await query.CountAsync();
 
+            //request.PageSize = 10;
+
             var data = await query.Skip((request.PageIndex - 1) * request.PageSize)
                 .Take(request.PageSize)
                 .Select(x => new UserVm()
@@ -107,7 +109,7 @@ namespace Webthucpham.Application.System.Users
                     FirstName = x.FirstName,
                     Id = x.Id,
                     LastName = x.LastName
-                }).ToListAsync();
+                }).ToListAsync(); //Coi lai cho nay
 
             //4. Select and projection
             var pagedResult = new PagedResult<UserVm>()

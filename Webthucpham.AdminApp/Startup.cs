@@ -34,7 +34,7 @@ namespace Webthucpham.AdminApp
             services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
                 .AddCookie(options =>
                 {
-                    options.LoginPath = "/User/Login/";
+                    options.LoginPath = "/Login/Index";
                     options.AccessDeniedPath = "/User/Forbidden/";
                 });
 
