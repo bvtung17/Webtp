@@ -26,7 +26,7 @@ namespace Webthucpham.AdminApp.Controllers
             _userApiClient = userApiClient;
             _configuration = configuration;
         }
-        public async Task<IActionResult> Index(string keyword, int pageIndex = 1, int pageSize = 100) // để y cái này
+        public async Task<IActionResult> Index(string keyword, int pageIndex = 1, int pageSize = 4) // để y cái này
         {
             var sessions = HttpContext.Session.GetString("Token");
             var request = new GetUserPagingRequest()
@@ -55,7 +55,7 @@ namespace Webthucpham.AdminApp.Controllers
                 return View();
 
             var result = await _userApiClient.RegisterUser(request);
-            // bị sai
+          
             if (result.IsSuccessed)
             {
                 return RedirectToAction("Index");
@@ -65,7 +65,7 @@ namespace Webthucpham.AdminApp.Controllers
             return View(request);
         }
 
-        //UPDATE
+        //EDIT
 
         [HttpGet]
         public async Task<IActionResult> Edit(Guid id)
@@ -90,6 +90,8 @@ namespace Webthucpham.AdminApp.Controllers
             return RedirectToAction("Error, Home");
         }
 
+
+
         [HttpPost]
         public async Task<IActionResult> Edit(UserUpdateRequest request)
         {
@@ -105,6 +107,37 @@ namespace Webthucpham.AdminApp.Controllers
             return View(request);
         }
 
+
+        //THÔNG TIN USER
+        [HttpGet]
+        public async Task<IActionResult> Details(Guid id)
+        {
+            var result = await _userApiClient.GetById(id);
+            return View(result.ResultObj);
+        }
+
+
+        //DELETE 
+        [HttpGet]
+        public IActionResult Delete(Guid id)
+        {
+            return View();
+           
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Delete(UserDeleteRequest request)
+        {
+            if (!ModelState.IsValid)
+                return View();
+
+            var result = await _userApiClient.Delete(request.Id);
+            if (result.IsSuccessed)
+                return RedirectToAction("Index");
+
+            ModelState.AddModelError("", result.Message);
+            return View(request);
+        }
         //LOGOUT
         [HttpPost]
         public async Task<IActionResult> Logout()

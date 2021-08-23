@@ -44,6 +44,22 @@ namespace Webthucpham.AdminApp.Services
             }
         }
 
+        //DELETE USER 
+
+        public async Task<ApiResult<bool>> Delete(Guid id)
+        {
+            var sessions = _httpContextAccessor.HttpContext.Session.GetString("Token");
+            var client = _httpClientFactory.CreateClient();
+            client.BaseAddress = new Uri(_configuration["BaseAddress"]);
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", sessions);
+            var response = await client.DeleteAsync($"/api/users/{id}");
+            var body = await response.Content.ReadAsStringAsync();
+            if (response.IsSuccessStatusCode)
+             return JsonConvert.DeserializeObject<ApiSuccessResult<bool>>(body);
+
+            return JsonConvert.DeserializeObject<ApiErrorResult<bool>>(body);
+            
+        }
         //GET ID USE
         public async Task<ApiResult<UserVm>> GetById(Guid id)
         {
@@ -54,14 +70,10 @@ namespace Webthucpham.AdminApp.Services
             var response = await client.GetAsync($"/api/users/{id}");
             var body = await response.Content.ReadAsStringAsync();
             if (response.IsSuccessStatusCode)
-            {
                 return JsonConvert.DeserializeObject<ApiSuccessResult<UserVm>>(body);
-            }
-            else
-            {
-                return JsonConvert.DeserializeObject<ApiErrorResult<UserVm>>(body);
-            }
-            
+
+            return JsonConvert.DeserializeObject<ApiErrorResult<UserVm>>(body);
+
         }
 
         //GET USER
@@ -80,25 +92,20 @@ namespace Webthucpham.AdminApp.Services
         //ĐĂNG KÝ
         public async Task<ApiResult<bool>> RegisterUser(RegisterRequest registerRequest)
         {
+
             var client = _httpClientFactory.CreateClient();
             client.BaseAddress = new Uri(_configuration["BaseAddress"]);
 
             var json = JsonConvert.SerializeObject(registerRequest);
             var httpContent = new StringContent(json, Encoding.UTF8, "application/json");
 
-            var response = await client.PostAsync($"/api/users/",httpContent);
-
+            var response = await client.PostAsync($"/api/users", httpContent);
             var result = await response.Content.ReadAsStringAsync();
-
             if (response.IsSuccessStatusCode)
-            {
                 return JsonConvert.DeserializeObject<ApiSuccessResult<bool>>(result);
-            }
-            else
-            {
-                return JsonConvert.DeserializeObject<ApiErrorResult<bool>>(result);
-            }
-          
+
+            return JsonConvert.DeserializeObject<ApiErrorResult<bool>>(result);
+
         }
 
         //UPDATE
@@ -106,7 +113,6 @@ namespace Webthucpham.AdminApp.Services
         {
             var client = _httpClientFactory.CreateClient();
             client.BaseAddress = new Uri(_configuration["BaseAddress"]);
-
             var sessions = _httpContextAccessor.HttpContext.Session.GetString("Token");
 
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", sessions);
@@ -115,17 +121,11 @@ namespace Webthucpham.AdminApp.Services
             var httpContent = new StringContent(json, Encoding.UTF8, "application/json");
 
             var response = await client.PutAsync($"/api/users/{id}", httpContent);
-
             var result = await response.Content.ReadAsStringAsync();
-
             if (response.IsSuccessStatusCode)
-            {
                 return JsonConvert.DeserializeObject<ApiSuccessResult<bool>>(result);
-            }
-            else
-            {
-                return JsonConvert.DeserializeObject<ApiErrorResult<bool>>(result);
-            }
+
+            return JsonConvert.DeserializeObject<ApiErrorResult<bool>>(result);
         }
     }
 }

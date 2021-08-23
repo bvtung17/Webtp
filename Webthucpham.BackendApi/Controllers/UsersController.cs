@@ -86,12 +86,20 @@ namespace Webthucpham.BackendApi.Controllers
             return Ok(products);
         }
 
-        //get id USER
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(Guid id)
         {
             var user = await _userService.GetById(id);
             return Ok(user);
+        }
+
+
+        //XÓA NGƯỜI DÙNG
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete(Guid id)
+        {
+            var result = await _userService.Delete(id);
+            return Ok(result);
         }
     }
 }

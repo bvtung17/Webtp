@@ -125,7 +125,9 @@ namespace Webthucpham.Application.System.Users
             //4. Select and projection
             var pagedResult = new PagedResult<UserVm>()
             {
-                TotalRecord = totalRow,
+                TotalRecords = totalRow,
+                PageIndex = request.PageIndex,
+                PageSize = request.PageSize,
                 Items = data
             };
             return new ApiSuccessResult<PagedResult<UserVm>>(pagedResult);
@@ -148,7 +150,8 @@ namespace Webthucpham.Application.System.Users
                 FirstName = user.FirstName,
                 Dob = user.Dob,
                 Id = user.Id,
-                LastName = user.LastName
+                LastName = user.LastName,
+                UserName =user.UserName
             };
             return new ApiSuccessResult<UserVm>(userVm);
         }
@@ -174,5 +177,20 @@ namespace Webthucpham.Application.System.Users
             }
             return new ApiErrorResult<bool>("Cập nhật không thành công");
         }
+        //DELETE USER
+
+        public async Task<ApiResult<bool>> Delete(Guid id)
+        {
+            var user = await _userManager.FindByIdAsync(id.ToString());
+            if (user == null)
+            {
+                return new ApiErrorResult<bool>("User không tồn tại");
+            }
+            var result = await _userManager.DeleteAsync(user);
+            if (result.Succeeded)
+                return new ApiSuccessResult<bool>();
+            return new ApiErrorResult<bool>("Xóa không thành công");
+        }
+ 
     }
 }
