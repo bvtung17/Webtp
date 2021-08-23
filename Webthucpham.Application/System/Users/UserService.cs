@@ -13,6 +13,7 @@ using Webthucpham.Data.Entities;
 using Webthucpham.ViewModels.Common;
 using Webthucpham.ViewModels.System.Users;
 
+
 namespace Webthucpham.Application.System.Users
 {
     public class UserService : IUserService
@@ -31,7 +32,7 @@ namespace Webthucpham.Application.System.Users
             _config = config;
         }
         // đăng nhập
-        public async Task<string> Authencate(LoginRequest request)
+        public async Task<ApiResult<string>> Authencate(LoginRequest request)
         {
             var user = await _userManager.FindByNameAsync(request.UserName);
             if (user == null)
@@ -61,13 +62,23 @@ namespace Webthucpham.Application.System.Users
                 expires: DateTime.Now.AddHours(3),
                 signingCredentials: creds);
 
-            return new JwtSecurityTokenHandler().WriteToken(token);
+            return new ApiSuccessResult<string>(new JwtSecurityTokenHandler().WriteToken(token));
         }
 
         //Đăng ký
-        public async Task<bool> Register(RegisterRequest request)
+        public async Task<ApiResult<bool>> Register(RegisterRequest request)
         {
-            var user = new AppUser()
+
+            var user = await _userManager.FindByNameAsync(request.UserName);
+            if (user != null)
+            {
+                return new ApiErrorResult<bool>("Tài khoản đã tồn tại");
+            }
+            if (await _userManager.FindByEmailAsync(request.Email) != null)
+            {
+                return new ApiErrorResult<bool>("Email đã tồn tại");
+            }
+            user = new AppUser()
             {
                 Dob = request.Dob,
                 Email = request.Email,
@@ -76,16 +87,16 @@ namespace Webthucpham.Application.System.Users
                 UserName = request.UserName,
                 PhoneNumber = request.PhoneNumber
             };
-            var result = await _userManager.CreateAsync(user, request.Password); // tryen user pass
+            var result = await _userManager.CreateAsync(user, request.Password);
+            ; // tryen user pass
             if (result.Succeeded)
             {
-                return true;
+                return new ApiSuccessResult<bool>();
             }
-            return false;
-
+            return new ApiErrorResult<bool>("Đăng ký không thành công");
         }
         //Get user
-        public async Task<PagedResult<UserVm>> GetUsersPaging(GetUserPagingRequest request)
+        public async Task<ApiResult<PagedResult<UserVm>>> GetUsersPaging(GetUserPagingRequest request)
         {
             var query = _userManager.Users;
             if (!string.IsNullOrEmpty(request.Keyword))
@@ -117,9 +128,51 @@ namespace Webthucpham.Application.System.Users
                 TotalRecord = totalRow,
                 Items = data
             };
-            return pagedResult;
+            return new ApiSuccessResult<PagedResult<UserVm>>(pagedResult);
+
+
         }
 
+        //Get Id USER
+        public async Task<ApiResult<UserVm>> GetById(Guid id)
+        {
+            var user = await _userManager.FindByIdAsync(id.ToString());
+            if (user == null)
+            {
+                return new ApiErrorResult<UserVm>("User không tồn tại");
+            }
+            var userVm = new UserVm()
+            {
+                Email = user.Email,
+                PhoneNumber = user.PhoneNumber,
+                FirstName = user.FirstName,
+                Dob = user.Dob,
+                Id = user.Id,
+                LastName = user.LastName
+            };
+            return new ApiSuccessResult<UserVm>(userVm);
+        }
+        
+        //Update
+        public async Task<ApiResult<bool>> Update(Guid id, UserUpdateRequest request)
+        {
+            if (await _userManager.Users.AnyAsync(x => x.Email == request.Email && x.Id != id))
+            {
+                return new ApiErrorResult<bool>("Emai đã tồn tại");
+            }
+            var user = await _userManager.FindByIdAsync(id.ToString());
+            user.Dob = request.Dob;
+            user.Email = request.Email;
+            user.FirstName = request.FirstName;
+            user.LastName = request.LastName;
+            user.PhoneNumber = request.PhoneNumber;
 
+            var result = await _userManager.UpdateAsync(user);
+            if (result.Succeeded)
+            {
+                return new ApiSuccessResult<bool>();
+            }
+            return new ApiErrorResult<bool>("Cập nhật không thành công");
+        }
     }
 }

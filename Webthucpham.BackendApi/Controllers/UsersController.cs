@@ -1,4 +1,4 @@
-﻿using System;
+﻿ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -15,10 +15,10 @@ namespace Webthucpham.BackendApi.Controllers
 
     public class UsersController : ControllerBase
     {
-        private readonly IUserService _userservice;
+        private readonly IUserService _userService;
         public UsersController(IUserService userService)
         {
-            _userservice = userService;
+            _userService = userService;
         }
 
 
@@ -32,14 +32,13 @@ namespace Webthucpham.BackendApi.Controllers
                 return BadRequest(ModelState);
             }
 
-
-            var resultToken = await _userservice.Authencate(request);
-            if (string.IsNullOrEmpty(resultToken))
+            var result = await _userService.Authencate(request);
+            if (string.IsNullOrEmpty(result.ResultObj))
             {
-                return BadRequest("Tài khoản hoặc mật khẩu không đúng");
+                return BadRequest(result);
             }
         
-            return Ok(resultToken);
+            return Ok(result);
         }
 
 
@@ -53,21 +52,46 @@ namespace Webthucpham.BackendApi.Controllers
                 return BadRequest(ModelState);
             }
 
-            var result = await _userservice.Register(request);
-            if (!result)
+            var result = await _userService.Register(request);
+            if (!result.IsSuccessed)
             {
-                return BadRequest("Không hỗ trợ đăng ký");
+                return BadRequest(result);
             }
-            return Ok();
+            return Ok(result);
         }
+
+        // Update
+        //PUT: http://localhost/api/users/id
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Update(Guid id, [FromBody] UserUpdateRequest request)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var result = await _userService.Update(id, request);
+            if (!result.IsSuccessed)
+            {
+                return BadRequest(result);
+            }
+            return Ok(result);
+        }
+
+
 
         //localhost/api/user/paging?pageIndex=1&
         [HttpGet("paging")]
         public async Task<IActionResult> GetAllPaging([FromQuery] GetUserPagingRequest request) // lay tu query
         {
-            var products = await _userservice.GetUsersPaging(request);
+            var products = await _userService.GetUsersPaging(request);
             return Ok(products);
         }
 
+        //get id USER
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetById(Guid id)
+        {
+            var user = await _userService.GetById(id);
+            return Ok(user);
+        }
     }
 }

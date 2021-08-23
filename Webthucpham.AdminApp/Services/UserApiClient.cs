@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -16,36 +17,68 @@ namespace Webthucpham.AdminApp.Services
     {
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly IConfiguration _configuration;
-        public UserApiClient(IHttpClientFactory httpClientFactory, IConfiguration configuration) // tạo đối tượng 
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        public UserApiClient(IHttpClientFactory httpClientFactory, IConfiguration configuration, IHttpContextAccessor httpContextAccessor) // tạo đối tượng 
         {
             _httpClientFactory = httpClientFactory;
             _configuration = configuration;
+            _httpContextAccessor = httpContextAccessor;
+
+
         }
-        public async Task<string> Authenticate(LoginRequest request)
+        //ĐĂNG NHẬP
+        public async Task<ApiResult<string>> Authenticate(LoginRequest request)
         {
             var json = JsonConvert.SerializeObject(request);
             var httpContent = new StringContent(json, Encoding.UTF8, "application/json");
             var client = _httpClientFactory.CreateClient();
             client.BaseAddress = new Uri(_configuration["BaseAddress"]);
             var response = await client.PostAsync("/api/users/authenticate", httpContent);
-            var token = await response.Content.ReadAsStringAsync();
-            return token;
+            if (response.IsSuccessStatusCode)
+            {
+                return JsonConvert.DeserializeObject<ApiSuccessResult<string>>(await response.Content.ReadAsStringAsync());
+            }
+            else
+            {
+                return JsonConvert.DeserializeObject<ApiErrorResult<string>>(await response.Content.ReadAsStringAsync());
+            }
         }
 
-        public async Task<PagedResult<UserVm>> GetUsersPagings(GetUserPagingRequest request)
+        //GET ID USE
+        public async Task<ApiResult<UserVm>> GetById(Guid id)
         {
-
+            var sessions = _httpContextAccessor.HttpContext.Session.GetString("Token");
             var client = _httpClientFactory.CreateClient();
             client.BaseAddress = new Uri(_configuration["BaseAddress"]);
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", request.BearerToken);
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", sessions);
+            var response = await client.GetAsync($"/api/users/{id}");
+            var body = await response.Content.ReadAsStringAsync();
+            if (response.IsSuccessStatusCode)
+            {
+                return JsonConvert.DeserializeObject<ApiSuccessResult<UserVm>>(body);
+            }
+            else
+            {
+                return JsonConvert.DeserializeObject<ApiErrorResult<UserVm>>(body);
+            }
+            
+        }
+
+        //GET USER
+        public async Task<ApiResult<PagedResult<UserVm>>> GetUsersPagings(GetUserPagingRequest request)
+        {
+            var sessions = _httpContextAccessor.HttpContext.Session.GetString("Token");
+            var client = _httpClientFactory.CreateClient();
+            client.BaseAddress = new Uri(_configuration["BaseAddress"]);
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", sessions);
             var response = await client.GetAsync($"/api/users/paging?pageIndex=" +
                 $"{request.PageIndex}&pageSize={request.PageSize}&keyword={request.Keyword}");
             var body = await response.Content.ReadAsStringAsync();
-            var users = JsonConvert.DeserializeObject<PagedResult<UserVm>>(body);
+            var users = JsonConvert.DeserializeObject<ApiSuccessResult<PagedResult<UserVm>>>(body);
             return users;
         }
-
-        public async Task<bool> RegisterUser(RegisterRequest registerRequest)
+        //ĐĂNG KÝ
+        public async Task<ApiResult<bool>> RegisterUser(RegisterRequest registerRequest)
         {
             var client = _httpClientFactory.CreateClient();
             client.BaseAddress = new Uri(_configuration["BaseAddress"]);
@@ -54,7 +87,45 @@ namespace Webthucpham.AdminApp.Services
             var httpContent = new StringContent(json, Encoding.UTF8, "application/json");
 
             var response = await client.PostAsync($"/api/users/",httpContent);
-            return response.IsSuccessStatusCode; 
+
+            var result = await response.Content.ReadAsStringAsync();
+
+            if (response.IsSuccessStatusCode)
+            {
+                return JsonConvert.DeserializeObject<ApiSuccessResult<bool>>(result);
+            }
+            else
+            {
+                return JsonConvert.DeserializeObject<ApiErrorResult<bool>>(result);
+            }
+          
+        }
+
+        //UPDATE
+        public async Task<ApiResult<bool>> UpdateUsser(Guid id, UserUpdateRequest request)
+        {
+            var client = _httpClientFactory.CreateClient();
+            client.BaseAddress = new Uri(_configuration["BaseAddress"]);
+
+            var sessions = _httpContextAccessor.HttpContext.Session.GetString("Token");
+
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", sessions);
+
+            var json = JsonConvert.SerializeObject(request);
+            var httpContent = new StringContent(json, Encoding.UTF8, "application/json");
+
+            var response = await client.PutAsync($"/api/users/{id}", httpContent);
+
+            var result = await response.Content.ReadAsStringAsync();
+
+            if (response.IsSuccessStatusCode)
+            {
+                return JsonConvert.DeserializeObject<ApiSuccessResult<bool>>(result);
+            }
+            else
+            {
+                return JsonConvert.DeserializeObject<ApiErrorResult<bool>>(result);
+            }
         }
     }
 }
