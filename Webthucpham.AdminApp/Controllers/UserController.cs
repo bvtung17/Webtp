@@ -38,6 +38,11 @@ namespace Webthucpham.AdminApp.Controllers
             };
            
             var data = await _userApiClient.GetUsersPagings(request);
+            ViewBag.Keyword = keyword;
+            if (TempData["result"]!=null)
+            {
+                ViewBag.SuccessMsg = TempData["result"];
+            }
             return View(data.ResultObj);
         }
         //CREATE 
@@ -55,9 +60,10 @@ namespace Webthucpham.AdminApp.Controllers
                 return View();
 
             var result = await _userApiClient.RegisterUser(request);
-          
+
             if (result.IsSuccessed)
             {
+                TempData["result"]="Tạo Tài Khoản Thành Công" ;
                 return RedirectToAction("Index");
             }
 
@@ -101,8 +107,10 @@ namespace Webthucpham.AdminApp.Controllers
 
             var result = await _userApiClient.UpdateUsser(request.Id,request);
             if (result.IsSuccessed)
+            {
+                TempData["result"] = "Cập Nhập Tài Khoản Thành Công";
                 return RedirectToAction("Index");
-
+            }
             ModelState.AddModelError("", result.Message);
             return View(request);
         }
@@ -133,8 +141,10 @@ namespace Webthucpham.AdminApp.Controllers
 
             var result = await _userApiClient.Delete(request.Id);
             if (result.IsSuccessed)
+            {
+                TempData["result"] = "Xóa Tài Khoản Thành Công";
                 return RedirectToAction("Index");
-
+            }
             ModelState.AddModelError("", result.Message);
             return View(request);
         }

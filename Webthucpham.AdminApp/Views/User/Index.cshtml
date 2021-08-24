@@ -5,6 +5,14 @@
     ViewData["Title"] = "Danh sách người dùng";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
+@section Scripts{ 
+<script>
+    setTimeout(function () {
+        $('#msgAlert').fadeOut('slow');
+    }, 300);
+   
+</script>
+}
 <div class="container-fluid">
     <h1 class="mt-4">Danh sách người dùng</h1>
     <ol class="breadcrumb mb-4">
@@ -33,7 +41,14 @@
             </div>
         </div>
 
+
         <div class="card-body">
+            @if (ViewBag.SuccessMsg != null)
+            {
+            <div id="msgAlert" class="alert alert-success" role="alert" >
+                @ViewBag.SuccessMsg
+            </div>
+            }
             <div class="table-responsive">
                 <table class="table table-bordered">
                     <thead>
