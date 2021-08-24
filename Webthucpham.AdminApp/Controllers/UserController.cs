@@ -13,6 +13,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Webthucpham.AdminApp.Services;
+using Webthucpham.ViewModels.Common;
 using Webthucpham.ViewModels.System.Users;
 
 namespace Webthucpham.AdminApp.Controllers
@@ -21,25 +22,27 @@ namespace Webthucpham.AdminApp.Controllers
     {
         private readonly IUserApiClient _userApiClient;
         private readonly IConfiguration _configuration;
-        public UserController(IUserApiClient userApiClient, IConfiguration configuration)
+        private readonly IRoleApiClient _roleApiClient;
+        public UserController(IUserApiClient userApiClient, IConfiguration configuration, IRoleApiClient roleApiClient)
         {
             _userApiClient = userApiClient;
             _configuration = configuration;
+            _roleApiClient = roleApiClient;
         }
         public async Task<IActionResult> Index(string keyword, int pageIndex = 1, int pageSize = 4) // để y cái này
         {
             var sessions = HttpContext.Session.GetString("Token");
             var request = new GetUserPagingRequest()
             {
-               
+
                 Keyword = keyword,
                 PageIndex = pageIndex,
                 PageSize = pageSize
             };
-           
+
             var data = await _userApiClient.GetUsersPagings(request);
             ViewBag.Keyword = keyword;
-            if (TempData["result"]!=null)
+            if (TempData["result"] != null)
             {
                 ViewBag.SuccessMsg = TempData["result"];
             }
@@ -47,7 +50,7 @@ namespace Webthucpham.AdminApp.Controllers
         }
         //CREATE 
         [HttpGet]
-        public IActionResult  Create()
+        public IActionResult Create()
         {
             return View();
         }
@@ -63,7 +66,7 @@ namespace Webthucpham.AdminApp.Controllers
 
             if (result.IsSuccessed)
             {
-                TempData["result"]="Tạo Tài Khoản Thành Công" ;
+                TempData["result"] = "Tạo Tài Khoản Thành Công";
                 return RedirectToAction("Index");
             }
 
@@ -91,7 +94,7 @@ namespace Webthucpham.AdminApp.Controllers
                     Id = id
                 };
                 return View(updateRequest);
-            
+
             }
             return RedirectToAction("Error, Home");
         }
@@ -105,7 +108,7 @@ namespace Webthucpham.AdminApp.Controllers
             if (!ModelState.IsValid)
                 return View();
 
-            var result = await _userApiClient.UpdateUsser(request.Id,request);
+            var result = await _userApiClient.UpdateUser(request.Id, request);
             if (result.IsSuccessed)
             {
                 TempData["result"] = "Cập Nhập Tài Khoản Thành Công";
@@ -129,8 +132,11 @@ namespace Webthucpham.AdminApp.Controllers
         [HttpGet]
         public IActionResult Delete(Guid id)
         {
-            return View();
-           
+            return View(new UserDeleteRequest()
+            {
+                Id = id
+            });
+
         }
 
         [HttpPost]
@@ -157,6 +163,52 @@ namespace Webthucpham.AdminApp.Controllers
             return RedirectToAction("Index", "Login");
         }
 
-       
+
+        //PHAN QUYEN
+
+
+        [HttpGet]
+        public async Task<IActionResult> RoleAssign(Guid id)
+        {
+            var roleAssignRequest = await GetRoleAssignRequest(id);
+            return View(roleAssignRequest);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> RoleAssign(RoleAssignRequest request)
+        {
+            if (!ModelState.IsValid)
+                return View();
+
+            var result = await _userApiClient.RoleAssign(request.Id, request);
+
+            if (result.IsSuccessed)
+            {
+                TempData["result"] = "Cập nhật quyền thành công";
+                return RedirectToAction("Index");
+            }
+
+            ModelState.AddModelError("", result.Message);
+            var roleAssignRequest = await GetRoleAssignRequest(request.Id);
+
+            return View(roleAssignRequest);
+        }
+
+        private async Task<RoleAssignRequest> GetRoleAssignRequest(Guid id)
+        {
+            var userObj = await _userApiClient.GetById(id);
+            var roleObj = await _roleApiClient.GetAll();
+            var roleAssignRequest = new RoleAssignRequest();
+            foreach (var role in roleObj.ResultObj)
+            {
+                roleAssignRequest.Roles.Add(new SelectItem()
+                {
+                    Id = role.Id.ToString(),
+                    Name = role.Name,
+                    Selected = userObj.ResultObj.Roles.Contains(role.Name)
+                });
+            }
+            return roleAssignRequest;
+        }
     }
 }

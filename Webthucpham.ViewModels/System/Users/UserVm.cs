@@ -26,5 +26,7 @@ namespace Webthucpham.ViewModels.System.Users
 
         [Display(Name = "Ngày Sinh")]
         public DateTime Dob { get; set; }
+
+        public IList<string> Roles { get; set; }
     }
 }

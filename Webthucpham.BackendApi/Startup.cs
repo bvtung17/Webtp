@@ -17,6 +17,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Webthucpham.Application.Catalog.Products;
 using Webthucpham.Application.Common;
+using Webthucpham.Application.System.Roles;
 using Webthucpham.Application.System.Users;
 using Webthucpham.Data.EF;
 using Webthucpham.Data.Entities;
@@ -48,11 +49,13 @@ namespace Webthucpham.BackendApi
             services.AddTransient<IProductService, ProductService>();
             services.AddTransient<IProductService, ProductService>();
 
-            // đăng nhập đăng ký 
+            // USER
             services.AddTransient < UserManager<AppUser>, UserManager <AppUser>>();
             services.AddTransient<SignInManager<AppUser>, SignInManager<AppUser>>();
             services.AddTransient<RoleManager<AppRole>, RoleManager<AppRole>>();
             services.AddTransient<IUserService, UserService> ();
+
+            services.AddTransient<IRoleService, RoleService> ();
 
             //ràng buộc đăng nhập đăng ký
             //services.AddTransient<IValidator<LoginRequest>, LoginRequestValidator>();
