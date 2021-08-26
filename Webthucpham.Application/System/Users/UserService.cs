@@ -9,6 +9,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
+using Webthucpham.Data.EF;
 using Webthucpham.Data.Entities;
 using Webthucpham.ViewModels.Common;
 using Webthucpham.ViewModels.System.Users;
@@ -23,13 +24,15 @@ namespace Webthucpham.Application.System.Users
         private readonly SignInManager<AppUser> _signInManager;
         private readonly RoleManager<AppRole> _roleManager;
         private readonly IConfiguration _config;
+        private readonly WebthucphamDbContext _context;
         public UserService(UserManager<AppUser> userManager, SignInManager<AppUser> signInManager,
-            RoleManager<AppRole> roleManager, IConfiguration config)
+            RoleManager<AppRole> roleManager, IConfiguration config, WebthucphamDbContext context)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _roleManager = roleManager;
             _config = config;
+            _context = context;
         }
         // đăng nhập
         public async Task<ApiResult<string>> Authencate(LoginRequest request)
@@ -200,33 +203,49 @@ namespace Webthucpham.Application.System.Users
         public async Task<ApiResult<bool>> RoleAssign(Guid id, RoleAssignRequest request)
         {
             var user = await _userManager.FindByIdAsync(id.ToString());
-            if (user == null)
-            {
-                return new ApiErrorResult<bool>("Tài khoản không tồn tại");
-            }
-            var removedRoles = request.Roles.Where(x => x.Selected == false).Select(x => x.Name).ToList();
-            foreach (var roleName in removedRoles)
-            {
-                if (await _userManager.IsInRoleAsync(user, roleName) == true)
-                {
-                    await _userManager.RemoveFromRoleAsync(user, roleName);
-                }
-               
-            }
-            await _userManager.RemoveFromRolesAsync(user, removedRoles);
+            var userId = user.Id.ToString();
+            //if (user == null)
+            //{
 
-            var addedRoles = request.Roles.Where(x => x.Selected).Select(x => x.Name).ToList();
-            foreach (var roleName in addedRoles)
-            {
-                if (await _userManager.IsInRoleAsync(user, roleName) == false)
-                {
-                    await _userManager.AddToRoleAsync(user, roleName);
-                }
+            //    //return new ApiErrorResult<bool>("Tài khoản không tồn tại");
+            //}
+            var selectedRoles = request.Roles.Where(x => x.Selected).Select(x => x.Name).ToList();
 
+            //Lấy RoleId đã chọn -> List role
+            List<Guid> rolesIdSelected = new List<Guid>();
+            foreach (var i in selectedRoles)
+            {
+                var roleSelected = (from role in _context.Roles
+                                    where role.Name == i
+                                    select role.Id).FirstOrDefault();
+
+                var roleIdSelected = roleSelected;
+                rolesIdSelected.Add(roleIdSelected);
+            }
+
+            //Lấy roleId của user hiện có
+            var rolesUserId = _context.UserRoles.Where(u => u.UserId.ToString() == userId).Select(u => u.RoleId).ToList();
+
+            //Xóa het role
+            foreach (var role in rolesUserId)
+            {
+                var removedRole = await _context.UserRoles.Where(u => u.UserId.ToString() == userId).FirstOrDefaultAsync();
+                _context.UserRoles.Remove(removedRole);
+                _context.SaveChanges();
+            }
+
+            foreach (var roleId in rolesIdSelected)
+            {
+                //Lay duoc userId va RoleId can them
+                _context.UserRoles.Add(new IdentityUserRole<Guid>
+                {
+                    RoleId = roleId,
+                    UserId = Guid.Parse(userId)
+                });
+                _context.SaveChanges();
             }
 
             return new ApiSuccessResult<bool>();
-
         }
     }
 }
