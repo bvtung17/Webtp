@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Webthucpham.ViewModels.Catalog.ProductImages
+namespace Webthucpham.ViewModels.Catalog.Products
 {
     public class ProductCreateRequest
     {

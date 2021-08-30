@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using Webthucpham.Application.Catalog.Products;
 using Webthucpham.ViewModels.Catalog.ProductImages;
+using Webthucpham.ViewModels.Catalog.Products;
 
 namespace Webthucpham.BackendApi.Controllers
 {
@@ -23,11 +24,11 @@ namespace Webthucpham.BackendApi.Controllers
             _productService = productService;
         }
 
-        //http://locahost:port/product/PageIndex=1&pagesize=10&CategoryId=
-        [HttpGet("{languageId}")]
-        public async Task<IActionResult> GetAllPaging(string languageId, [FromQuery] GetPublicProductPagingRequest request) // lay tu query
+        //http://locahost:port/product/PageIndex=1
+        [HttpGet("paging")]
+        public async Task<IActionResult> GetAllPaging([FromQuery] GetManageProductPagingRequest request) // lay tu query
         {
-            var products = await _productService.GetAllByCategoryId(languageId, request);
+            var products = await _productService.GetAllPaging(request);
             return Ok(products);
         }
 

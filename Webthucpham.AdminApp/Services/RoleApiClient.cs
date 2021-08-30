@@ -13,7 +13,7 @@ using Webthucpham.ViewModels.System.Roles;
 
 namespace Webthucpham.AdminApp.Services
 {
-    public class RoleApiClient : IRoleApiClient
+    public class RoleApiClient : BaseApiClient, IRoleApiClient
     {
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly IConfiguration _configuration;
@@ -21,27 +21,15 @@ namespace Webthucpham.AdminApp.Services
 
         public RoleApiClient(IHttpClientFactory httpClientFactory,
                    IHttpContextAccessor httpContextAccessor,
-                    IConfiguration configuration)
+                    IConfiguration configuration) : base(httpClientFactory, httpContextAccessor, configuration)
         {
-            _configuration = configuration;
-            _httpContextAccessor = httpContextAccessor;
-            _httpClientFactory = httpClientFactory;
+            
         }
 
         public async Task<ApiResult<List<RoleVm>>> GetAll()
         {
-            var sessions = _httpContextAccessor.HttpContext.Session.GetString("Token");
-            var client = _httpClientFactory.CreateClient();
-            client.BaseAddress = new Uri(_configuration["BaseAddress"]);
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", sessions);
-            var response = await client.GetAsync($"/api/roles");
-            var body = await response.Content.ReadAsStringAsync();
-            if (response.IsSuccessStatusCode)
-            {
-                List<RoleVm> myDeserializedObjList = (List<RoleVm>)JsonConvert.DeserializeObject(body, typeof(List<RoleVm>));
-                return new ApiSuccessResult<List<RoleVm>>(myDeserializedObjList);
-            }
-            return JsonConvert.DeserializeObject<ApiErrorResult<List<RoleVm>>>(body);
+            return await GetAsync<ApiResult<List<RoleVm>>>("/api/roles");
+            
         }
     }
 }
