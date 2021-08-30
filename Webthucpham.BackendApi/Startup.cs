@@ -17,6 +17,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Webthucpham.Application.Catalog.Products;
 using Webthucpham.Application.Common;
+using Webthucpham.Application.System.Languages;
 using Webthucpham.Application.System.Roles;
 using Webthucpham.Application.System.Users;
 using Webthucpham.Data.EF;
@@ -39,7 +40,7 @@ namespace Webthucpham.BackendApi
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddDbContext<WebthucphamDbContext>(options =>
-            options.UseSqlServer(Configuration.GetConnectionString(SystemContants.MainConnectionString)));
+            options.UseSqlServer(Configuration.GetConnectionString(SystemConstants.MainConnectionString)));
 
             services.AddIdentity<AppUser, AppRole>()
                 .AddEntityFrameworkStores<WebthucphamDbContext>()
@@ -53,9 +54,12 @@ namespace Webthucpham.BackendApi
             services.AddTransient < UserManager<AppUser>, UserManager <AppUser>>();
             services.AddTransient<SignInManager<AppUser>, SignInManager<AppUser>>();
             services.AddTransient<RoleManager<AppRole>, RoleManager<AppRole>>();
+
+            services.AddTransient<ILanguageService, LanguageService>();
             services.AddTransient<IUserService, UserService> ();
 
             services.AddTransient<IRoleService, RoleService> ();
+
 
             //ràng buộc đăng nhập đăng ký
             //services.AddTransient<IValidator<LoginRequest>, LoginRequestValidator>();
