@@ -111,18 +111,18 @@ namespace Webthucpham.Application.Catalog.Products
             //1 : select join
             var query = from p in _context.Products
                         join pt in _context.ProductTranslations on p.Id equals pt.ProductId // với bảng Translation
-                        //join pic in _context.ProductInCategories on p.Id equals pic.ProductId //với bảng ProcutInCategory
-                        //join c in _context.Categories on pic.CategoryId equals c.Id           // với bảng Category
+                        join pic in _context.ProductInCategories on p.Id equals pic.ProductId //với bảng ProcutInCategory
+                        join c in _context.Categories on pic.CategoryId equals c.Id           // với bảng Category
                         where pt.LanguageId == request.LanguageId
-                        select new { p, pt };//,pic 
+                        select new { p, pt,pic }; 
 
             // 2 : filter
             if (!string.IsNullOrEmpty(request.Keyword))
                 query = query.Where(x => x.pt.Name.Contains(request.Keyword));
-            //if (request.CategoryIds != null && request.CategoryIds.Count > 0)
-            //{
-            //    query = query.Where(p => request.CategoryIds.Contains(p.pic.CategoryId));
-            //}
+            if (request.CategoryId != null && request.CategoryId != 0)
+            {
+                query = query.Where(p => p.pic.CategoryId == request.CategoryId);
+            }
 
             //3 : Paging
             int totalRow = await query.CountAsync();
@@ -142,7 +142,8 @@ namespace Webthucpham.Application.Catalog.Products
                     SeoAlias = x.pt.SeoAlias,
                     SeoDescription = x.pt.SeoDescription,
                     Stock = x.p.Stock,
-                    ViewCount = x.p.ViewCount
+                    ViewCount = x.p.ViewCount,
+
 
                 }).ToListAsync();
 

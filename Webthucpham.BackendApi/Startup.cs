@@ -15,6 +15,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Webthucpham.Application.Catalog.Categories;
 using Webthucpham.Application.Catalog.Products;
 using Webthucpham.Application.Common;
 using Webthucpham.Application.System.Languages;
@@ -49,7 +50,7 @@ namespace Webthucpham.BackendApi
             services.AddTransient<IStorageService, FileStorageService>();
             services.AddTransient<IProductService, ProductService>();
             services.AddTransient<IProductService, ProductService>();
-
+            services.AddTransient<ICategoryService, CategoryService>();
             // USER
             services.AddTransient < UserManager<AppUser>, UserManager <AppUser>>();
             services.AddTransient<SignInManager<AppUser>, SignInManager<AppUser>>();
