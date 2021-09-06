@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using Webthucpham.ViewModels.Catalog.Categories;
 
 namespace Webthucpham.ViewModels.Catalog.Products
 {
@@ -21,6 +22,7 @@ namespace Webthucpham.ViewModels.Catalog.Products
         public string SeoAlias { get; set; }
         public string LanguageId { set; get; }
 
+        public List<string> Categories { get; set; } = new List<string>();
 
     }
 }
