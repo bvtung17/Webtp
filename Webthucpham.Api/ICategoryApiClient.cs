@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Webthucpham.ViewModels.Catalog.Categories;
 
-namespace Webthucpham.AdminApp.Services
+namespace Webthucpham.Api
 {
     public interface ICategoryApiClient
     {

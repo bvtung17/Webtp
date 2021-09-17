@@ -9,7 +9,7 @@ using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using Webthucpham.Utilities.Constants;
 
-namespace Webthucpham.AdminApp.Services
+namespace Webthucpham.Api
 {
     public class BaseApiClient
     {

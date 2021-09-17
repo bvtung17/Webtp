@@ -11,7 +11,7 @@ using Newtonsoft.Json;
 using Webthucpham.ViewModels.Common;
 using Webthucpham.ViewModels.System.Roles;
 
-namespace Webthucpham.AdminApp.Services
+namespace Webthucpham.Api
 {
         public class RoleApiClient : IRoleApiClient
         {

@@ -12,7 +12,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Logging;
 using Microsoft.IdentityModel.Tokens;
-using Webthucpham.AdminApp.Services;
+using Webthucpham.Api;
 using Webthucpham.ViewModels.Common;
 using Webthucpham.ViewModels.System.Users;
 

@@ -1,4 +1,4 @@
-﻿ using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using System;
@@ -9,11 +9,12 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
+using Webthucpham.Api;
 using Webthucpham.Utilities.Constants;
 using Webthucpham.ViewModels.Catalog.Products;
 using Webthucpham.ViewModels.Common;
 
-namespace Webthucpham.AdminApp.Services
+namespace Webthucpham.Api
 {
     public class ProductApiClient : BaseApiClient, IProductApiClient
     {

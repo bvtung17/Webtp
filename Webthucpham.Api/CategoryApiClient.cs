@@ -5,23 +5,23 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
-using Webthucpham.ViewModels.Common;
-using Webthucpham.ViewModels.System.Languages;
+using Webthucpham.Api;
+using Webthucpham.ViewModels.Catalog.Categories;
 
-namespace Webthucpham.AdminApp.Services
+namespace Webthucpham.Api
 {
-    public class LanguageApiClient : BaseApiClient, ILanguageApiClient
+    public class CategoryApiClient : BaseApiClient, ICategoryApiClient
     {
-        public LanguageApiClient(IHttpClientFactory httpClientFactory,
+        public CategoryApiClient(IHttpClientFactory httpClientFactory,
                    IHttpContextAccessor httpContextAccessor,
                     IConfiguration configuration)
             : base(httpClientFactory, httpContextAccessor, configuration)
         {
         }
 
-        public async Task<ApiResult<List<LanguageVm>>> GetAll()
+        public async Task<List<CategoryVm>> GetAll(string languageId)
         {
-            return await GetAsync<ApiResult<List<LanguageVm>>>("/api/languages");
+            return await GetListAsync<CategoryVm>("/api/categories?languageId=" + languageId);
         }
     }
 }

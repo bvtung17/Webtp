@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 using Webthucpham.ViewModels.Common;
 using Webthucpham.ViewModels.System.Users;
 
-namespace Webthucpham.AdminApp.Services
+namespace Webthucpham.Api
 {
     public class UserApiClient : IUserApiClient
     {

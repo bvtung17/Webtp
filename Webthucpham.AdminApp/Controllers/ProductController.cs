@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.Configuration;
-using Webthucpham.AdminApp.Services;
+using Webthucpham.Api;
 using Webthucpham.Utilities.Constants;
 using Webthucpham.ViewModels.Catalog.Products;
 using Webthucpham.ViewModels.Common;

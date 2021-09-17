@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Webthucpham.ViewModels.Catalog.Products;
 using Webthucpham.ViewModels.Common;
 
-namespace Webthucpham.AdminApp.Services
+namespace Webthucpham.Api
 {
     public interface IProductApiClient
     {

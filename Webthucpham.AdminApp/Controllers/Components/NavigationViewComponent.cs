@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Webthucpham.AdminApp.Models;
-using Webthucpham.AdminApp.Services;
+using Webthucpham.Api;
 using Webthucpham.Utilities.Constants;
 
 namespace Webthucpham.AdminApp.Controllers.Components

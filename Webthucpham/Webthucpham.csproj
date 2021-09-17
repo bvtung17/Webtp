@@ -23,4 +23,8 @@
     <Folder Include="wwwroot\themes\less\oregional\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Webthucpham.Api\Webthucpham.Api.csproj" />
+  </ItemGroup>
+
 </Project>
