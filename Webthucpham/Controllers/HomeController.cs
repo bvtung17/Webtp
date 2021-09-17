@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using LazZiya.ExpressLocalization;
@@ -8,7 +9,9 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Webthucpham.Api;
 using Webthucpham.Models;
+using Webthucpham.Utilities.Constants;
 
 namespace Webthucpham.Controllers
 {
@@ -16,16 +19,28 @@ namespace Webthucpham.Controllers
     {
         private readonly ILogger<HomeController> _logger;
         private readonly ISharedCultureLocalizer _loc;
-        public HomeController(ILogger<HomeController> logger, ISharedCultureLocalizer loc)
+        private readonly ISlideApiClient _slideApiClient;
+        private readonly IProductApiClient _productApiClient;
+        public HomeController(ILogger<HomeController> logger, ISharedCultureLocalizer loc
+            , ISlideApiClient slideApiClient,
+            IProductApiClient productApiClient)
         {
-            _logger = logger;
+            _logger = logger;   
             _loc = loc;
+            _slideApiClient = slideApiClient;
+            _productApiClient = productApiClient;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            var msg = _loc.GetLocalizedString("Vietnamese"); 
-            return View();
+            var culture = CultureInfo.CurrentCulture.Name;
+            var viewModel = new HomeViewModel
+            {
+                Slides = await _slideApiClient.GetAll(),
+                FeaturedProducts = await _productApiClient.GetFeaturedProducts(culture, SystemConstants.ProductSettings.NumberOfFeaturedProducts)
+            };
+
+            return View(viewModel);
         }
 
         public IActionResult Privacy()

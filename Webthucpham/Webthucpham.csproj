@@ -25,6 +25,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Webthucpham.Api\Webthucpham.Api.csproj" />
+    <ProjectReference Include="..\Webthucpham.Application\Webthucpham.Application.csproj" />
   </ItemGroup>
 
 </Project>

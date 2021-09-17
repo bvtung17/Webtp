@@ -21,6 +21,7 @@ using Webthucpham.Application.Common;
 using Webthucpham.Application.System.Languages;
 using Webthucpham.Application.System.Roles;
 using Webthucpham.Application.System.Users;
+using Webthucpham.Application.Utilities.Slides;
 using Webthucpham.Data.EF;
 using Webthucpham.Data.Entities;
 using Webthucpham.Utilities.Constants;
@@ -61,7 +62,7 @@ namespace Webthucpham.BackendApi
 
             services.AddTransient<IRoleService, RoleService> ();
 
-
+            services.AddTransient<ISlideService, SlideService>();
             //ràng buộc đăng nhập đăng ký
             //services.AddTransient<IValidator<LoginRequest>, LoginRequestValidator>();
             //services.AddTransient<IValidator<RegisterRequest>, RegisterRequestValidator>();

@@ -6,11 +6,12 @@ using System.Threading.Tasks;
 using LazZiya.ExpressLocalization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Webthucpham.Api;
 using Webthucpham.LocalizationResources;
 
 namespace Webthucpham
@@ -27,12 +28,14 @@ namespace Webthucpham
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddControllersWithViews();
+            
+            services.AddHttpClient();
             var cultures = new[]
             {
                 new CultureInfo("en-US"),
                 new CultureInfo("vi-VN"),
             };
+
             services.AddControllersWithViews()
               .AddExpressLocalization<ExpressLocalizationResource, ViewLocalizationResource>(ops =>
               {
@@ -64,6 +67,13 @@ namespace Webthucpham
                   };
               }); ;
 
+            services.AddSession(options =>
+            {
+                options.IdleTimeout = TimeSpan.FromMinutes(30);
+            });
+            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+            services.AddTransient<ISlideApiClient, SlideApiClient>();
+            services.AddTransient<IProductApiClient, ProductApiClient>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -85,7 +95,7 @@ namespace Webthucpham
             app.UseRouting();
 
             app.UseAuthorization();
-
+            app.UseSession();
             app.UseRequestLocalization();
 
             app.UseEndpoints(endpoints =>
