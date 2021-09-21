@@ -63,7 +63,6 @@ namespace Webthucpham.Api
             requestContent.Add(new StringContent(request.Stock.ToString()), "stock");
             requestContent.Add(new StringContent(request.Name.ToString()), "name");
             requestContent.Add(new StringContent(request.Description.ToString()), "description");
-
             requestContent.Add(new StringContent(request.Details.ToString()), "details");
             requestContent.Add(new StringContent(request.SeoDescription.ToString()), "seoDescription");
             requestContent.Add(new StringContent(request.SeoTitle.ToString()), "seoTitle");
@@ -114,6 +113,11 @@ namespace Webthucpham.Api
         public async Task<List<ProductVm>> GetFeaturedProducts(string languageId, int take)
         {
             var data = await GetListAsync<ProductVm>($"/api/products/featured/{languageId}/{take}");
+            return data;
+        }
+        public async Task<List<ProductVm>> GetLatestProducts(string languageId, int take)
+        {
+            var data = await GetListAsync<ProductVm>($"/api/products/latest/{languageId}/{take}");
             return data;
         }
     }

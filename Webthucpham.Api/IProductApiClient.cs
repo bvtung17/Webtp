@@ -18,5 +18,6 @@ namespace Webthucpham.Api
 
         Task<ProductVm> GetById(int id, string languageId);
         Task<List<ProductVm>> GetFeaturedProducts(string languageId, int take);
+        Task<List<ProductVm>> GetLatestProducts(string languageId, int take);
     }
 }
