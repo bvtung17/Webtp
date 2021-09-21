@@ -83,14 +83,18 @@ namespace Webthucpham.BackendApi.Controllers
         }
 
         //phuong thuc UpDATE product
-        [HttpPut]
-        public async Task<IActionResult> Update([FromForm] ProductUpdateRequest request)
+        [HttpPut("{productId}")]
+        [Consumes("multipart/form-data")]
+        public async Task<IActionResult> Update([FromRoute] int productId, [FromForm] ProductUpdateRequest request)
         {
-            var affecterResult = await _productService.Update(request);
-            if (affecterResult == 0)
+            if (!ModelState.IsValid)
             {
-                return BadRequest();
+                return BadRequest(ModelState);
             }
+            request.Id = productId;
+            var affectedResult = await _productService.Update(request);
+            if (affectedResult == 0)
+                return BadRequest();
             return Ok();
         }
 

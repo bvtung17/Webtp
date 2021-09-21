@@ -19,5 +19,9 @@ namespace Webthucpham.Utilities.Constants
            
             public const int NumberOfLatestProducts = 6;
         }
+        public class ProductConstants
+        {
+            public const string NA = "N/A";
+        }
     }
 }

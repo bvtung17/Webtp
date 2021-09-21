@@ -9,5 +9,6 @@ namespace Webthucpham.ViewModels.System.Languages
         public string Id { get; set; }
 
         public string Name { get; set; }
+        public bool IsDefault { get; set; }
     }
 }

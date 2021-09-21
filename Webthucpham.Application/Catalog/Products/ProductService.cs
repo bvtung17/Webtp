@@ -15,6 +15,7 @@ using System.IO;
 using Webthucpham.Application.Common;
 using Webthucpham.ViewModels.Catalog.ProductImages;
 using Webthucpham.ViewModels.Catalog.Products;
+using Webthucpham.Utilities.Constants;
 
 namespace Webthucpham.Application.Catalog.Products
 {
@@ -41,6 +42,37 @@ namespace Webthucpham.Application.Catalog.Products
         //Tạo sản phẩm
         public async Task<int> Create(ProductCreateRequest request)
         {
+            var languages = _context.Languages;
+            var translations = new List<ProductTranslation>();
+            foreach (var language in languages)
+
+            {
+
+                if (language.Id == request.LanguageId)
+                {
+                    translations.Add(new ProductTranslation()
+                    {
+                        Name = request.Name,
+                        Description = request.Description,
+                        Details = request.Details,
+                        SeoDescription = request.SeoDescription,
+                        SeoAlias = request.SeoAlias,
+                        SeoTitle = request.SeoTitle,
+                        LanguageId = request.LanguageId
+                    });
+                }
+                else
+                {
+                    translations.Add(new ProductTranslation()
+                    {
+                        Name = SystemConstants.ProductConstants.NA,
+                        Description = SystemConstants.ProductConstants.NA,
+                        SeoAlias = SystemConstants.ProductConstants.NA,
+                        LanguageId = language.Id
+                    });
+                }
+
+            }
             var product = new Product()
             {
                 Price = request.Price,
@@ -48,22 +80,8 @@ namespace Webthucpham.Application.Catalog.Products
                 Stock = request.Stock,
                 ViewCount = 0,
                 DateCreated = DateTime.Now,
-                ProductTranslations = new List<ProductTranslation>()
-                {
-                    new ProductTranslation()
-                    {
-                        Name = request.Name,
-                        Description = request.Description,
-                        Details = request.Details,
-                        SeoDescription= request.SeoDescription,
-                        SeoAlias = request.SeoAlias,
-                        SeoTitle = request.SeoTitle,
-                        LanguageId = request.LanguageId,
-                    }
-
-                }
-            };
-
+                ProductTranslations = translations
+            }; 
 
             //Save image
 
@@ -110,6 +128,7 @@ namespace Webthucpham.Application.Catalog.Products
             //1 : select join
             var query = from p in _context.Products
                         join pt in _context.ProductTranslations on p.Id equals pt.ProductId
+                      
                         join pic in _context.ProductInCategories on p.Id equals pic.ProductId into ppic
                         from pic in ppic.DefaultIfEmpty()
                         join c in _context.Categories on pic.CategoryId equals c.Id into picc
