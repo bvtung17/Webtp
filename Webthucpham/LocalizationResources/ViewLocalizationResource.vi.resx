@@ -120,6 +120,10 @@
   <data name="Add to" xml:space="preserve">
     <value>Thêm Vào</value>
   </data>
+  <data name="available products" xml:space="preserve">
+    <value>sản phẩm có sẵn</value>
+    <comment>/Product/Category</comment>
+  </data>
   <data name="categoryUrl" xml:space="preserve">
     <value>danh-muc</value>
     <comment>Layouts</comment>
@@ -148,9 +152,22 @@
     <value>Đăng Nhập</value>
     <comment>Layouts</comment>
   </data>
+  <data name="New | Available" xml:space="preserve">
+    <value>Mới | Có sẵn</value>
+  </data>
+  <data name="Page" xml:space="preserve">
+    <value>Trang</value>
+  </data>
+  <data name="products" xml:space="preserve">
+    <value>san-pham</value>
+  </data>
   <data name="productUrl" xml:space="preserve">
     <value>san-pham</value>
     <comment>Layouts</comment>
+  </data>
+  <data name="Sort By" xml:space="preserve">
+    <value>Sắp xếp theo</value>
+    <comment>/Product/Category</comment>
   </data>
   <data name="Specials Offer" xml:space="preserve">
     <value>Khuyến Mãi</value>
@@ -163,5 +180,8 @@
   <data name="VIEW" xml:space="preserve">
     <value>XEM</value>
     <comment>/Home/Index</comment>
+  </data>
+  <data name="View details" xml:space="preserve">
+    <value>Xem chi tiết</value>
   </data>
 </root>

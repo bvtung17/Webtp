@@ -13,7 +13,7 @@ namespace Webthucpham.BackendApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
+
     public class ProductsController : ControllerBase
     {
    
@@ -67,6 +67,7 @@ namespace Webthucpham.BackendApi.Controllers
         //phuong thuc create product
         [HttpPost]
         [Consumes("multipart/form-data")]
+        [Authorize]
         public async Task<IActionResult> Create([FromForm] ProductCreateRequest request)
         {
             if (!ModelState.IsValid)
@@ -85,6 +86,7 @@ namespace Webthucpham.BackendApi.Controllers
         //phuong thuc UpDATE product
         [HttpPut("{productId}")]
         [Consumes("multipart/form-data")]
+        [Authorize]
         public async Task<IActionResult> Update([FromRoute] int productId, [FromForm] ProductUpdateRequest request)
         {
             if (!ModelState.IsValid)
@@ -100,6 +102,7 @@ namespace Webthucpham.BackendApi.Controllers
 
         //phuong thuc Delete product
         [HttpDelete("{productId}")]
+        [Authorize] 
         public async Task<IActionResult> Delete(int productId)
         {
             var affecterResult = await _productService.Delete(productId);
@@ -111,6 +114,7 @@ namespace Webthucpham.BackendApi.Controllers
         }
         //phuong thuc UpDATE PRICE
         [HttpPatch("{productId}/{newPrice}")]
+        [Authorize]
         public async Task<IActionResult> UpdatePrice(int productId, decimal newPrice)
         {
             var isSuccesfull = await _productService.UpdatePrice(productId, newPrice);
@@ -125,6 +129,7 @@ namespace Webthucpham.BackendApi.Controllers
 
         //phuong thuc create IMAGE
         [HttpPost("{productId}/image)")]
+        [Authorize]
         public async Task<IActionResult> CreateImage(int productId,  [FromForm] ProductImageCreateRequest request)
         {
 
@@ -161,6 +166,7 @@ namespace Webthucpham.BackendApi.Controllers
 
         // DELETE IMAGE
         [HttpDelete("{productId}/image/{imageId})")]
+        [Authorize]
         public async Task<IActionResult> RemoveImage(int imageId)
         {
 
@@ -193,6 +199,7 @@ namespace Webthucpham.BackendApi.Controllers
         }
         //CATEGORY
         [HttpPut("{id}/categories")]
+        [Authorize]
         public async Task<IActionResult> CategoryAssign(int id, [FromBody] CategoryAssignRequest request)
         {
             if (!ModelState.IsValid)
