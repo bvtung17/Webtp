@@ -24,6 +24,7 @@ namespace Webthucpham.Application.Catalog.Products
 
         private readonly WebthucphamDbContext _context; //đọc dataBase
         private readonly IStorageService _storageService; // đọc
+        private const string USER_CONTENT_FOLDER_NAME = "user-content";
         public ProductService(WebthucphamDbContext context, IStorageService storageService)
         {
             _context = context; //gán 1 lần
@@ -193,6 +194,8 @@ namespace Webthucpham.Application.Catalog.Products
                                     where pic.ProductId == productId && ct.LanguageId == languageId
                                     select ct.Name).ToListAsync();
 
+            var image = await _context.ProductImages.Where(x => x.ProductId == productId && x.IsDefault == true).FirstOrDefaultAsync();
+
             var productViewModel = new ProductVm()
             {
                 Id = product.Id,
@@ -208,7 +211,8 @@ namespace Webthucpham.Application.Catalog.Products
                 SeoTitle = productTranslation != null ? productTranslation.SeoTitle : null,
                 Stock = product.Stock,
                 ViewCount = product.ViewCount,
-                Categories= categories
+                Categories= categories,
+                ThumbnailImage = image != null ? image.ImagePath : "no-image.jpg"
 
             };
             return productViewModel;
@@ -363,7 +367,7 @@ namespace Webthucpham.Application.Catalog.Products
             var originalFileName = ContentDispositionHeaderValue.Parse(file.ContentDisposition).FileName.Trim('"');
             var fileName = $"{Guid.NewGuid()}{Path.GetExtension(originalFileName)}";
             await _storageService.SaveFileAsync(file.OpenReadStream(), fileName);
-            return fileName;
+            return "/"+ USER_CONTENT_FOLDER_NAME+"/"+fileName;
         }
 
 

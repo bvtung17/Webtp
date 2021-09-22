@@ -27,9 +27,9 @@ namespace Webthucpham.BackendApi.Controllers
         }
 
         [HttpGet("{id}/{languageId}")]
-        public async Task<IActionResult> GetById(string languageId,int id)
+        public async Task<IActionResult> GetById(string languageId, int id)
         {
-            var category = await _categoryService.GetById(languageId,id);
+            var category = await _categoryService.GetById(languageId, id);
             return Ok(category);
         }
     }

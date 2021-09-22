@@ -148,6 +148,7 @@ namespace Webthucpham.BackendApi.Controllers
 
         // UPDATE IMAGE
         [HttpPut("{productId}/image/{imageId})")]
+        [Authorize]
         public async Task<IActionResult> UpdateImage(int imageId, [FromForm] ProductUpdateImageRequest request)
         {
 

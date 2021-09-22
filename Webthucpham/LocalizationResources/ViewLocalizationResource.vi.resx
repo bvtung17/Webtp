@@ -144,6 +144,9 @@
     <value>Sản Phẩm Nổi Bật</value>
     <comment>/Home/Index</comment>
   </data>
+  <data name="Home" xml:space="preserve">
+    <value>Trang Chủ</value>
+  </data>
   <data name="Latest Products" xml:space="preserve">
     <value>Sản Phẩm Mới Nhất</value>
     <comment>/Home/Index</comment>
@@ -152,11 +155,17 @@
     <value>Đăng Nhập</value>
     <comment>Layouts</comment>
   </data>
+  <data name="More Details" xml:space="preserve">
+    <value>Thêm Chi Tiết</value>
+  </data>
   <data name="New | Available" xml:space="preserve">
     <value>Mới | Có sẵn</value>
   </data>
   <data name="Page" xml:space="preserve">
     <value>Trang</value>
+  </data>
+  <data name="Product Details" xml:space="preserve">
+    <value>Chi Tiết Sản Phẩm</value>
   </data>
   <data name="products" xml:space="preserve">
     <value>san-pham</value>
@@ -164,6 +173,9 @@
   <data name="productUrl" xml:space="preserve">
     <value>san-pham</value>
     <comment>Layouts</comment>
+  </data>
+  <data name="Related Products" xml:space="preserve">
+    <value>Sản Phẩm Tương Tự</value>
   </data>
   <data name="Sort By" xml:space="preserve">
     <value>Sắp xếp theo</value>
@@ -182,6 +194,6 @@
     <comment>/Home/Index</comment>
   </data>
   <data name="View details" xml:space="preserve">
-    <value>Xem chi tiết</value>
+    <value>Xem Chi Tiết</value>
   </data>
 </root>

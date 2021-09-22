@@ -163,6 +163,31 @@ namespace Webthucpham.AdminApp.Controllers
             ModelState.AddModelError("", "Cập nhật sản phẩm thất bại");
             return View(request);
         }
+          //DELETE 
+        [HttpGet]
+        public IActionResult Delete(int id)
+        {
+            return View(new ProductDeleteRequest()
+            {
+                Id = id
+            });
 
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Delete(ProductDeleteRequest request)
+        {
+            if (!ModelState.IsValid)
+                return View();
+
+            var result = await _productApiClient.DeleteProduct(request.Id);
+            if (result)
+            {
+                TempData["result"] = "Xóa Sản Phẩm Thành Công";
+                return RedirectToAction("Index");
+            }
+            ModelState.AddModelError("", "Xóa Không Thành Công");
+            return View(request);
+        }
     }
 }
