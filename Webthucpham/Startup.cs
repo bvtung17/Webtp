@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
+using FluentValidation.AspNetCore;
 using LazZiya.ExpressLocalization;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
@@ -14,6 +15,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Webthucpham.Api;
 using Webthucpham.LocalizationResources;
+using Webthucpham.ViewModels.System.Users;
 
 namespace Webthucpham
 {
@@ -38,6 +40,8 @@ namespace Webthucpham
             };
 
             services.AddControllersWithViews()
+              .AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<LoginRequestValidator>())
+
               .AddExpressLocalization<ExpressLocalizationResource, ViewLocalizationResource>(ops =>
               {
                     // When using all the culture providers, the localization process will
