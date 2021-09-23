@@ -13,43 +13,58 @@ namespace Webthucpham.Controllers
 {
     public class CartController : Controller
     {
-        private readonly IProductApiClient _productApiClient;
-        public CartController(IProductApiClient productApiClient)
-        {
-            _productApiClient = productApiClient;
-        }
-        public IActionResult Index()
-        {
-            return View();
-        }
+      
+            private readonly IProductApiClient _productApiClient;
 
-        [HttpPost]
-        public async Task<IActionResult> AddToCart(int id, string languageId)
-        {
-            var product = await _productApiClient.GetById(id,languageId);
-            var session = HttpContext.Session.GetString(SystemConstants.CartSession);
-            List<CartItemViewModel> currentCart=new List<CartItemViewModel>();
-            if (session!= null)
-            currentCart = JsonConvert.DeserializeObject<List<CartItemViewModel>>(session);
-            int quantity = 1;
-            if (currentCart.Any(x=>x.ProductId==id))
+            public CartController(IProductApiClient productApiClient)
             {
-                quantity = currentCart.First(x => x.ProductId == id).Quantity + 1;
+                _productApiClient = productApiClient;
             }
 
-            var cartItem = new CartItemViewModel()
+            public IActionResult Index()
             {
-                ProductId = id,
-                Desription = product.Description,
-                Image = product.ThumbnailImage,
-                Name = product.Name,
-                Quantity = quantity
-            };
-            if (currentCart == null) currentCart = new List<CartItemViewModel>();
-           
-            currentCart.Add(cartItem);
-            HttpContext.Session.SetString(SystemConstants.CartSession,JsonConvert.SerializeObject(cartItem));
-            return Ok();
+                return View();
+            }
+
+            [HttpGet]
+            public IActionResult GetListItems()
+            {
+                var session = HttpContext.Session.GetString(SystemConstants.CartSession);
+                List<CartItemViewModel> currentCart = new List<CartItemViewModel>();
+                if (session != null)
+                    currentCart = JsonConvert.DeserializeObject<List<CartItemViewModel>>(session);
+                return Ok(currentCart);
+            }
+
+            public async Task<IActionResult> AddToCart(int id, string languageId)
+            {
+                var product = await _productApiClient.GetById(id, languageId);
+
+                var session = HttpContext.Session.GetString(SystemConstants.CartSession);
+                List<CartItemViewModel> currentCart = new List<CartItemViewModel>();
+                if (session != null)
+                    currentCart = JsonConvert.DeserializeObject<List<CartItemViewModel>>(session);
+
+                int quantity = 1;
+                if (currentCart.Any(x => x.ProductId == id))
+                {
+                    quantity = currentCart.First(x => x.ProductId == id).Quantity + 1;
+                }
+
+                var cartItem = new CartItemViewModel()
+                {
+                    ProductId = id,
+                    Description = product.Description,
+                    Image = product.ThumbnailImage,
+                    Name = product.Name,
+                    Price = product.Price,
+                    Quantity = quantity
+                };
+
+                currentCart.Add(cartItem);
+
+                HttpContext.Session.SetString(SystemConstants.CartSession, JsonConvert.SerializeObject(currentCart));
+                return Ok(currentCart);
+            }
         }
     }
-}
