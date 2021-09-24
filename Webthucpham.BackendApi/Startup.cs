@@ -16,6 +16,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Webthucpham.Application.Catalog.Categories;
+using Webthucpham.Application.Catalog.Orders;
 using Webthucpham.Application.Catalog.Products;
 using Webthucpham.Application.Common;
 using Webthucpham.Application.System.Languages;
@@ -63,6 +64,7 @@ namespace Webthucpham.BackendApi
             services.AddTransient<IRoleService, RoleService> ();
 
             services.AddTransient<ISlideService, SlideService>();
+            services.AddTransient<IOrderService, OrderService>();
             //ràng buộc đăng nhập đăng ký
             //services.AddTransient<IValidator<LoginRequest>, LoginRequestValidator>();
             //services.AddTransient<IValidator<RegisterRequest>, RegisterRequestValidator>();

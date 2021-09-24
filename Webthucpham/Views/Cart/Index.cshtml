@@ -1,7 +1,7 @@
-﻿@{
-    ViewData["Title"] = "Index";
-    Layout = "~/Views/Shared/_Layout.cshtml";
-}
+﻿@{ ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml"; }
+
+@{ var culture = CultureInfo.CurrentCulture.Name; }
 @section scripts{
     <script src="~/js/cart.js"></script>
     <script>
@@ -9,14 +9,15 @@
         cartController.initialize();
     </script>
 }
+
 <ul class="breadcrumb">
-    <li><a href="index.html">Home</a> <span class="divider">/</span></li>
-    <li class="active"> SHOPPING CART</li>
+    <li><a href="/" localize-content>Home</a> <span class="divider">/</span></li>
+    <li class="active" localize-content> SHOPPING CART</li>
 </ul>
 
-<h3>
-    SHOPPING CART [ <small><span id="lbl_number_of_items">0</span> Item(s) </small>]
-    <a href="products.html" class="btn btn-large pull-right"><i class="icon-arrow-left"></i> Continue Shopping </a>
+<h3 localize-content>
+    Giỏ hàng [ <small><span id="lbl_number_of_items">0</span> Sản phẩm </small>]
+
 </h3>
 
 <hr class="soft" />
@@ -24,22 +25,24 @@
 <table class="table table-bordered" id="tbl_cart">
     <thead>
         <tr>
-            <th>Product</th>
-            <th>Description</th>
-            <th>Quantity/Update</th>
-            <th>Price</th>
-            <th>Total</th>
+            <th localize-content>Product</th>
+            <th localize-content>Description</th>
+            <th localize-content>Quantity/Update</th>
+            <th localize-content>Price</th>
+            <th localize-content>Tax</th>
+            <th localize-content>Total</th>
         </tr>
     </thead>
     <tbody id="cart_body">
     </tbody>
     <tfoot>
         <tr>
-            <td colspan="4" style="text-align:right"><strong>TOTAL =</strong></td>
+            <td colspan="5" style="text-align:right"><strong localize-content>TOTAL(Tax+Total) =</strong></td>
             <td class="label label-important" style="display:block"> <strong> <span id="lbl_total"></span> </strong></td>
         </tr>
     </tfoot>
 </table>
 
-<a href="products.html" class="btn btn-large"><i class="icon-arrow-left"></i> Continue Shopping </a>
-<a href="login.html" class="btn btn-large pull-right">Next <i class="icon-arrow-right"></i></a>
+<a href="/" class="btn btn-large" localize-content><i class="icon-arrow-left"></i> Trở về </a>
+
+<a href="/@culture/Cart/Checkout" class="btn btn-large pull-right" localize-content>Tiếp tục <i class="icon-arrow-right"></i></a>

@@ -1,13 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using Webthucpham.Data.Enums;
 
-namespace Webthucpham.Data.Entities
+namespace Webthucpham.ViewModels.Sales
 {
-    public class Order
+    public class OrderCreateRequest
     {
-        public int Id { set; get; }
         public DateTime OrderDate { set; get; }
         public Guid UserId { set; get; }
         public string ShipName { set; get; }
@@ -15,10 +13,7 @@ namespace Webthucpham.Data.Entities
         public string ShipEmail { set; get; }
         public string ShipPhoneNumber { set; get; }
         public int Status { set; get; }
-
-        public List<OrderDetail> OrderDetails { get; set; }
-
-        public AppUser AppUser { get; set; }
-
+        public List<KeyValuePair<int, int>> ProductDetails { get; set; }
+        public decimal Price { set; get; }
     }
 }
