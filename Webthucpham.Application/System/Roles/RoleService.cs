@@ -12,9 +12,9 @@ namespace Webthucpham.Application.System.Roles
 {
     public class RoleService : IRoleService
     {
-        private readonly RoleManager<AppRole> _roleManager;
+        private readonly RoleManager<Role> _roleManager;
 
-        public RoleService(RoleManager<AppRole> roleManager)
+        public RoleService(RoleManager<Role> roleManager)
         {
             _roleManager = roleManager;
         }

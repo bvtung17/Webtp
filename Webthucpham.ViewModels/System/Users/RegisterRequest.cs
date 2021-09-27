@@ -7,10 +7,8 @@ namespace Webthucpham.ViewModels.System.Users
 {
     public class RegisterRequest
     {
-        [Display(Name ="Tên")]
-        public string FirstName { get; set; }
-        [Display(Name = "Họ")]
-        public string LastName { get; set; }
+        [Display(Name ="Họ Tên")]
+        public string Name { get; set; }
 
         [Display(Name = "Ngày Sinh")]
         [DataType(DataType.Date)]

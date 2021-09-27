@@ -11,13 +11,11 @@ namespace Webthucpham.Data.Configurations
     {
         public void Configure(EntityTypeBuilder<Transaction> builder)
         {
-            builder.ToTable("Transactions"); // tên bảng
-           
-            builder.HasKey(x => x.Id);
-             
+            builder.ToTable("Transactions").HasKey(t => t.Id);
+
             builder.Property(x => x.Id).UseIdentityColumn();
-            // one with many
-            builder.HasOne(x => x.AppUser).WithMany(x => x.Transactions).HasForeignKey(x => x.UserID);
+
+            builder.HasOne(t => t.Client).WithMany(c => c.Transactions).HasForeignKey(t => t.ClientId);
         }
     }
 }

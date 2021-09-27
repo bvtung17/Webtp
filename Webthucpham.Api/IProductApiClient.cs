@@ -10,7 +10,7 @@ namespace Webthucpham.Api
 {
     public interface IProductApiClient
     {
-        Task<PagedResult<ProductVm>> GetPagings(GetManageProductPagingRequest request);
+        Task<PageResponse<ProductVm>> GetPagings(GetManageProductPagingRequest request);
 
         Task<bool> CreateProduct(ProductCreateRequest request);
 

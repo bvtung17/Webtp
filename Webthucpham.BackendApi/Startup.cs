@@ -45,7 +45,7 @@ namespace Webthucpham.BackendApi
             services.AddDbContext<WebthucphamDbContext>(options =>
             options.UseSqlServer(Configuration.GetConnectionString(SystemConstants.MainConnectionString)));
 
-            services.AddIdentity<AppUser, AppRole>()
+            services.AddIdentity<User, Role>()
                 .AddEntityFrameworkStores<WebthucphamDbContext>()
                 .AddDefaultTokenProviders();
             //DECLARE DI
@@ -54,9 +54,9 @@ namespace Webthucpham.BackendApi
             services.AddTransient<IProductService, ProductService>();
             services.AddTransient<ICategoryService, CategoryService>();
             // USER
-            services.AddTransient < UserManager<AppUser>, UserManager <AppUser>>();
-            services.AddTransient<SignInManager<AppUser>, SignInManager<AppUser>>();
-            services.AddTransient<RoleManager<AppRole>, RoleManager<AppRole>>();
+            services.AddTransient < UserManager<User>, UserManager <User>>();
+            services.AddTransient<SignInManager<User>, SignInManager<User>>();
+            services.AddTransient<RoleManager<Role>, RoleManager<Role>>();
 
             services.AddTransient<ILanguageService, LanguageService>();
             services.AddTransient<IUserService, UserService> ();

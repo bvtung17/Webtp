@@ -20,13 +20,13 @@ namespace Webthucpham.Application.System.Users
     public class UserService : IUserService
     {
 
-        private readonly UserManager<AppUser> _userManager;
-        private readonly SignInManager<AppUser> _signInManager;
-        private readonly RoleManager<AppRole> _roleManager;
+        private readonly UserManager<User> _userManager;
+        private readonly SignInManager<User> _signInManager;
+        private readonly RoleManager<Role> _roleManager;
         private readonly IConfiguration _config;
         private readonly WebthucphamDbContext _context;
-        public UserService(UserManager<AppUser> userManager, SignInManager<AppUser> signInManager,
-            RoleManager<AppRole> roleManager, IConfiguration config, WebthucphamDbContext context)
+        public UserService(UserManager<User> userManager, SignInManager<User> signInManager,
+            RoleManager<Role> roleManager, IConfiguration config, WebthucphamDbContext context)
         {
             _userManager = userManager;
             _signInManager = signInManager;
@@ -52,9 +52,10 @@ namespace Webthucpham.Application.System.Users
             var claims = new[]
             {
                 new Claim(ClaimTypes.Email,user.Email),
-                new Claim(ClaimTypes.GivenName,user.FirstName),
-                new Claim(ClaimTypes.Role, string.Join(";",roles)),
-                new Claim(ClaimTypes.Name, request.UserName)
+                new Claim(ClaimTypes.GivenName,user.Name),
+                new Claim("Role",string.Join(";",roles)),
+                new Claim(ClaimTypes.Name,user.Name),
+                new Claim(ClaimTypes.NameIdentifier,user.Id.ToString()),
             };
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Tokens:Key"]));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
@@ -81,12 +82,11 @@ namespace Webthucpham.Application.System.Users
             {
                 return new ApiErrorResult<bool>("Email đã tồn tại");
             }
-            user = new AppUser()
+            user = new User()
             {
                 Dob = request.Dob,
                 Email = request.Email,
-                FirstName = request.FirstName,
-                LastName = request.LastName,
+                Name = request.Name,
                 UserName = request.UserName,
                 PhoneNumber = request.PhoneNumber
             };
@@ -99,41 +99,38 @@ namespace Webthucpham.Application.System.Users
             return new ApiErrorResult<bool>("Đăng ký không thành công");
         }
         //Get user
-        public async Task<ApiResult<PagedResult<UserVm>>> GetUsersPaging(GetUserPagingRequest request)
+        public async Task<ApiResult<PageResponse<UserVm>>> GetUsersPaging(GetUserPagingRequest request)
         {
-            var query = _userManager.Users;
+             var query = _userManager.Users;
             if (!string.IsNullOrEmpty(request.Keyword))
             {
                 query = query.Where(x => x.UserName.Contains(request.Keyword)
-                 || x.PhoneNumber.Contains(request.Keyword));
+                || x.PhoneNumber.Contains(request.Keyword)
+                || x.Email.Contains(request.Keyword));
             }
-
-            //3. Paging
             int totalRow = await query.CountAsync();
-
-            //request.PageSize = 10;
 
             var data = await query.Skip((request.PageIndex - 1) * request.PageSize)
                 .Take(request.PageSize)
                 .Select(x => new UserVm()
                 {
+                    Dob = x.Dob,
                     Email = x.Email,
                     PhoneNumber = x.PhoneNumber,
-                    UserName = x.UserName,
-                    FirstName = x.FirstName,
                     Id = x.Id,
-                    LastName = x.LastName
-                }).ToListAsync(); //Coi lai cho nay
+                    Name = x.Name,
+                    UserName = x.UserName
+                }).ToListAsync();
 
             //4. Select and projection
-            var pagedResult = new PagedResult<UserVm>()
+            var pagedResult = new PageResponse<UserVm>()
             {
                 TotalRecords = totalRow,
                 PageIndex = request.PageIndex,
                 PageSize = request.PageSize,
                 Items = data
             };
-            return new ApiSuccessResult<PagedResult<UserVm>>(pagedResult);
+            return new ApiSuccessResult<PageResponse<UserVm>>(pagedResult);
 
 
         }
@@ -149,13 +146,12 @@ namespace Webthucpham.Application.System.Users
             var roles = await _userManager.GetRolesAsync(user);
             var userVm = new UserVm()
             {
-                Email = user.Email,
-                PhoneNumber = user.PhoneNumber,
-                FirstName = user.FirstName,
                 Dob = user.Dob,
+                Email = user.Email,
                 Id = user.Id,
-                LastName = user.LastName,
-                UserName =user.UserName,
+                Name = user.Name,
+                PhoneNumber = user.PhoneNumber,
+                UserName = user.UserName,
                 Roles = roles
 
             };
@@ -165,23 +161,23 @@ namespace Webthucpham.Application.System.Users
         //Update
         public async Task<ApiResult<bool>> Update(Guid id, UserUpdateRequest request)
         {
-            if (await _userManager.Users.AnyAsync(x => x.Email == request.Email && x.Id != id))
-            {
-                return new ApiErrorResult<bool>("Emai đã tồn tại");
-            }
             var user = await _userManager.FindByIdAsync(id.ToString());
             user.Dob = request.Dob;
-            user.Email = request.Email;
-            user.FirstName = request.FirstName;
-            user.LastName = request.LastName;
+            user.Name = request.Name;
             user.PhoneNumber = request.PhoneNumber;
 
-            var result = await _userManager.UpdateAsync(user);
-            if (result.Succeeded)
+            try
             {
-                return new ApiSuccessResult<bool>();
+                _context.Users.Attach(user);
+                await _context.SaveChangesAsync();
             }
-            return new ApiErrorResult<bool>("Cập nhật không thành công");
+            catch (Exception)
+            {
+
+                return new ApiErrorResult<bool>("Update is not success!");
+            }
+
+            return new ApiSuccessResult<bool>();
         }
         //DELETE USER
 

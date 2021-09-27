@@ -7,7 +7,7 @@ using Webthucpham.Data.Entities;
 
 namespace Webthucpham.Data.Configurations
 {
-    public class AppConfigConfiguration : IEntityTypeConfiguration<AppConfig>
+    public class AppConfiguration : IEntityTypeConfiguration<AppConfig>
     {
         public void Configure(EntityTypeBuilder<AppConfig> builder)
         {

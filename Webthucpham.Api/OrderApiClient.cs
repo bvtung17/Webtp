@@ -58,17 +58,17 @@ namespace Webthucpham.Api
             return data;
         }
 
-        public async Task<PagedResult<OrderViewModel>> GetChart(OrderPagingRequest request)
+        public async Task<PageResponse<OrderViewModel>> GetChart(GetOrderRequest request)
         {
             string url = $"/api/Orders/GetChart?pageIndex={request.PageIndex}&pageSize={request.PageSize}&keyWord={request.Keyword}";
-            var data = await GetAsync<PagedResult<OrderViewModel>>(url);
+            var data = await GetAsync<PageResponse<OrderViewModel>>(url);
             return data;
         }
 
-        public async Task<PagedResult<OrderViewModel>> GetPagings(OrderPagingRequest request)
+        public async Task<PageResponse<OrderViewModel>> GetPagings(GetOrderRequest request)
         {
             string url = $"/api/Orders/GetAllPaging?pageIndex={request.PageIndex}&pageSize={request.PageSize}&keyWord={request.Keyword}&languageId={request.LanguageId}&status={request.Status}";
-            var data = await GetAsync<PagedResult<OrderViewModel>>(url);
+            var data = await GetAsync<PageResponse<OrderViewModel>>(url);
             return data;
         }
 

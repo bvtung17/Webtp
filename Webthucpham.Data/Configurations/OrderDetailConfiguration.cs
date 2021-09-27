@@ -11,10 +11,11 @@ namespace Webthucpham.Data.Configurations
     {
         public void Configure(EntityTypeBuilder<OrderDetail> builder)
         {
-            builder.ToTable("OrderDetails");
-            builder.HasKey(x => new { x.OrderId, x.ProductId });
-            builder.HasOne(x => x.Order).WithMany(x => x.OrderDetails).HasForeignKey(x => x.OrderId);
-            builder.HasOne(x => x.Product).WithMany(x => x.OrderDetails).HasForeignKey(x => x.ProductId);
+            builder.ToTable("OrderDetails").HasKey(od => new { od.ProductId, od.OrderId });
+
+            builder.HasOne(od => od.Order).WithMany(o => o.OrderDetails).HasForeignKey(od => od.OrderId);
+
+            builder.HasOne(od => od.Product).WithMany(p => p.OrderDetails).HasForeignKey(od => od.ProductId);
         }
     }
 }

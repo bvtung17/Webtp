@@ -9,9 +9,8 @@ namespace Webthucpham.ViewModels.System.Users
     {
         public RegisterRequestValidator()
         {
-            RuleFor(x => x.FirstName).NotEmpty().WithMessage("Yêu Cầu Nhập Tên ")
-                .MaximumLength(200).WithMessage("Tền không vượt quá 200 ký tự");
-            RuleFor(x => x.LastName).NotEmpty().WithMessage("Yêu Cầu Nhập Họ")
+          
+            RuleFor(x => x.Name).NotEmpty().WithMessage("Yêu Cầu Nhập Name")
                 .MaximumLength(200).WithMessage("Họ không vượt quá 200 ký tự");
             RuleFor(x => x.Dob).GreaterThan(DateTime.Now.AddYears(-200)).WithMessage("Tuổi không lớn hơn 200 năm");
 

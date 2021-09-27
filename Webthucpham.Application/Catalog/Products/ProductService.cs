@@ -122,7 +122,7 @@ namespace Webthucpham.Application.Catalog.Products
         }
 
         //GET ALL
-        public async Task<PagedResult<ProductVm>> GetAllPaging(GetManageProductPagingRequest request)
+        public async Task<PageResponse<ProductVm>> GetAllPaging(GetManageProductPagingRequest request)
         {
             //using linq
 
@@ -169,7 +169,7 @@ namespace Webthucpham.Application.Catalog.Products
                 }).ToListAsync();
 
             // 4 :  Select and Project
-            var pagedResult = new PagedResult<ProductVm>
+            var pagedResult = new PageResponse<ProductVm>
             {
                 TotalRecords = totalRow,
                 PageIndex = request.PageIndex,
@@ -372,7 +372,7 @@ namespace Webthucpham.Application.Catalog.Products
 
 
         // Product
-        public async Task<PagedResult<ProductVm>> GetAllByCategoryId(string languageId, GetPublicProductPagingRequest request)
+        public async Task<PageResponse<ProductVm>> GetAllByCategoryId(string languageId, GetPublicProductPagingRequest request)
         {
             //using linq
 
@@ -414,7 +414,7 @@ namespace Webthucpham.Application.Catalog.Products
                 }).ToListAsync();
 
             // 4 :  Select and Project
-            var pagedResult = new PagedResult<ProductVm>
+            var pagedResult = new PageResponse<ProductVm>
             {
                 TotalRecords = totalRow,
                 PageIndex = request.PageIndex,

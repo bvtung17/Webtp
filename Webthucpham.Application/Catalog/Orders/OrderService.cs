@@ -23,38 +23,54 @@ namespace Webthucpham.Application.Catalog.Orders
 
         public async Task<int> Create(OrderCreateRequest request)
         {
-            var order = new Order()
+            var newOrder = new Order()
             {
+                OrderDate = DateTime.Now,
+                Price = request.TotalPrice,
                 ShipAddress = request.ShipAddress,
-                OrderDate = request.OrderDate,
-                ShipEmail = request.ShipEmail,
-                ShipName = request.ShipName,
-                ShipPhoneNumber = request.ShipPhoneNumber,
-                Status = request.Status,
-                UserId = request.UserId,
+                ShipPhoneNumber = request.ShipPhone,
+                ShipEmail = request.Email,
+                Note = request.ClientNote,
+                ShipName = request.ClientName,
+                CartId = request.ClientCart.Id,
+                Status = OrderStatus.InProgress,
             };
-            _context.Orders.Add(order);
-            await _context.SaveChangesAsync();
-            //dung async tan dang thread chuong trinh chay ngon hon
-            var orderDetails = new List<OrderDetail>();
-
-            int maxId = _context.Orders.OrderByDescending(x => x.Id).Select(x => x.Id).ToList()[0];
-            foreach (var id in request.ProductDetails)
+            if (request.ClientID != null)
             {
-                var OrderDetails = new OrderDetail()
+                newOrder.ClientId = request.ClientID;
+            }
+            else
+            {
+                newOrder.ClientId = null;
+            }
+            _context.Orders.Add(newOrder);
+
+
+            var productsInCart = request.ClientCart.Products;
+            newOrder.OrderDetails = new List<OrderDetail>();
+            foreach (var product in productsInCart)
+            {
+                var newOrderDetails = new OrderDetail()
                 {
-                    ProductId = id.Key,
-                    Price = request.Price,
-                    Quantity = id.Value,
-                    OrderId = maxId
+                    OrderId = newOrder.Id,
+                    Price = product.ProductPrice,
+                    Quantity = product.Quantity,
+                    ProductId = product.Id
                 };
 
-                orderDetails.Add(OrderDetails);
+                newOrder.OrderDetails.Add(newOrderDetails);
             }
 
-            _context.OrderDetails.AddRange(orderDetails);
-            await _context.SaveChangesAsync();
-            return order.Id;
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception e)
+            {
+                var test = e;
+                throw;
+            }
+            return newOrder.Id;
         }
 
         public async Task<int> Delete(int orderId)
@@ -74,53 +90,92 @@ namespace Webthucpham.Application.Catalog.Orders
             return await _context.SaveChangesAsync();
         }
 
-        public async Task<PagedResult<OrderViewModel>> GetAllPaging(OrderPagingRequest request)
+        public async Task<PageResponse<OrderViewModel>> GetAll(GetOrderRequest request, string status)
         {
-            var query = from o in _context.Orders
-                        join od in _context.OrderDetails on o.Id equals od.OrderId into odd
-                        from od in odd.DefaultIfEmpty()
-                        join p in _context.ProductTranslations on od.ProductId equals p.ProductId into pp
-                        from p in pp.DefaultIfEmpty()
-                        where p.LanguageId == request.LanguageId
-                        select new { o, od, p };
 
-            //2. filter
-            if (!string.IsNullOrEmpty(request.Keyword))
-                query = query.Where(x => x.p.Name.Contains(request.Keyword) || x.o.AppUser.UserName.Contains(request.Keyword));
-            if (request.Status != 0)
+            var query = from o in _context.Orders select o;
+
+            var category = OrderCategorySearch.Categories.Where(x => x.Value == request.Type).FirstOrDefault();
+            if (!String.IsNullOrEmpty(request.KeyWord) && category == null)
             {
-                query = query.Where(x => x.o.Status == request.Status);
+                query = query.Where(x => x.Id.ToString() == request.KeyWord ||
+                x.Id.ToString() == request.KeyWord ||
+                x.ShipPhoneNumber.Contains(request.KeyWord) || x.ShipName.Contains(request.KeyWord));
             }
-            //3. Paging
-            int totalRow = await query.CountAsync();
-            var data = await query.Skip((request.PageIndex - 1) * request.PageSize).Take(request.PageSize).
-                Select(x => new OrderViewModel()
-                {
-                    Id = x.o.Id,
-                    Product = x.p.Name,
-                    OrderDate = x.o.OrderDate,
-                    Name = x.o.AppUser.UserName,
-                    ShipName = x.o.ShipName,
-                    ShipAddress = x.o.ShipAddress,
-                    ShipEmail = x.o.ShipEmail,
-                    ShipPhoneNumber = x.o.ShipPhoneNumber,
-                    Status = x.o.Status,
-                    Price = x.od.Price,
-                    Quantity = x.od.Quantity
-                }).ToListAsync();
 
-            //4. Select and projection
-            var pagedResult = new PagedResult<OrderViewModel>()
+            if (category != null && request.KeyWord != null)
             {
-                TotalRecords = totalRow,
-                PageSize = request.PageSize,
-                PageIndex = request.PageIndex,
-                Items = data
+                query = GetQueryOrders(category, query, request.KeyWord);
+            }
+
+            if (!String.IsNullOrEmpty(request.DateStart) && !String.IsNullOrEmpty(request.DateEnd))
+            {
+                query = query.Where(x => x.OrderDate >= Convert.ToDateTime(request.DateStart) && x.OrderDate <= Convert.ToDateTime(request.DateEnd));
+            }
+
+
+            switch (status)
+            {
+                case "Success":
+                    query = query.Where(x => x.Status == OrderStatus.Success);
+                    break;
+                case "Canceled":
+                    query = query.Where(x => x.Status == OrderStatus.Canceled);
+                    break;
+                case "InProgess":
+                    query = query.Where(x => x.Status == OrderStatus.InProgress);
+                    break;
+                case "Shipping":
+                    query = query.Where(x => x.Status == OrderStatus.Shipping);
+                    break;
+                default:
+                    break;
+            }
+            query = query.OrderByDescending(x => x.Id);
+
+            var pageIndex = request.PageIndex;
+            var pageSize = request.PageSize;
+            var count = await query.CountAsync();
+
+            var orders = await query.Select(x => new OrderViewModel()
+            {
+                Id = x.Id,
+                Price = x.Price,
+                OrderDate = x.OrderDate,
+                ShipAddress = x.ShipAddress,
+                ShipEmail = x.ShipEmail ?? "",
+                ShipName = x.ShipName,
+                Status = x.Status,
+                UserId = x.ClientId,
+                ShipPhoneNumber = x.ShipPhoneNumber,
+                CancelReason = x.CancelReason,
+            }).Skip((pageIndex - 1) * pageSize).Take(pageSize).ToListAsync();
+
+
+            foreach (var item in orders)
+            {
+                var products = from o in orders
+                               join od in _context.OrderDetails on o.Id equals od.OrderId
+                               join p in _context.Products on od.ProductId equals p.Id
+                               where o.Id == item.Id
+                               select new { p, od };
+                var productInOrders = products.Select(x => x.p).ToList();
+                item.ProductQuantity = productInOrders.Count();
+            }
+
+            var pageResponse = new PageResponse<OrderViewModel>()
+            {
+                TotalRecords = count,
+                PageIndex = pageIndex,
+                PageSize = pageSize,
+                Items = orders
             };
-            return pagedResult;
+
+
+            return pageResponse;
         }
 
-        public async Task<PagedResult<OrderViewModel>> GetChart(OrderPagingRequest request)
+        public async Task<PageResponse<OrderViewModel>> GetChart(OrderPagingRequest request)
         {
             var query = from o in _context.Orders
                         join od in _context.OrderDetails on o.Id equals od.OrderId into odd
@@ -148,7 +203,7 @@ namespace Webthucpham.Application.Catalog.Orders
                 }).ToListAsync();
 
             //4. Select and projection
-            var pagedResult = new PagedResult<OrderViewModel>()
+            var pagedResult = new PageResponse<OrderViewModel>()
             {
                 TotalRecords = totalRow,
                 PageSize = request.PageSize,

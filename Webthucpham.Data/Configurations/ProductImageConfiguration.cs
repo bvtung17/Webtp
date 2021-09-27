@@ -11,14 +11,13 @@ namespace Webthucpham.Data.Configurations
     {
         public void Configure(EntityTypeBuilder<ProductImage> builder)
         {
-            builder.ToTable("ProductImage");
-            builder.HasKey(x => x.Id);
+            builder.ToTable("ProductImages").HasKey(x => x.Id);
 
             builder.Property(x => x.Id).UseIdentityColumn();
-            builder.Property(x => x.ImagePath).HasMaxLength(200).IsRequired(true);
-            builder.Property(x => x.Caption).HasMaxLength(200).IsRequired(false);
 
+            builder.Property(x => x.ImagePath).IsRequired();
 
+            
             // khóa một nhiều với product
             builder.HasOne(x => x.Product).WithMany(x => x.ProductImages).HasForeignKey(x => x.ProductId);
         }

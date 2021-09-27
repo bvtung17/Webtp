@@ -77,7 +77,7 @@ namespace Webthucpham.Api
         }
 
         //GET USER
-        public async Task<ApiResult<PagedResult<UserVm>>> GetUsersPagings(GetUserPagingRequest request)
+        public async Task<ApiResult<PageResponse<UserVm>>> GetUsersPagings(GetUserPagingRequest request)
         {
             var sessions = _httpContextAccessor.HttpContext.Session.GetString("Token");
             var client = _httpClientFactory.CreateClient();
@@ -86,7 +86,7 @@ namespace Webthucpham.Api
             var response = await client.GetAsync($"/api/users/paging?pageIndex=" +
                 $"{request.PageIndex}&pageSize={request.PageSize}&keyword={request.Keyword}");
             var body = await response.Content.ReadAsStringAsync();
-            var users = JsonConvert.DeserializeObject<ApiSuccessResult<PagedResult<UserVm>>>(body);
+            var users = JsonConvert.DeserializeObject<ApiSuccessResult<PageResponse<UserVm>>>(body);
             return users;
         }
         //ĐĂNG KÝ

@@ -22,7 +22,7 @@ namespace Webthucpham.Application.Catalog.Products
         Task AddViewcount(int productId);
 
    
-        Task<PagedResult<ProductVm>> GetAllPaging(GetManageProductPagingRequest request);
+        Task<PageResponse<ProductVm>> GetAllPaging(GetManageProductPagingRequest request);
 
         Task<int> AddImage(int productId, ProductImageCreateRequest request);
 
@@ -34,7 +34,7 @@ namespace Webthucpham.Application.Catalog.Products
         Task<ProductImageViewModel> GetImageById(int imageId);
         Task<List<ProductImageViewModel>> GetListImages(int productId);
 
-        Task<PagedResult<ProductVm>> GetAllByCategoryId(string languageId, GetPublicProductPagingRequest request);
+        Task<PageResponse<ProductVm>> GetAllByCategoryId(string languageId, GetPublicProductPagingRequest request);
 
         Task<ApiResult<bool>> CategoryAssign(int id, CategoryAssignRequest request);
 

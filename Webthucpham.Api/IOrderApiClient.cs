@@ -9,9 +9,9 @@ namespace Webthucpham.Api
 {
     public interface IOrderApiClient
     {
-        Task<PagedResult<OrderViewModel>> GetPagings(OrderPagingRequest request);
+        Task<PageResponse<OrderViewModel>> GetPagings(GetOrderRequest request);
 
-        Task<PagedResult<OrderViewModel>> GetChart(OrderPagingRequest request);
+        Task<PageResponse<OrderViewModel>> GetChart(GetOrderRequest request);
 
         Task<bool> Create(OrderCreateRequest request);
 

@@ -6,7 +6,7 @@ namespace Webthucpham.Data.Enums
 {
     public enum Status
     {
-        InActive,
+        InActive = 1,
         Active
     }
 }

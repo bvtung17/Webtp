@@ -20,16 +20,17 @@ namespace Webthucpham.BackendApi.Controllers
         {
             _orderService = orderService;
         }
-
+        [HttpGet("paging")]
+        [Authorize]
         [HttpGet]
-        public async Task<IActionResult> GetAllPaging([FromQuery] OrderPagingRequest request)
+        public async Task<IActionResult> GetAllPaging([FromQuery] GetOrderRequest request)
         {
             var order = await _orderService.GetAllPaging(request);
             return Ok(order);
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetChart([FromQuery] OrderPagingRequest request)
+        public async Task<IActionResult> GetChart([FromQuery] GetOrderRequest request)
         {
             var order = await _orderService.GetChart(request);
             return Ok(order);

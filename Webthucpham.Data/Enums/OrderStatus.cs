@@ -6,10 +6,10 @@ namespace Webthucpham.Data.Enums
 {
     public enum OrderStatus
     {
-        InProgress,
-        Confirmed,
+        InProgress = 1,
         Shipping,
         Success,
+        Confirmed,
         Canceled
     }
 }

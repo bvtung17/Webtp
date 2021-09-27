@@ -12,10 +12,18 @@ namespace Webthucpham.Data.Configurations
     {
         public void Configure(EntityTypeBuilder<Category> builder)
         {
-            builder.ToTable("Categories");
-            builder.HasKey(x => x.Id);
-            builder.Property(x => x.Id).UseIdentityColumn();
-            builder.Property(x => x.Status).HasDefaultValue(Status.Active); 
+            builder.ToTable("Categoires").HasKey(c => c.Id);
+
+            builder.Property(c => c.Id).UseIdentityColumn();
+
+            builder.Property(c => c.IsOutstanding).IsRequired();
+
+            builder.Property(c => c.Name).IsRequired();
+          
+
+            builder.Property(c => c.Status).HasDefaultValue(Status.Active);
+
+
         }
     }
 }

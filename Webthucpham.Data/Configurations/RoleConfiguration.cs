@@ -7,12 +7,12 @@ using Webthucpham.Data.Entities;
 
 namespace Webthucpham.Data.Configurations
 {
-    public class AppRoleConfiguration : IEntityTypeConfiguration<AppRole>
+    public class RoleConfiguration : IEntityTypeConfiguration<Role>
     {
-        public void Configure(EntityTypeBuilder<AppRole> builder)
+        public void Configure(EntityTypeBuilder<Role> builder)
         {
             builder.ToTable("AppRole");
-            builder.Property(x => x.Description).HasMaxLength(200).IsRequired();
+           
         }
     }
 }

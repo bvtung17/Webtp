@@ -73,9 +73,9 @@ namespace Webthucpham.Api
         }
 
 
-        public async Task<PagedResult<ProductVm>> GetPagings(GetManageProductPagingRequest request)
+        public async Task<PageResponse<ProductVm>> GetPagings(GetManageProductPagingRequest request)
         {
-            var data = await GetAsync<PagedResult<ProductVm>>(
+            var data = await GetAsync<PageResponse<ProductVm>>(
                 $"/api/products/paging?pageIndex={request.PageIndex}" +
                 $"&pageSize={request.PageSize}" +
                 $"&keyword={request.Keyword}&languageId={request.LanguageId}&categoryId={request.CategoryId}");

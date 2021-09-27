@@ -6,7 +6,7 @@ namespace Webthucpham.Data.Enums
 {
     public enum TransactionStatus
     {
-        Success,
+        Success = 1,
         Failed
     }
 }

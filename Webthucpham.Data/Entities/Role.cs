@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Webthucpham.Data.Entities
 {
-    public class AppRole :IdentityRole<Guid>
+    public class Role :IdentityRole<Guid>
     {
         // bổ sung thêm trường
         public string Description { get; set; }

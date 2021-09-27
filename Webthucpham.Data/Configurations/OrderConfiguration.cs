@@ -11,26 +11,13 @@ namespace Webthucpham.Data.Configurations
     {
         public void Configure(EntityTypeBuilder<Order> builder)
         {
-            builder.ToTable("Orders");
-
-            builder.HasKey(x => x.Id);
-
+            builder.ToTable("Orders").HasKey(o => o.Id);
             builder.Property(x => x.Id).UseIdentityColumn();
-
-            builder.Property(x => x.OrderDate);
-
-            builder.Property(x => x.ShipEmail).IsRequired().IsUnicode(false).HasMaxLength(50);
-
-            builder.Property(x => x.ShipAddress).IsRequired().HasMaxLength(200);
-
-
-            builder.Property(x => x.ShipName).IsRequired().HasMaxLength(200);
-
-
-            builder.Property(x => x.ShipPhoneNumber).IsRequired().HasMaxLength(200);
-
-            // one with many
-            builder.HasOne(x => x.AppUser).WithMany(x => x.Orders).HasForeignKey(x => x.UserId);
+            builder.Property(o => o.ShipAddress).IsRequired();
+            builder.Property(o => o.ShipName).IsRequired();
+            builder.Property(o => o.ShipPhoneNumber).IsRequired();
+            builder.Property(o => o.ClientId).IsRequired(false);
+            builder.Property(o => o.CartId).IsRequired(false);
         }
     }
 }

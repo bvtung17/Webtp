@@ -11,14 +11,10 @@ namespace Webthucpham.Data.Configurations
     {
         public void Configure(EntityTypeBuilder<Cart> builder)
         {
-            builder.ToTable("Carts");
-            builder.HasKey(x => x.Id);
-
-            builder.Property(x => x.Id).UseIdentityColumn();
-
-            // khóa một nhiều với Car và một khóa ngoại
-            builder.HasOne(x => x.Product).WithMany(x => x.Carts).HasForeignKey(x => x.ProductId);
-            builder.HasOne(x => x.AppUser).WithMany(x => x.Carts).HasForeignKey(x => x.UserId);
+           
+                builder.ToTable("Carts").HasKey(c => c.Id);
+                builder.Property(x => x.ClientId).IsRequired(false);
+            
         }
     }
 }

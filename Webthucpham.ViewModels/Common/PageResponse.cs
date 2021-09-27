@@ -4,9 +4,9 @@ using System.Text;
 
 namespace Webthucpham.ViewModels.Common
 {
-    public class PagedResult<T> : PagedResultBase
+    public class PageResponse<T> : PagedResultBase
     {
-        public List<T> Items { set; get; }
-        
+        public List<T> Items { get; set; } = new List<T>();
+
     }
 }

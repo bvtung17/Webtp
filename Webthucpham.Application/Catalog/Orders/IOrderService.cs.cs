@@ -17,8 +17,8 @@ namespace Webthucpham.Application.Catalog.Orders
 
         Task<bool> UpdateStatus(int orderId, int status);
 
-        Task<PagedResult<OrderViewModel>> GetAllPaging(OrderPagingRequest request);
+        Task<PageResponse<OrderViewModel>> GetAll(GetOrderRequest request);
 
-        Task<PagedResult<OrderViewModel>> GetChart(OrderPagingRequest request);
+        Task<PageResponse<OrderViewModel>> GetChart(GetOrderRequest request);
     }
 }

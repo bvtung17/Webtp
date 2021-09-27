@@ -11,6 +11,6 @@ namespace Webthucpham.Models
     public class ProductCategoryViewModel
     {
         public CategoryVm Category { get; set; }
-        public PagedResult<ProductVm> Products { get; set; }
+        public PageResponse<ProductVm> Products { get; set; }
     }
 }

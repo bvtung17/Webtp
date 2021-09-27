@@ -5,7 +5,7 @@ using Webthucpham.Data.Enums;
 
 namespace Webthucpham.Data.Entities
 {
-    public class Slide
+    public class Slider
     {
         public int Id { set; get; }
         public string Name { set; get; }
