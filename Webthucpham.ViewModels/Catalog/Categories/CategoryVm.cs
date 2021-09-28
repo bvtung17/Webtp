@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using Webthucpham.Data.Entities;
 using Webthucpham.Data.Enums;
 
 namespace Webthucpham.ViewModels.Catalog.Categories
@@ -14,5 +15,6 @@ namespace Webthucpham.ViewModels.Catalog.Categories
         public int? ParentId { get; set; }
         public Status Status { get; set; }
         public DateTime CreatedDate { get; set; }
+        public List<Product> Products { get; set; }
     }
 }

@@ -82,8 +82,10 @@ namespace Webthucpham.BackendApi.Controllers
         [HttpGet("paging")]
         public async Task<IActionResult> GetAllPaging([FromQuery] GetUserPagingRequest request) // lay tu query
         {
-            var products = await _userService.GetUsersPaging(request);
-            return Ok(products);
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+            var users = await _userService.GetUsersPaging(request);
+            return Ok(users);
         }
 
         [HttpGet("{id}")]
