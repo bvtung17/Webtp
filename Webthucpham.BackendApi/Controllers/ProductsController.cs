@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Authorization;
 using Webthucpham.Application.Catalog.Products;
 using Webthucpham.ViewModels.Catalog.ProductImages;
 using Webthucpham.ViewModels.Catalog.Products;
+using Webthucpham.ViewModels.Common;
 
 namespace Webthucpham.BackendApi.Controllers
 {
@@ -17,201 +18,257 @@ namespace Webthucpham.BackendApi.Controllers
     public class ProductsController : ControllerBase
     {
    
-        private readonly IProductService _productService;
+        private readonly IProductService _productServices;
         public ProductsController(IProductService productService)
         {
 
-            _productService = productService;
+            _productServices = productService;
         }
 
         //http://locahost:port/product/PageIndex=1
         [HttpGet("paging")]
-        public async Task<IActionResult> GetAllPaging([FromQuery] GetManageProductPagingRequest request) // lay tu query
+        public async Task<IActionResult> Get([FromQuery] GetProductRequest request, string status)
         {
-            var products = await _productService.GetAllPaging(request);
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+            var products = await _productServices.GetAll(request, status);
             return Ok(products);
         }
 
-
-        //GetByid
-
-        //http://locahost:port/product/id
-        [HttpGet("{productId}/{languageId}")]
-        public async Task<IActionResult> GetById(int productId, string languageId)
+        [HttpGet("featured")]
+        public async Task<IActionResult> GetFeaturedProducts()
         {
-            var product = await _productService.GetById(productId, languageId);
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+            var products = await _productServices.GetFeaturedProducts();
+
+            return Ok(products);
+        }
+
+        [HttpGet("search")]
+        public async Task<IActionResult> SearchProductClient([FromQuery] GetProductRequest request)
+        {
+            var categories = await _productServices.SearchProductClient(request);
+            return Ok(categories);
+        }
+
+
+        [HttpGet("{id}")]
+        [Authorize]
+        public async Task<IActionResult> GetById(int id)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+            var product = await _productServices.GetById(id);
             if (product == null)
             {
-                return BadRequest("Không tìm thấy sản phẩm");
+                return BadRequest($"Cannot find product with id: {id}");
             }
-            return Ok(product);
-        }
-
-        [HttpGet("featured/{languageId}/{take}")]
-        [AllowAnonymous]
-        public async Task<IActionResult> GetFeaturedProducts(int take,string languageId)
-        {
-            var product = await _productService.GetFeaturedProducts(languageId, take);
-          
-            return Ok(product);
-        }
-        [HttpGet("latest/{languageId}/{take}")]
-        [AllowAnonymous]
-        public async Task<IActionResult> GetLatestProducts(int take, string languageId)
-        {
-            var product = await _productService.GetLatestProducts(languageId, take);
 
             return Ok(product);
         }
-
-        //phuong thuc create product
         [HttpPost]
         [Consumes("multipart/form-data")]
         [Authorize]
         public async Task<IActionResult> Create([FromForm] ProductCreateRequest request)
         {
             if (!ModelState.IsValid)
-            {
                 return BadRequest(ModelState);
-            }
-            var productId = await _productService.Create(request);
+            var productId = await _productServices.Create(request);
             if (productId == 0)
             {
                 return BadRequest();
             }
-            var product = await _productService.GetById(productId, request.LanguageId);
-            return CreatedAtAction(nameof(GetById), new { id = productId }, product);
-        }
 
-        //phuong thuc UpDATE product
-        [HttpPut("{productId}")]
+            var product = await _productServices.GetById(productId);
+            product.Id = productId;
+
+            return CreatedAtAction("Create", product);
+        }
+        [HttpPut("{id}")]
         [Consumes("multipart/form-data")]
         [Authorize]
-        public async Task<IActionResult> Update([FromRoute] int productId, [FromForm] ProductUpdateRequest request)
+        public async Task<IActionResult> Update([FromForm] ProductUpdateRequest request)
         {
+
             if (!ModelState.IsValid)
-            {
                 return BadRequest(ModelState);
-            }
-            request.Id = productId;
-            var affectedResult = await _productService.Update(request);
+            var affectedResult = await _productServices.Update(request);
             if (affectedResult == 0)
-                return BadRequest();
-            return Ok();
-        }
-
-        //phuong thuc Delete product
-        [HttpDelete("{productId}")]
-        [Authorize] 
-        public async Task<IActionResult> Delete(int productId)
-        {
-            var affecterResult = await _productService.Delete(productId);
-            if (affecterResult == 0)
             {
                 return BadRequest();
             }
-            return Ok();
-        }
-        //phuong thuc UpDATE PRICE
-        [HttpPatch("{productId}/{newPrice}")]
-        [Authorize]
-        public async Task<IActionResult> UpdatePrice(int productId, decimal newPrice)
-        {
-            var isSuccesfull = await _productService.UpdatePrice(productId, newPrice);
-            if (isSuccesfull)
-            {
-                return Ok();
-            }
-            return BadRequest();
+
+            return Ok("Updated");
         }
 
-        //IMAGE
-
-        //phuong thuc create IMAGE
-        [HttpPost("{productId}/image)")]
-        [Authorize]
-        public async Task<IActionResult> CreateImage(int productId,  [FromForm] ProductImageCreateRequest request)
-        {
-
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-            var imageId = await _productService.AddImage(productId, request);
-            if (imageId == 0)
-            {
-                return BadRequest();
-            }
-            var image = await _productService.GetImageById(imageId);
-            return CreatedAtAction(nameof(GetImageById), new { id = imageId }, image);
-        }
-
-        // UPDATE IMAGE
-        [HttpPut("{productId}/image/{imageId})")]
-        [Authorize]
-        public async Task<IActionResult> UpdateImage(int imageId, [FromForm] ProductUpdateImageRequest request)
-        {
-
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-            var result = await _productService.UpdateImage(imageId, request);
-            if (result == 0)
-            {
-                return BadRequest();
-            }
-            var image = await _productService.GetImageById(imageId);
-            return Ok();
-        }
-
-        // DELETE IMAGE
-        [HttpDelete("{productId}/image/{imageId})")]
-        [Authorize]
-        public async Task<IActionResult> RemoveImage(int imageId)
-        {
-
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-            var result = await _productService.RemoveImage(imageId);
-            if (result == 0)
-            {
-                return BadRequest();
-            }
-            var image = await _productService.GetImageById(imageId);
-            return Ok();
-        }
-
-
-        //GetByid ảnh
-
-        //http://locahost:port/product/id
-        [HttpGet("{productId}/image/{imageId}")]
-        public async Task<IActionResult> GetImageById(int productId, int imageId)
-        {
-            var image = await _productService.GetImageById( imageId);
-            if (image == null)
-            {
-                return BadRequest("Không tìm thấy sản phẩm");
-            }
-            return Ok(image);
-        }
-        //CATEGORY
         [HttpPut("{id}/categories")]
         [Authorize]
-        public async Task<IActionResult> CategoryAssign(int id, [FromBody] CategoryAssignRequest request)
+
+        public async Task<IActionResult> CategoryAssign([FromBody] CategoryAssignRequest request)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
+            var response = await _productServices.CategoryAssign(request);
+            if (!response.IsSuccessed)
+            {
+                return BadRequest("Assign category is not ok!");
+            }
 
-            var result = await _productService.CategoryAssign(id, request);
+            return Ok(response);
+        }
+
+        [HttpDelete("{id}")]
+        [Authorize]
+
+        public async Task<IActionResult> Delete(int id)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+            var deleted = await _productServices.Delete(id);
+            if (deleted == null)
+            {
+                return BadRequest($"Không tồn tại id: {id}");
+            }
+
+            return Ok("Deleted");
+        }
+
+        [HttpPatch("{id}/price")]
+        [Authorize]
+
+        public async Task<IActionResult> UpdatePrice([FromBody] decimal newPrice, int id)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+            var result = await _productServices.UpdatePrice(id, newPrice) ?? false;
+            if (!result)
+            {
+                return BadRequest();
+            }
+
+            return Ok("Updated");
+        }
+
+        // Product Images
+
+        [HttpGet("{productId}/images/{id}")]
+        public async Task<IActionResult> GetByImageId(int id)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+            var image = await _productServices.GetImageById(id);
+            if (image == null)
+            {
+                return BadRequest($"Không tồn tại sản phẩm có id: {id}");
+            }
+
+            return Ok(image);
+        }
+
+        [HttpGet("images/{id}")]
+
+        public async Task<IActionResult> GetAllPaging(int id)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+            var images = await _productServices.GetImageById(id);
+            if (images == null)
+            {
+                return BadRequest($"Không tồn tại sản phẩm có id: {id}");
+            }
+
+            return Ok(images);
+        }
+
+        [HttpGet("{productId}/images")]
+        [Authorize]
+        public async Task<IActionResult> GetProductImages(int productId, [FromQuery] PagingRequestBase request)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+            var images = await _productServices.GetImages(productId, request);
+            if (images == null)
+            {
+                return BadRequest($"Không tồn tại sản phẩm có id: {productId}");
+            }
+
+            return Ok(images);
+        }
+
+        [HttpPut("{productId}/images/{imageId}/thumbnail")]
+        [Authorize]
+        public async Task<IActionResult> ChangeThumbnail(int productId, int imageId)
+        {
+
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+            var affectedResult = await _productServices.ChangeThumbnail(productId, imageId);
+            if (!affectedResult)
+            {
+                return BadRequest();
+            }
+
+            return Ok("Updated");
+        }
+
+        [HttpPut("images/{id}")]
+        [Authorize]
+        public async Task<IActionResult> UpdateImage(int id, [FromForm] ProductImageUpdateRequest request)
+        {
+
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+            var affectedResult = await _productServices.UpdateImage(id, request);
+            if (affectedResult == 0)
+            {
+                return BadRequest();
+            }
+
+            return Ok("Updated");
+        }
+
+        [HttpPost("{id}/images")]
+        [Consumes("multipart/form-data")]
+        [Authorize]
+
+        public async Task<IActionResult> AddImage(int id, [FromForm] ProductImageCreateRequest request)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+            var imageId = await _productServices.AddImage(id, request);
+            if (imageId < 1)
+            {
+                return BadRequest();
+            }
+
+            var image = await _productServices.GetImageById(imageId);
+
+            return CreatedAtAction(nameof(GetByImageId), new { Id = imageId }, image);
+        }
+
+        [HttpDelete("{productId}/images/{id}")]
+        [Authorize]
+        public async Task<IActionResult> DeleteImage(int productId, int id)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+            var result = await _productServices.RemoveImage(productId, id);
             if (!result.IsSuccessed)
             {
                 return BadRequest(result);
             }
+
             return Ok(result);
+        }
+
+        [HttpGet("{id}/client")]
+        public async Task<IActionResult> GetClientProductDetail(int id)
+        {
+            var result = await _productServices.ClientGetProductDetail(id);
+
+            return Ok(result);
+
         }
     }
 }

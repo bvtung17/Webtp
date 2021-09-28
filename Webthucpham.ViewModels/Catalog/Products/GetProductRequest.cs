@@ -5,11 +5,12 @@ using Webthucpham.ViewModels.Common;
 
 namespace Webthucpham.ViewModels.Catalog.Products
 {
-    public class GetManageProductPagingRequest : PagingRequestBase
+    public class GetProductRequest : PagingRequestBase
     {
         public string Keyword { get; set; }
-        public string LanguageId { get; set; }
-
         public int? CategoryId { get; set; }
+        public decimal? PriceStart { get; set; }
+        public decimal? PriceEnd { get; set; }
+        public string SortPrice { get; set; }
     }
 }

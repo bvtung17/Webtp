@@ -73,9 +73,9 @@ namespace Webthucpham.Api
         }
 
 
-        public async Task<PageResponse<ProductVm>> GetPagings(GetManageProductPagingRequest request)
+        public async Task<PageResponse<ProductViewModel>> GetPagings(GetManageProductPagingRequest request)
         {
-            var data = await GetAsync<PageResponse<ProductVm>>(
+            var data = await GetAsync<PageResponse<ProductViewModel>>(
                 $"/api/products/paging?pageIndex={request.PageIndex}" +
                 $"&pageSize={request.PageSize}" +
                 $"&keyword={request.Keyword}&languageId={request.LanguageId}&categoryId={request.CategoryId}");
@@ -146,20 +146,20 @@ namespace Webthucpham.Api
         }
 
 
-        public async Task<ProductVm> GetById(int id, string languageId)
+        public async Task<ProductViewModel> GetById(int id, string languageId)
         {
-            var data = await GetAsync<ProductVm>($"/api/products/{id}/{languageId}");
+            var data = await GetAsync<ProductViewModel>($"/api/products/{id}/{languageId}");
 
             return data;
         }
-        public async Task<List<ProductVm>> GetFeaturedProducts(string languageId, int take)
+        public async Task<List<ProductViewModel>> GetFeaturedProducts(string languageId, int take)
         {
-            var data = await GetListAsync<ProductVm>($"/api/products/featured/{languageId}/{take}");
+            var data = await GetListAsync<ProductViewModel>($"/api/products/featured/{languageId}/{take}");
             return data;
         }
-        public async Task<List<ProductVm>> GetLatestProducts(string languageId, int take)
+        public async Task<List<ProductViewModel>> GetLatestProducts(string languageId, int take)
         {
-            var data = await GetListAsync<ProductVm>($"/api/products/latest/{languageId}/{take}");
+            var data = await GetListAsync<ProductViewModel>($"/api/products/latest/{languageId}/{take}");
             return data;
         }
 

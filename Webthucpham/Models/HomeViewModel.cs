@@ -11,8 +11,8 @@ namespace Webthucpham.Models
     {
         public List<SlideVm> Slides { get; set; }
 
-        public List<ProductVm> FeaturedProducts { get; set; }
+        public List<ProductViewModel> FeaturedProducts { get; set; }
 
-        public List<ProductVm> LatestProducts { get; set; }
+        public List<ProductViewModel> LatestProducts { get; set; }
     }
 }

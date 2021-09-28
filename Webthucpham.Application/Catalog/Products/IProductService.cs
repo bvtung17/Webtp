@@ -5,42 +5,35 @@ using System.Text;
 using System.Threading.Tasks;
 using Webthucpham.ViewModels.Catalog.ProductImages;
 using Webthucpham.ViewModels.Catalog.Products;
+using Webthucpham.ViewModels.Catalog.Products.Manage;
 using Webthucpham.ViewModels.Common;
 
 namespace Webthucpham.Application.Catalog.Products
 {
-    public interface IProductService //quan ly
+    public interface IProductService 
     {
         Task<int> Create(ProductCreateRequest request);
         Task<int> Update(ProductUpdateRequest request);
-        Task<int> Delete(int productId);
-        Task<ProductVm> GetById(int productId, string LanguageId);
-        Task<bool> UpdatePrice(int productId, decimal newPrice);
-
-        Task<bool> UpdateStock(int productId, int addedQuantity);
-
-        Task AddViewcount(int productId);
-
-   
-        Task<PageResponse<ProductVm>> GetAllPaging(GetManageProductPagingRequest request);
-
+        Task<int?> Delete(int productId);
+        //Task<PageResponse<ProductViewModel>> GetAllPaging(GetProductRequest query);
+        Task<bool?> UpdatePrice(ProductEditRequest request);
+        Task<bool?> UpdateViewCount(ProductEditRequest request);
+        Task<bool?> UpdateStock(ProductEditRequest request);
+        Task<ProductUpdateRequest> GetById(int id);
         Task<int> AddImage(int productId, ProductImageCreateRequest request);
+        Task<ApiResult<bool>> RemoveImage(int productId, int imageId);
+        Task<int> UpdateImage(int imageId, ProductImageUpdateRequest request);
+        Task<List<ProductImageViewModel>> GetListImage(int productId);
+        Task<ProductImageViewModel> GetImageById(int id);
 
-        Task<int> RemoveImage( int imageId);
+        Task<PageResponse<ProductViewModel>> GetAll(GetProductRequest request, string status);
+        Task<ApiResult<bool>> CategoryAssign(CategoryAssignRequest request);
+        Task<List<ProductViewModel>> GetFeaturedProducts();
+        Task<PageResponse<ProductImageViewModel>> GetImages(int productId, PagingRequestBase request);
+        Task<bool> ChangeThumbnail(int productId, int imageId);
+        Task<ApiResult<ClientProductViewModel>> ClientGetProductDetail(int id);
 
-        Task<int> UpdateImage(int imageId,ProductUpdateImageRequest request);
-
-
-        Task<ProductImageViewModel> GetImageById(int imageId);
-        Task<List<ProductImageViewModel>> GetListImages(int productId);
-
-        Task<PageResponse<ProductVm>> GetAllByCategoryId(string languageId, GetPublicProductPagingRequest request);
-
-        Task<ApiResult<bool>> CategoryAssign(int id, CategoryAssignRequest request);
-
-        Task<List<ProductVm>> GetFeaturedProducts(string languageId,int take);
-
-        Task<List<ProductVm>> GetLatestProducts(string languageId, int take);
+        Task<PageResponse<ProductViewModel>> SearchProductClient(GetProductRequest request);
 
     }
 }

@@ -9,7 +9,7 @@ namespace Webthucpham.Controllers.Components
 {
     public class PagerViewComponent : ViewComponent
     {
-        public Task<IViewComponentResult> InvokeAsync(PagedResultBase result)
+        public Task<IViewComponentResult> InvokeAsync(PageResponseBase result)
         {
             return Task.FromResult((IViewComponentResult)View("Default", result));
         }

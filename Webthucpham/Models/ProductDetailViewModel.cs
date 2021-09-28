@@ -12,9 +12,9 @@ namespace Webthucpham.Models
     {
         public CategoryVm Category { get; set; }
 
-        public ProductVm Product { get; set; }
+        public ProductViewModel Product { get; set; }
 
-        public List<ProductVm> RelatedProducts { get; set; }
+        public List<ProductViewModel> RelatedProducts { get; set; }
 
         public List<ProductImageViewModel> ProductImages { get; set; }
     }

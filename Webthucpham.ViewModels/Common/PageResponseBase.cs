@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Webthucpham.ViewModels.Common
 {
-    public class PagedResultBase
+    public class PageResponseBase
     {
         public int PageIndex { get; set; }
 
