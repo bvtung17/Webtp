@@ -65,7 +65,7 @@ namespace Webthucpham.Data.EF
         public DbSet<Cart> Carts { get; set; }
         public DbSet<Category> Categories { get; set; }
 
-        public DbSet<Client> Client { get; set; }
+        public DbSet<Client> Clients { get; set; }
         public DbSet<Contact> Contacts { get; set; }
 
         public DbSet<Order> Orders { get; set; }

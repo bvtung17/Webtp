@@ -4,9 +4,9 @@ using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Text;
 using Webthucpham.Data.Enums;
-using Webthucpham.ViewModels.Catalog.Orders;
 
-namespace Webthucpham.ViewModels.Sales
+
+namespace Webthucpham.ViewModels.Catalog.Orders
 {
     public class OrderViewModel
     {
