@@ -13,7 +13,7 @@ namespace Webthucpham.Api
 
         Task<PageResponse<OrderViewModel>> GetChart(GetOrderRequest request);
 
-        Task<bool> Create(OrderCreateRequest request);
+        Task<bool> Create(ClientCreateOrderViewModel request);
 
         Task<bool> UpdateStatus(int orderId, int status);
 

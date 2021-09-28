@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using Webthucpham.ViewModels.Catalog.Carts;
+using Webthucpham.ViewModels.System.Clients;
 
-namespace Webthucpham.ViewModels.Sales
+namespace Webthucpham.ViewModels.Catalog.Orders
 {
-    public class OrderCreateRequest
+    public class ClientCreateOrderViewModel
     {
         public int OrderId { get; set; }
         public string ClientName { get; set; }

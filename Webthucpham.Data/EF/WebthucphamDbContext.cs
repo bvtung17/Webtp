@@ -72,7 +72,7 @@ namespace Webthucpham.Data.EF
         public DbSet<OrderDetail> OrderDetails { get; set; }
         public DbSet<Product> Products { get; set; }
         public DbSet<ProductImage> ProductImages { get; set; }
-        public DbSet<ProductInCart> ProductInCart { get; set; }
+        public DbSet<ProductInCart> ProductInCarts { get; set; }
 
         public DbSet<Promotion> Promotions { get; set; }
 

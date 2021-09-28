@@ -60,7 +60,7 @@ namespace Webthucpham.Controllers
                 OrderDetails = orderDetails
             };
 
-            var order = new OrderCreateRequest()
+            var order = new ClientCreateOrderViewModel()
             {
                 ShipAddress = checkoutRequest.Address,
                 OrderDate = DateTime.Now,

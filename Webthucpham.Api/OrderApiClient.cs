@@ -27,7 +27,7 @@ namespace Webthucpham.Api
             _httpClientFactory = httpClientFactory;
             _configuration = configuration;
         }
-        public async Task<bool> Create(OrderCreateRequest request)
+        public async Task<bool> Create(ClientCreateOrderViewModel request)
         {
             var sessions = _httpContextAccessor
                 .HttpContext

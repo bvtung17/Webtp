@@ -6,84 +6,118 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Webthucpham.Application.Catalog.Orders;
+using Webthucpham.ViewModels.Catalog.Orders;
+using Webthucpham.ViewModels.Common;
 using Webthucpham.ViewModels.Sales;
 
 namespace Webthucpham.BackendApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class OrdersController : ControllerBase
+    public class OrdersController : Controller
     {
-        private readonly IOrderService _orderService;
-
-        public OrdersController(IOrderService orderService)
+        private IOrderService _orderService;
+        public OrdersController(IOrderService orderSerive)
         {
-            _orderService = orderService;
+            _orderService = orderSerive;
         }
         [HttpGet("paging")]
         [Authorize]
-        [HttpGet]
-        public async Task<IActionResult> GetAllPaging([FromQuery] GetOrderRequest request)
+        public async Task<IActionResult> Index([FromQuery] GetOrderRequest request, string status)
         {
-            var order = await _orderService.GetAllPaging(request);
-            return Ok(order);
-        }
+            if (!ModelState.IsValid || request.PageSize <= 0)
+            {
+                return Ok(new PageResponse<OrderViewModel>() { Items = new List<OrderViewModel>(), PageIndex = 1, PageSize = 5, TotalRecords = 0 });
+            }
 
-        [HttpGet]
-        public async Task<IActionResult> GetChart([FromQuery] GetOrderRequest request)
-        {
-            var order = await _orderService.GetChart(request);
-            return Ok(order);
+            var orders = await _orderService.GetAll(request, status);
+            return Ok(orders);
         }
-
-        [HttpGet]
-        public IActionResult GetById([FromQuery] OrderViewModel request)
+        [HttpGet("client/{clientId}/paging")]
+        public async Task<IActionResult> ClientGetOrderHistory([FromQuery] GetOrderRequest request, string status, Guid clientId)
         {
-            var order = _orderService.GetById(request);
+            if (!ModelState.IsValid || request.PageSize <= 0)
+            {
+                return Ok(new PageResponse<ClientOrderHistoryViewMode>() { Items = new List<ClientOrderHistoryViewMode>(), PageIndex = 1, PageSize = 5, TotalRecords = 0 });
+            }
+            var orders = await _orderService.ClientGetOrderHistory(clientId, request, status);
+            return Ok(orders);
+        }
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetById(int id)
+        {
+            if (id == 0)
+            {
+                return BadRequest(id);
+            }
+
+            var order = await _orderService.GetById(id);
             if (order == null)
-                return BadRequest("Không tìm thấy order");
+            {
+                return BadRequest(id);
+            }
             return Ok(order);
         }
 
-        [HttpPost]
-        public async Task<IActionResult> Create(OrderCreateRequest request)
+        [HttpGet("{id}/products")]
+        public async Task<IActionResult> GetOrderProducts(int id)
         {
-            if (!ModelState.IsValid)
+            if (id <= 0)
             {
-                return BadRequest(ModelState);
+                return BadRequest(id);
             }
-            var orderId = await _orderService.Create(request);
+            var products = await _orderService.GetOrderProducts(id);
+            return Ok(products);
+        }
+
+        [HttpGet("{clientId}/order/{orderId}")]
+        public async Task<IActionResult> GetClientOrderDetails(int orderId, Guid clientId)
+        {
             if (orderId == 0)
-                return BadRequest();
-
-            return Ok("Tạo order thành công");
-        }
-
-        // PUT api/<ProductController>/5
-        [HttpPut]
-        [Consumes("multipart/form-data")]
-        [Authorize]
-        public async Task<IActionResult> UpdateStatus([FromForm] int orderId, [FromForm] int status)
-        {
-            if (!ModelState.IsValid)
             {
-                return BadRequest(ModelState);
+                return BadRequest(orderId);
             }
-
-            var affectrs = await _orderService.UpdateStatus(orderId, status);
-            if (!affectrs)
+            var order = await _orderService.GetclientOrderDetails(clientId, orderId);
+            if (order == null)
+            {
+                return BadRequest("Không tìm thấy đơn hàng!");
+            }
+            return Ok(order);
+        }
+        [HttpPut("status")]
+        public async Task<IActionResult> UpdateStatus(OrderViewModel request)
+        {
+            var result = await _orderService.UpdateStatus(request);
+            if (!result)
+            {
                 return BadRequest();
-            return Ok("Cập nhật trạng thái thành công");
+            }
+            return Ok();
+        }
+        [HttpPost("client")]
+        public async Task<IActionResult> ClientCreateOrder(ClientCreateOrderViewModel request)
+        {
+            var result = await _orderService.ClientCreateOrder(request);
+            return Ok(result);
+        }
+        [HttpGet("client/{cartId}/order/{orderId}")]
+        public async Task<IActionResult> ClientGetOrder(Guid cartId, int orderId)
+        {
+            var result = await _orderService.ClientGetOrder(cartId, orderId);
+            if (!result.IsSuccessed)
+            {
+                return BadRequest(result);
+            }
+            return Ok(result);
         }
 
-        // DELETE api/<ProductController>/5
-        [HttpDelete]
-        public async Task<IActionResult> Delete([FromQuery] int id)
+
+        [HttpPut("{orderId}/cancel")]
+        public async Task<IActionResult> ClientCancelOrder(int orderId, [FromBody] ClientCancelOrderReasonRequest request)
         {
-            var affectrs = await _orderService.Delete(id);
-            if (affectrs == 0)
-                return BadRequest();
-            return Ok();
+            var result = await _orderService.ClientCancelOrder(orderId, request.Message);
+
+            return Ok(result);
         }
     }
 }
