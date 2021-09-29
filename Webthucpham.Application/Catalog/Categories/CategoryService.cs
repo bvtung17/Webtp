@@ -21,14 +21,14 @@ namespace Webthucpham.Application.Catalog.Categories
             _context = context;
         }
 
-        public async Task<List<CategoryVm>> GetAll()
+        public async Task<List<CategoryViewModel>> GetAll()
         {
             var query = from c in _context.Categories
                         where c.Status == Status.Active
                         select c
 
                         ;
-            var categories = await query.Select(x => new CategoryVm()
+            var categories = await query.Select(x => new CategoryViewModel()
             {
                 Id = x.Id,
                 Name = x.Name,
@@ -43,7 +43,7 @@ namespace Webthucpham.Application.Catalog.Categories
             return categories;
         }
 
-        public async Task<PageResponse<CategoryVm>>GetAllPaging(PaginateRequest request, string status)
+        public async Task<PageResponse<CategoryViewModel>>GetAllPaging(PaginateRequest request, string status)
         {
             int PageIndex = request.PageIndex; //= 1
             int PageSize = request.PageSize; //=5
@@ -65,14 +65,14 @@ namespace Webthucpham.Application.Catalog.Categories
             totalRecords = await query.CountAsync();
             var data = await query.Skip((PageIndex - 1) * PageSize)
                 .Take(PageSize)
-                .Select(x => new CategoryVm()
+                .Select(x => new CategoryViewModel()
                 {
                     Id = x.Id,
                     Name = x.Name,
                     IsOutstanding = x.IsOutstanding,
                     Status = x.Status
                 }).ToListAsync();           
-            var response = new PageResponse<CategoryVm>()
+            var response = new PageResponse<CategoryViewModel>()
             {
                 Items = data,
                 TotalRecords = totalRecords,
@@ -82,14 +82,14 @@ namespace Webthucpham.Application.Catalog.Categories
             return response;
         }
 
-        public async Task<CategoryVm> GetById(int id)
+        public async Task<CategoryViewModel> GetById(int id)
         {
             var category = await _context.Categories.FindAsync(id);
             if (category == null)
             {
                 return null;
             }
-            var categoryVm = new CategoryVm
+            var categoryVm = new CategoryViewModel
             {
                 Id = category.Id,
                 Name = category.Name,

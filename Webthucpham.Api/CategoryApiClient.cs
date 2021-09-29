@@ -19,14 +19,14 @@ namespace Webthucpham.Api
         {
         }
 
-        public async Task<List<CategoryVm>> GetAll(string languageId)
+        public async Task<List<CategoryViewModel>> GetAll()
         {
-            return await GetListAsync<CategoryVm>("/api/categories?languageId=" + languageId);
+            return await GetListAsync<CategoryViewModel>("/api/categories?languageId=" + languageId);
         }
 
-        public async Task<CategoryVm> GetById(string languageId, int id)
+        public async Task<CategoryViewModel> GetById(string languageId, int id)
         {
-            return await GetAsync<CategoryVm>($"/api/categories/{id}/{languageId}");
+            return await GetAsync<CategoryViewModel>($"/api/categories/{id}/{languageId}");
         }
     }
 }

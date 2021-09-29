@@ -9,9 +9,9 @@ namespace Webthucpham.Application.Catalog.Categories
 {
     public interface ICategoryService
     {
-        Task<List<CategoryVm>> GetAll();
-        Task<CategoryVm> GetById(int id);
-        Task<PageResponse<CategoryVm>> GetAllPaging(PaginateRequest request, string status);
+        Task<List<CategoryViewModel>> GetAll();
+        Task<CategoryViewModel> GetById(int id);
+        Task<PageResponse<CategoryViewModel>> GetAllPaging(PaginateRequest request, string status);
         Task<bool> Delete(int id);
         Task<int> Create(CategoryCreateRequest request);
         Task<bool> Edit(CategoryUpdateRequest request);

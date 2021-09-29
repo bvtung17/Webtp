@@ -8,8 +8,10 @@ namespace Webthucpham.Api
 {
     public interface ICategoryApiClient
     {
-        Task<List<CategoryVm>> GetAll(string languageId);
-        Task<CategoryVm> GetById(string languageId, int id);
+        Task<List<CategoryViewModel>> GetAll();
+        Task<int> Create(CategoryCreateRequest request);
+        Task<bool> Edit(CategoryUpdateRequest request);
+        Task<bool> Delete(int id);
     }
 }
  
