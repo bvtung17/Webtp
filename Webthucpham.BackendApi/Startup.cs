@@ -15,17 +15,21 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Webthucpham.Application.Catalog.Carts;
 using Webthucpham.Application.Catalog.Categories;
+using Webthucpham.Application.Catalog.Clients;
 using Webthucpham.Application.Catalog.Orders;
 using Webthucpham.Application.Catalog.Products;
 using Webthucpham.Application.Common;
-using Webthucpham.Application.System.Languages;
 using Webthucpham.Application.System.Roles;
 using Webthucpham.Application.System.Users;
 using Webthucpham.Application.Utilities.Slides;
 using Webthucpham.Data.EF;
 using Webthucpham.Data.Entities;
 using Webthucpham.Utilities.Constants;
+using Webthucpham.ViewModels.Catalog.Products;
+using Webthucpham.ViewModels.Catalogs.Products;
+using Webthucpham.ViewModels.System.Clients;
 using Webthucpham.ViewModels.System.Users;
 
 namespace Webthucpham.BackendApi
@@ -44,36 +48,39 @@ namespace Webthucpham.BackendApi
         {
             services.AddDbContext<WebthucphamDbContext>(options =>
             options.UseSqlServer(Configuration.GetConnectionString(SystemConstants.MainConnectionString)));
-
+            //Identy
             services.AddIdentity<User, Role>()
                 .AddEntityFrameworkStores<WebthucphamDbContext>()
                 .AddDefaultTokenProviders();
             //DECLARE DI
+            services.AddTransient<IProductService, ProductService>();
+            services.AddTransient<IClientService, ClientService>();
             services.AddTransient<IStorageService, FileStorageService>();
-            services.AddTransient<IProductService, ProductService>();
-            services.AddTransient<IProductService, ProductService>();
-            services.AddTransient<ICategoryService, CategoryService>();
-            // USER
-            services.AddTransient < UserManager<User>, UserManager <User>>();
+            services.AddTransient<UserManager<User>, UserManager<User>>();
             services.AddTransient<SignInManager<User>, SignInManager<User>>();
             services.AddTransient<RoleManager<Role>, RoleManager<Role>>();
-
-            services.AddTransient<ILanguageService, LanguageService>();
-            services.AddTransient<IUserService, UserService> ();
-
-            services.AddTransient<IRoleService, RoleService> ();
-
+            services.AddTransient<IUserService, UserService>();
+            services.AddTransient<IRoleService, RoleService>();
             services.AddTransient<ISlideService, SlideService>();
+            services.AddTransient<ICartService, CartService>();
             services.AddTransient<IOrderService, OrderService>();
-            //ràng buộc đăng nhập đăng ký
-            //services.AddTransient<IValidator<LoginRequest>, LoginRequestValidator>();
-            //services.AddTransient<IValidator<RegisterRequest>, RegisterRequestValidator>();
+            services.AddTransient<ICategoryService, CategoryService>();
+            services.AddTransient<IValidator<LoginRequest>, LoginRequestValidator>();
+            services.AddTransient<IValidator<ProductCreateRequest>, CreateProductValidator>();
+            
+            // Validator
+            services.AddControllers().AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<LoginRequestValidator>());
+            services.AddControllers().AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<CreateProductValidator>());
+            services.AddControllers().AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<ClientLoginValidation>());
+            services.AddControllers().AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<ClientRegisterValidation>());
+            services.AddControllers().AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<UpdateProductValidator>());
+
             services.AddControllers()
                 .AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<LoginRequestValidator>());
 
             services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "Swagger eShop Solution", Version = "v1" });
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "Swagger WebShop Solution", Version = "v1" });
                 c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
                 {
                     Description = @"JWT Authorization header using the Bearer scheme. \r\n\r\n

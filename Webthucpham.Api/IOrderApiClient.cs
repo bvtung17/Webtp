@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
+using Webthucpham.ViewModels.Catalog.Orders;
 using Webthucpham.ViewModels.Common;
 using Webthucpham.ViewModels.Sales;
 
@@ -9,16 +10,9 @@ namespace Webthucpham.Api
 {
     public interface IOrderApiClient
     {
-        Task<PageResponse<OrderViewModel>> GetPagings(GetOrderRequest request);
-
-        Task<PageResponse<OrderViewModel>> GetChart(GetOrderRequest request);
-
-        Task<bool> Create(ClientCreateOrderViewModel request);
-
-        Task<bool> UpdateStatus(int orderId, int status);
-
-        Task<OrderViewModel> GetById(OrderViewModel request);
-
-        Task<bool> Delete(int id);
+        Task<PageResponse<OrderViewModel>> GetAll(GetOrderRequest request, string status);
+        Task<OrderViewModel> GetById(int id);
+        Task<bool> UpdateStatus(OrderViewModel request);
+        Task<List<OrderProductViewModel>> GetProducts(int id);
     }
 }
