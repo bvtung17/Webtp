@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using Webthucpham.ViewModels.Common;
 
-namespace Webthucpham.ViewModels.Sales
+namespace Webthucpham.ViewModels.Catalog.Orders
 {
     public class GetOrderRequest : PagingRequestBase
     {
