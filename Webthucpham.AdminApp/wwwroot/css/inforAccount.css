@@ -1,0 +1,163 @@
+﻿
+#pageContainer {
+    overflow: hidden;
+    padding: 50px 0;
+}
+
+.main-contentAccount {
+    display: block;
+}
+
+/*#page-wrapperAccount {
+    padding: 50px 0px;
+}*/
+
+.wrapperAccount {
+    max-width: 1360px;
+    margin: 0 auto;
+    padding: 0 15px;
+}
+
+
+
+.grid {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+/*    margin-left: -30px;*/
+}
+
+.one-whole {
+    width: 100%;
+}
+
+.one-quarter {
+    width: 25%;
+}
+
+.three-quarters {
+    width: 75%;
+}
+
+.grid__item {
+    box-sizing: border-box;
+    float: left;
+    min-height: 1px;
+    vertical-align: top;
+}
+
+.form-group .input {
+    font-size: 14px;
+    max-width: 582px;
+    height: 48px;
+    background: #EFEFF4;
+    line-height: 48px;
+    width: 100%;
+    padding: 0 12px;
+    margin: 10px 0;
+}
+
+.br-right {
+    position: relative;
+}
+
+    .br-right:before {
+        position: absolute;
+        content: '';
+        width: 1px;
+        height: 100%;
+        background: #C8C7CC;
+        top: 0;
+        left: calc(110px / 2);
+    }
+
+.no-bullets {
+    list-style: none outside;
+    margin-left: -36px;
+}
+
+    .no-bullets li a {
+        text-decoration: none;
+        color: #1c1b1b;
+    }
+
+.gkoeQY {
+    display: inline-block;
+}
+
+    .gkoeQY .label {
+        font-size: 14px;
+        line-height: 20px;
+        display: inline-block;
+        vertical-align: middle;
+        text-align: justify;
+    }
+
+.table-order-customer tbody tr td:first-child {
+    font-weight: bold;
+}
+.table-order-customer tbody tr td a {
+    color: #070707;
+    text-decoration: none
+}
+@media (min-width: 1023px) {
+    .mg-left-110 {
+        margin-left: -110px !important;
+    }
+
+    .pd-left110 {
+        padding-left: 110px !important;
+    }
+}
+
+@media screen and (min-width: 480px) {
+    .wrapperAccount {
+        padding: 0 30px;
+    }
+}
+
+
+/*Order History*/
+
+table.full {
+    width: 100%;
+    margin-bottom: 1em;
+}
+
+
+
+.table-order-customer {
+    width: 100%;
+    box-sizing: border-box;
+    border-collapse: collapse;
+    border-spacing: 0;
+    border: none;
+    color: #000;
+}
+
+.table-wrap {
+    max-width: 100%;
+    overflow: auto;
+}
+
+.table-order-customer thead {
+    font-size: 14px;
+    line-height: 20px;
+    border-bottom: 0.5px solid #070707;
+    text-transform: uppercase;
+    padding: 15px;
+}
+
+.table-order-customer tbody tr td:first-child {
+    font-weight: bold;
+}
+
+.table-order-customer tbody tr td {
+    border-bottom: 0.5px solid #E0E0E0;
+}
+
+.table-order-customer th, .table-order-customer td {
+    border: none;
+    padding: 15px;
+}
+

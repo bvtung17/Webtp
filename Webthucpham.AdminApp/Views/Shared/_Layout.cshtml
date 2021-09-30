@@ -1,155 +1,264 @@
-﻿<!DOCTYPE html>
+﻿
+@{
+    var isLogin = ViewBag.IsLogin;
+    var categories = ViewBag.Categories;
+
+}
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-    <meta name="description" content="" />
-    <meta name="author" content="" />
-    <title>@ViewData["Title"] - Cosmetics Shop Administration</title>
-    <link href="/css/styles.css" rel="stylesheet" />
-    <link href="~/css/customStyle.css" rel="stylesheet" />
-    <link href="https://cdn.datatables.net/1.10.20/css/dataTables.bootstrap4.min.css" rel="stylesheet" crossorigin="anonymous" />
-    <link href="~/css/Chosen/chosen.min.css" rel="stylesheet" />
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/js/all.min.js" crossorigin="anonymous"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Paris France Beauty</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" />
+    <link rel="stylesheet" href="~/css/customize.css" />
+    <link rel="stylesheet" href="~/css/productDetail.css" />
+    <link rel="stylesheet" href="~/css/loginFrom.css" />
+    <link rel="stylesheet" href="~/css/registerFrom.css" />
+    <link rel="stylesheet" href="~/css/cartDetail.css" />
+    <link rel="stylesheet" href="~/css/inforCart.css" />
+    <link rel="stylesheet" href="~/css/billCart.css" />
+    <link rel="stylesheet" href="~/css/index.css" />
+    <link rel="stylesheet" href="~/css/inforAccount.css" />
+    <link rel="stylesheet" href="~/css/search.css" />
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <script src="https://kit.fontawesome.com/c0378fb81e.js" crossorigin="anonymous"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300&display=swap" rel="stylesheet">
+    <link rel="shortcut icon" href="//cdn.shopify.com/s/files/1/0003/8718/6741/files/favicon_fc3d6d9d-ad9e-4948-ab41-e7c8af30e908_32x32.png?v=1589251208" type="image/png">
 </head>
-<body class="sb-nav-fixed">
-    <nav class="sb-topnav navbar navbar-expand navbar-dark bg-secondary shadow">
+<body>
+    @* Header *@
+    @*<nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">*@
 
-        <a class="navbar-brand py-4" asp-controller="Home" asp-action="Index">
-            <div class="d-flex justify-content-center ">
-                <img class="w-50 rounded" src="/css/img/logoproject.png" alt="" />
+    <div class="pageContainer">
+        <div id="shopify-section-announcement" class="shopify-section">
+            <div id="section-announcement" class="announcementBar__Wrapper">
+                <div class="announcementBar">
+                    <p class="announcement__content justify-content-center text-center">HOLIDAY SALES - MỸ PHẨM GIVENCHY & MAKE UP FOR EVER SIÊU GIẢM GIÁ 50%</p>
+                </div>
             </div>
-        </a>
-        <button class="btn btn-link btn-sm order-1 order-lg-0 text-white" id="sidebarToggle" href="#"><i class="fas fa-bars"></i></button>
-        <div class="navbar-text" asp-controller="Home" asp-action="Index">
-            <a href="/" class="text-decoration-none-hover mr-2">Home</a>
         </div>
-        <!-- Navbar Search-->
-        <form class="d-none d-md-inline-block form-inline ml-auto mr-0 mr-md-3 my-2 my-md-0">
-            <div class="input-group d-none">
-                <input class="form-control" type="text" placeholder="Search for..." aria-label="Search" aria-describedby="basic-addon2" />
-                <div class="input-group-append">
-                    <button class="btn btn-outline-light" type="button"><i class="fas fa-search"></i></button>
+        <div id="shopify-section-header" class="shopify-section shopify-section--header">
+            <div class="header__wrapper d-flex">
+
+
+                @* Logo *@
+                <div class="header__logo" style="display: block; margin-left: 46%;">
+                    <a href="/" class="header__logoLink">
+                        <img class="header__logoimage header__logoimage--primary" src="/images/logo.png"
+                             srcset="" width="170" alt="Paris France Beauty">
+                    </a>
+                </div>
+                @* Horizontal List *@
+                <div class="header__mainnav">
+
+                    <ul class="horizontalList horizontalList__spacing d-flex items-center">
+                        @if (isLogin == null || !isLogin)
+                        {
+                            <li class="horizontalList__item">
+                                <a href="/user/login" class="d-block">Tài khoản</a>
+                            </li>
+                        }
+                        else
+                        {
+                            var avatar = ViewBag.Avatar;
+                            var userName = ViewBag.Name;
+
+                            <div class="d-flex align-items-center position-relative account-section">
+                                <img onclick="redirectToUserDetail()" class="rounded-circle mr-2 user-avatar" src="@avatar" />
+                                <span onclick="redirectToUserDetail()" class="font-weight-bold user-name">@userName</span>
+                                <ul class="user-menu position-absolute ">
+                                    <span class="position-absolute triangle-top"></span>
+                                    <li class="user-menu-items">
+                                        <a href="/user/detail" class="user-menu-link">Thông tin cá nhân</a>
+                                    </li>
+                                    <li class="user-menu-items">
+                                        <a href="/user/orderhistory" class="user-menu-link">Đơn hàng của tôi</a>
+                                    </li>
+                                    <li class="user-menu-items">
+                                        <a href="/user/Logout" class="user-menu-link">Đăng xuất</a>
+                                    </li>
+                                </ul>
+                            </div>
+                        }
+                        <li class="horizontalList__item">
+                            <a href="#" class="bg-white border-0 d-block" style="cursor: pointer;" data-toggle="dropdown" data-action="open-modal" aria-controls="search">
+                                Tìm Sản Phẩm
+                            </a>
+                            <ul class="dropdown-menu" style="border-radius: 20px; border: none !important">
+                                <li>
+                                    <form asp-action="Search" asp-controller="Home" method="get">
+                                        <input type="text" id="search" name="Keyword" style="font-size: 15px; font-weight: 600;" placeholder="Nhập từ khóa...">
+                                        <button type="submit" id="btnSearch"></button>
+                                        @*<a href="@Url.Action("Search", "Home")" id="btnSearch"></a>*@
+                                    </form>
+                                </li>
+                            </ul>
+                        </li>
+                        <li class="horizontalList__item">
+                            <a href="/cart/cartdetail" class="d-block" data-action="open-drawer" data-drawer-id="sidebar-cart" aria-label="Mở Giỏ Hàng">
+                                <i class="fas fa-shopping-cart"></i>
+                                Giỏ hàng(@if (ViewBag.Cart != null)
+                                {
+                                    <span class="header__cartCount" id="cartQuantity">@ViewBag.Cart.Products.Count</span>
+                                }
+                                else
+                                {
+                                    <span class="header__cartCount" id="cartQuantity">0</span>
+                                })
+                            </a>
+                        </li>
+                    </ul>
                 </div>
             </div>
-        </form>
-        <!-- Navbar-->
-        <ul class="navbar-nav ml-auto ml-md-0">
-            <li class="nav-item dropdown d-flex align-content-center justify-content-center align-bottom">
+            @* Nav *@
+            <nav class="header__mainnav justify-content-center text-center" aria-label="Main navigation">
+                <ul class="horizontalList">
+                    <li class="horizontalList__item dropDown" aria-haspopup="true">
+                        <div class="megaMenu megaMenu--spacingEvenly dropdown-content" aria-hidden="false">
+                            <div class="megaMenu__Inner">
+                                <div class="megaMenu__Item megaMenu__Item--fit">
+                                    <a class="megaMenu__Title" href="#">Sản phẩm</a>
+                                    <ul class="linklist">
+                                        @if (categories != null)
+                                            @foreach (var item in categories)
+                                            {
+                                                <li class="linklist__Item">
+                                                    <a class="link--secondary" href="/Search/@item.CategoryId">@item.CategoryName</a>
+                                                </li>
+                                            }
+                                    </ul>
 
-                <div class="text-white py-3 ">Xin chào <a class="text-white font-weight-bold text-decoration-none-hover" href="/Profile/Index">@User.Identity.Name</a></div>
+                                </div>
+                            </div>
+                        </div>
 
-                <a class="nav-link dropdown-toggle py-3 text-white" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></a>
-                <div class="dropdown-menu dropdown-menu-right" aria-labelledby="userDropdown">
-                    <div class="dropdown-divider"></div>
-                    <form class="d-flex justify-content-center" asp-action="Logout" asp-controller="User" method="post">
-                        <button type="submit" class="btn btn-outline-danger ">Đăng xuất</button>
-                    </form>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+    @*</nav>*@
+    @* header end==================================================================================================================================== *@
+    @RenderSection("slider", required: false)
+    <div>
+        <main role="main" class="pb-3">
+            @RenderBody()
+        </main>
+    </div>
+
+
+
+
+    @* Container start ====================================================================================================================================*@
+
+    @* Container end ==================================================================================================================================== *@
+
+
+
+
+
+    @* footer end==================================================================================================================================== *@
+    <div id="shopify-section-footer" class="shopify-section shopify-section--footer">
+        <div class="footer_Container">
+            <div class="footer_conent">
+                <div class="footer__inner">
+                    <div class="footer__block footer__block--links col l-4 m-12 c-12">
+                        <h2 class="footer__title">VỀ PARIS FRANCE BEAUTY</h2>
+                        <ul class="linklist">
+                            <li class="linklist__Item">
+                                <a href="#" class="link link--primary">Lịch Sử Thương Hiệu</a>
+                            </li>
+                            <li class="linklist__Item">
+                                <a href="#" class="link link--primary">Ưu Đãi Tặng Đối Tác</a>
+                            </li>
+                            <li class="linklist__Item">
+                                <a href="#" class="link link--primary">Thông Tin Liên Hệ </a>
+                            </li>
+                            <li class="linklist__Item">
+                                <a href="#" class="link link--primary">Danh Sách Cửa Hàng</a>
+                            </li>
+                            <li class="linklist__Item">
+                                <a href="#" class="link link--primary">Nộp Đơn Xin Việc</a>
+                            </li>
+                            <li class="linklist__Item">
+                                <a href="#" class="link link--primary">Hợp Tác Kinh Doanh</a>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="footer__block footer__block--links col l-4 m-12 c-12">
+                        <h2 class="footer__title">QUY ĐỊNH & CHÍNH SÁCH</h2>
+                        <ul class="linklist">
+                            <li class="linklist__Item">
+                                <a href="#" class="link link--primary">Chính Sách & Quy Định Chung</a>
+                            </li>
+                            <li class="linklist__Item">
+                                <a href="#" class="link link--primary">Chính Sách Bảo Mật</a>
+                            </li>
+                            <li class="linklist__Item">
+                                <a href="#" class="link link--primary">Chính Sách Đổi Trả & Hoàn Tiền</a>
+                            </li>
+                            <li class="linklist__Item">
+                                <a href="#" class="link link--primary">Chính Sách Vận Chuyển</a>
+                            </li>
+                            <li class="linklist__Item">
+                                <a href="#" class="link link--primary">Quy Định & Hình Thức Thanh Toán</a>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="footer__block footer__block--text col l-4 m-12 c-12">
+                        <h2 class="footer__title">GIẤY PHÉP KINH DOANH</h2>
+                        <div class="footer__content rte">
+                            <p>
+                                "Tất cả sản phẩm của PARIS FRANCE BEAUTY được độc quyền phân phối chính hãng bởi CÔNG TY TNHH TMDV&nbsp;
+                                PHƯƠNG PHÁT."<br><br>"VPĐD: SAIGON TRADE CENTER - Phòng 609-610, 37 Tôn Đức Thắng, P. Bến Nghé, Q.1, Tp.&nbsp;HCM."
+                                <br><br><strong>Email:</strong> <a href="mailto:parisfrance@phuongphat.com" title="mailto:parisfrance@phuongphat.com">
+                                    parisfrance@phuongphat.com
+                                </a><br><br><strong>Hotline:</strong>&nbsp;(+84) <strong>7838 109 06</strong>
+                            </p>
+                        </div>
+                    </div>
                 </div>
-            </li>
-        </ul>
-    </nav>
-    <div id="layoutSidenav">
-        <div id="layoutSidenav_nav">
-            <nav class="sb-sidenav accordion sb-sidenav-light" id="sidenavAccordion">
-                <div class="sb-sidenav-menu">
-                    <div class="nav">
-                        <div class="sb-sidenav-menu-heading">Core</div>
-                        <a class="nav-link" asp-controller="Home" asp-action="Index">
-                            <div class="sb-nav-link-icon"><i class="fas fa-tachometer-alt"></i></div>
-                            Bảng điều khiển
+                <div class="bct-section">
+                    <a href="http://online.gov.vn/HomePage/CustomWebsiteDisplay.aspx?DocId=51903">
+                        <img alt="Đã Thông Báo Bộ Công Thương" src="~/images/BoCongThuong.png">
+                    </a>
+                </div>
+                <div class="footer-aside d-flex" style="padding-top: 5px;">
+                    <div style="margin-right: -90px;">
+                        <a href="#">
+                            <img class="img--footer" src="~/images/Amex.png" />
                         </a>
-                        <div class="sb-sidenav-menu-heading">Hệ thống</div>
-                        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseLayouts" aria-expanded="false" aria-controls="collapseLayouts">
-                            <div class="sb-nav-link-icon"><i class="fas fa-user"></i></div>
-                            Người Dùng
-                            <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
+                    </div>
+                    <div style="margin-right: -90px;">
+                        <a href="#">
+                            <img class="img--footer" src="~/images/JCB.png" />
                         </a>
-                        <div class="collapse" id="collapseLayouts" aria-labelledby="headingOne" data-parent="#sidenavAccordion">
-                            <nav class="sb-sidenav-menu-nested nav">
-                                <a class="nav-link" asp-controller="User" asp-action="index">danh sách người dùng</a>
-                            </nav>
-                        </div>
-                        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#productList" aria-expanded="false" aria-controls="productList">
-                            <div class="sb-nav-link-icon"><i class="fas fa-box-open"></i></div>
-                            Sản Phẩm
-                            <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
+                    </div>
+                    <div style="margin-right: -90px;">
+                        <a href="#">
+                            <img class="img--footer" src="~/images/Mastercard.png" />
                         </a>
-                        <div class="collapse" id="productList" aria-labelledby="headingOne" data-parent="#sidenavAccordion">
-                            <nav class="sb-sidenav-menu-nested nav">
-                                <a class="nav-link" asp-controller="Product" asp-action="index">danh sách sản phẩm</a>
-                            </nav>
-                        </div>
-                        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#categoryList" aria-expanded="false" aria-controls="categoryList">
-                            <div class="sb-nav-link-icon"><i class="fas fa-list-ul"></i></div>
-                            Danh Mục
-                            <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
-                        </a>
-                        <div class="collapse" id="categoryList" aria-labelledby="headingOne" data-parent="#sidenavAccordion">
-                            <nav class="sb-sidenav-menu-nested nav">
-                                <a class="nav-link" asp-controller="Category" asp-action="index">danh sách danh mục</a>
-                            </nav>
-                        </div>
-                        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#orderList" aria-expanded="false" aria-controls="collapsePages">
-                            <div class="sb-nav-link-icon"><i class="fas fa-shopping-cart"></i></div>
-                            Đơn hàng
-                            <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
-                        </a>
-                        <div class="collapse" id="orderList" aria-labelledby="headingOne" data-parent="#sidenavAccordion">
-                            <nav class="sb-sidenav-menu-nested nav">
-                                <a class="nav-link" asp-controller="Order" asp-action="index">Danh sách hóa đơn</a>
-                            </nav>
-                        </div>
-                        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#bannerList" aria-expanded="false" aria-controls="collapsePages">
-                            <div class="sb-nav-link-icon"><i class="fas fa-images"></i></div>
-                            Ảnh Bìa
-                            <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
-                        </a>
-                        <div class="collapse" id="bannerList" aria-labelledby="headingOne" data-parent="#sidenavAccordion">
-                            <nav class="sb-sidenav-menu-nested nav">
-                                <a class="nav-link" asp-controller="Banner" asp-action="index">Danh sách ảnh bìa</a>
-                            </nav>
-                        </div>
-                        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#clientList" aria-expanded="false" aria-controls="collapsePages">
-                            <div class="sb-nav-link-icon"><i class="fas fa-users"></i></div>
-                            Khách Hàng
-                            <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
-                        </a>
-                        <div class="collapse" id="clientList" aria-labelledby="headingOne" data-parent="#sidenavAccordion">
-                            <nav class="sb-sidenav-menu-nested nav">
-                                <a class="nav-link" asp-controller="Client" asp-action="index">Danh sách khách hàng</a>
-                            </nav>
-                        </div>
-
-                        <div class="sb-sidenav-menu-heading">Addons</div>
-                        <a class="nav-link" href="charts.html">
-                            <div class="sb-nav-link-icon"><i class="fas fa-chart-area"></i></div>
-                            Charts
-                        </a>
-                        <a class="nav-link d-none" href="tables.html">
-                            <div class="sb-nav-link-icon"><i class="fas fa-table"></i></div>
-                            Tables
+                    </div>
+                    <div style="margin-right: -90px;">
+                        <a href="#">
+                            <img class="img--footer" src="~/images/visa.png" />
                         </a>
                     </div>
                 </div>
-                <div class="sb-sidenav-footer d-none">
-                    <div class="small">Logged in as:</div>
-                    Start Bootstrap
-                </div>
-            </nav>
-        </div>
-        <div id="layoutSidenav_content">
-            <main>
-                @RenderBody()
-            </main>
-
+            </div>
         </div>
     </div>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
-    <script src="/js/scripts.js"></script>
+    @* footer end==================================================================================================================================== *@
 
-    @RenderSection("Scripts", required: false)
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="~/js/common.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
+

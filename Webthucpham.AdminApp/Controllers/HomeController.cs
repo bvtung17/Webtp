@@ -11,8 +11,7 @@ using Webthucpham.AdminApp.Models;
 using Webthucpham.Utilities.Constants;
 
 namespace Webthucpham.AdminApp.Controllers
-{   
-    [Authorize]
+{
     public class HomeController : BaseController
     {
         private readonly ILogger<HomeController> _logger;
@@ -37,14 +36,6 @@ namespace Webthucpham.AdminApp.Controllers
         public IActionResult Error()
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
-        }
-        [HttpPost]
-        public IActionResult Language(NavigationViewModel viewModel)
-        {
-            HttpContext.Session.SetString(SystemConstants.AppSettings.DefaultLanguageId,
-                viewModel.CurrentLanguageId);
-
-            return Redirect(viewModel.ReturnUrl);
         }
     }
 }

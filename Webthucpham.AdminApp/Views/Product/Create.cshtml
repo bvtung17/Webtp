@@ -1,95 +1,154 @@
-﻿@model Webthucpham.ViewModels.Catalog.Products.ProductCreateRequest
+﻿@model Webthucpham.ViewModels.Catalog.Products.Manage.ProductCreateRequest
 
 @{
     ViewData["Title"] = "Create";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
-@section Scripts{
-    <script src="https://cdn.ckeditor.com/ckeditor5/21.0.0/classic/ckeditor.js"></script>
+
+@section Scripts {
+    <script src="https://cdn.ckeditor.com/ckeditor5/27.0.0/classic/ckeditor.js"></script>
     <script>
         ClassicEditor
-            .create(document.querySelector('#txt_details'), {
-                // toolbar: [ 'heading', '|', 'bold', 'italic', 'link' ]
-            })
+            .create(document.querySelector('#productDetails'))
             .then(editor => {
-                window.editor = editor;
+                console.log(editor);
             })
-            .catch(err => {
-                console.error(err.stack);
+            .catch(error => {
+                console.error(error);
+            });
+        ClassicEditor
+            .create(document.querySelector('#productDescription'))
+            .then(editor => {
+                console.log(editor);
+            })
+            .catch(error => {
+                console.error(error);
             });
     </script>
-}
-<div class="container-fluid">
-    <h1 class="mt-4">Tạo mới Sản Phẩm</h1>
-    <ol class="breadcrumb mb-4">
-        <li class="breadcrumb-item"><a href="/">Trang chủ</a></li>
-        <li class="breadcrumb-item active">Tạo mới sản phẩm</li>
-    </ol>
-    <div class="card mb-4">
-        <div class="card-header">
-            <a class="btn btn-success" asp-action="Index" asp-controller="Product">Về danh sách</a>
-        </div>
+    <script type="text/javascript">
+        // Add the following code if you want the name of the file appear on select
+        $(".custom-file-input").on("change", function () {
+            var fileName = $(this).val().split("\\").pop();
+            $(this).siblings(".custom-file-label").addClass("selected").html(fileName);
+        });
+    </script>
 
+    <script type="text/javascript" src="~/js/chosen.jquery.min.js"></script>
+
+    <script>
+        $('#updateProductBtnForm').on('Click').submit();
+
+        const handleOnChange = () => {
+            alert('test');
+        }
+
+        $(function () {
+            //normal dropdown
+            //$("#normalDropDown").chosen({
+            //    disable_search_threshold : 5
+            //});
+
+            //multiselect DropDown
+            $("#multiSelectCreate").chosen({
+                width: "100%"
+            });
+        });
+
+    </script>
+}
+
+<div class="container-fluid">
+    <h1 class="mt-4">Sản Phẩm</h1>
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item"><a asp-action="Index" asp-controller="Product">Danh Sách Sản Phẩm</a></li>
+        <li class="breadcrumb-item active">Tạo Mới Sản Phẩm</li>
+    </ol>
+
+    <div class="card mb-4">
+        <div class="card-header d-flex justify-content-between">
+            <div>
+                <a asp-action="Index" asp-controller="Product" class="btn btn-outline-dark"><i class="fas fa-chevron-left back-list-product mr-2"></i>Về danh sách sản phẩm</a>
+            </div>
+            <label for="create-product-btn" class="btn btn-outline-dark px-5">
+                Tạo mới sản phẩm
+            </label>
+        </div>
         <div class="card-body">
-            <div class="col-md-8">
-                <form asp-action="Create" enctype="multipart/form-data" method="post">
-                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-                    <div class="form-group">
-                        <label asp-for="Name" class="control-label"></label>
-                        <input asp-for="Name" class="form-control" />
+            <div>
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <form asp-action="Create" class="row" enctype="multipart/form-data" method="post">
+
+                    <div class="form-group col-6">
+                        <label asp-for="Name" class="control-label">Tên</label>
+                        <input asp-for="Name" class="form-control" placeholder="Nhập tên sản phẩm" />
                         <span asp-validation-for="Name" class="text-danger"></span>
                     </div>
-                    <div class="form-group">
-                        <label asp-for="Price" class="control-label"></label>
-                        <input asp-for="Price" type="number" class="form-control" />
-                        <span asp-validation-for="Price" class="text-danger"></span>
-                    </div>
-                    <div class="form-group">
-                        <label asp-for="OriginalPrice" class="control-label"></label>
-                        <input asp-for="OriginalPrice" type="number" class="form-control" />
-                        <span asp-validation-for="OriginalPrice" class="text-danger"></span>
-                    </div>
-                    <div class="form-group">
-                        <label asp-for="Stock" class="control-label"></label>
-                        <input asp-for="Stock" type="number" class="form-control" />
-                        <span asp-validation-for="Stock" class="text-danger"></span>
+
+                    <div class="form-group col-6 ">
+                        <label asp-for="OriginalCountry" class="control-label">Xuất Xứ</label>
+                        <input asp-for="OriginalCountry" class="form-control" placeholder="Nhập nước sản xuất" />
+                        <span asp-validation-for="OriginalCountry" class="text-danger"></span>
                     </div>
 
-                    <div class="form-group">
-                        <label asp-for="Description" class="control-label"></label>
-                        <textarea asp-for="Description" rows="5" class="form-control"></textarea>
-                        <span asp-validation-for="Description" class="text-danger"></span>
+                    <div class="form-group col-6">
+                        <label asp-for="Price" class="control-label">Giá Bán</label>
+                        <input type="number" asp-for="Price" class="form-control" placeholder="Nhập giá bán ra" />
+                        <span asp-validation-for="Price" class="text-danger"></span>
                     </div>
-                    <div class="form-group">
-                        <label asp-for="Details" class="control-label"></label>
-                        <textarea id="txt_details" asp-for="Details" rows="5" class="form-control"></textarea>
+                    <div class="d-flex col-6 row">
+                        <div class="form-group col-8">
+                            <label asp-for="OriginalPrice" class="control-label">Giá Nhập</label>
+                            <input type="number" asp-for="OriginalPrice" class="form-control" placeholder="Nhập giá gốc" />
+                            <span asp-validation-for="OriginalPrice" class="text-danger"></span>
+                        </div>
+                      
+                    </div>
+                    <div class="form-group col-6">
+                        <label asp-for="Stock" class="control-label">Kho</label>
+                        <input asp-for="Stock" class="form-control" placeholder="Nhập số lượng trong kho" />
+                        <span asp-validation-for="Stock" class="text-danger"></span>
+                    </div>
+                    <div class=" col-6 ">
+                        <div class="form-group">
+                            <label class="control-label">Danh Mục</label>
+                            @Html.HiddenFor(x => x.Name)
+                            <div class="">
+                                @Html.ListBoxFor(model => model.SelectedId, new MultiSelectList(Model.CategoriesAssignRequest, "Id", "Name"), new { id = "multiSelectCreate", multiple = "multiple" })
+                            </div>
+                            <span asp-validation-for="SelectedId" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="form-group col-6">
+                        <label asp-for="Details" class="control-label">Chi Tiết</label>
+                        <textarea rows="3" id="productDetails" asp-for="Details" class="form-control" placeholder="Nhập chi tiết sản phẩm"></textarea>
                         <span asp-validation-for="Details" class="text-danger"></span>
                     </div>
-                    <div class="form-group">
-                        <label asp-for="SeoDescription" class="control-label"></label>
-                        <input asp-for="SeoDescription" class="form-control" />
-                        <span asp-validation-for="SeoDescription" class="text-danger"></span>
+
+                    <div class="form-group col-6">
+                        <label asp-for="Description" class="control-label">Mô Tả</label>
+                        <textarea id="productDescription" rows="3" asp-for="Description" class="form-control" placeholder="Nhập mô tả sản phẩm"></textarea>
+                        <span asp-validation-for="Description" class="text-danger"></span>
                     </div>
-                    <div class="form-group">
-                        <label asp-for="SeoTitle" class="control-label"></label>
-                        <input asp-for="SeoTitle" class="form-control" />
-                        <span asp-validation-for="SeoTitle" class="text-danger"></span>
+
+                    <div class="col-6">
+                        <div class="form-group">
+                            <label asp-for="ThumbnailImage" class="control-label">Ảnh</label>
+                            <div class="custom-file">
+                                <input accept="image/" asp-for="ThumbnailImage" class="custom-file-input" id="customFile">
+                                <label class="custom-file-label" for="customFile">Chọn ảnh mặc định</label>
+                            </div>
+                            <span asp-validation-for="ThumbnailImage" class="text-danger"></span>
+                        </div>
+
                     </div>
-                    <div class="form-group">
-                        <label asp-for="SeoAlias" class="control-label"></label>
-                        <input asp-for="SeoAlias" class="form-control" />
-                        <span asp-validation-for="SeoAlias" class="text-danger"></span>
-                    </div>
-                    <div class="form-group">
-                        <label asp-for="ThumbnailImage" class="control-label"></label>
-                        <input asp-for="ThumbnailImage" type="file" class="form-control" />
-                        <span asp-validation-for="ThumbnailImage" class="text-danger"></span>
-                    </div>
-                    <div class="form-group">
-                        <input type="submit" value="Tạo mới" class="btn btn-primary" />
+
+                    <div class="d-none">
+                        <input type="submit" value="Create" id="create-product-btn" class="btn btn-outline-dark px-xl-5" />
                     </div>
                 </form>
             </div>
         </div>
     </div>
 </div>
+

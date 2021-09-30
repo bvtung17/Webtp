@@ -1,0 +1,36 @@
+﻿@model Webthucpham.ViewModels.Common.PageResponseBase
+@{
+    var urlTemplate = Url.Action() + "?pageSize={0}";
+    var request = ViewContext.HttpContext.Request;
+    foreach (var key in request.Query.Keys)
+    {
+        if (key == "pageSize")
+        {
+            continue;
+        }
+        if (request.Query[key].Count > 1)
+        {
+            foreach (var item in (string[])request.Query[key])
+            {
+                urlTemplate += "&" + key + "=" + item;
+            }
+        }
+        else
+        {
+            urlTemplate += "&" + key + "=" + request.Query[key];
+        }
+    }
+
+}
+<div class="align-items-center d-flex">
+    <div class="dropdown mr-4">
+        <button class="btn dropdown-toggle" style="border: 1px solid black" type="button" data-toggle="dropdown">
+            <span class="caret">@Model.PageSize</span>
+        </button>
+        <ul class="dropdown-menu">
+            <li><a class="page-link" title="1" href="@urlTemplate.Replace("{0}", "5")">5</a></li>
+            <li><a class="page-link" title="1" href="@urlTemplate.Replace("{0}", "10")">10</a></li>
+            <li><a class="page-link" title="1" href="@urlTemplate.Replace("{0}", "20")">20</a></li>
+        </ul>
+    </div>
+</div>

@@ -2,7 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using Webthucpham.ViewModels.Sales;
+using Webthucpham.ViewModels.Catalog.Orders;
 
 namespace Webthucpham.ViewModels.System.Clients
 {

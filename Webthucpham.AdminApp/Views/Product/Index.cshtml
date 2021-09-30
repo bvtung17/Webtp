@@ -1,110 +1,272 @@
 ﻿@using Webthucpham.ViewModels.Common;
-@model PagedResult<Webthucpham.ViewModels.Catalog.Products.ProductVm>
+@model PageResponse<Webthucpham.ViewModels.Catalog.Products.ProductViewModel>
+@using System.Security.Claims;
+@using Webthucpham.Data.Enums;
 
 @{
-    ViewData["Title"] = "Danh sách sản phẩm";
+    ViewData["Title"] = "Index";
     Layout = "~/Views/Shared/_Layout.cshtml";
-}
-@section Scripts{
-    <script>
-    setTimeout(function () {
-        $('#msgAlert').fadeOut('slow');
-    }, 300);
 
-    </script>
+    var identity = User.Identity as ClaimsIdentity;
+    var roles = identity?.FindFirst("Role")?.Value ?? null;
+    bool isManager = false;
+    if (!string.IsNullOrEmpty(roles))
+    {
+        isManager = roles.Contains("Manager");
+    }
 }
+
+
+@inject Microsoft.Extensions.Configuration.IConfiguration Configuration;
 <div class="container-fluid">
-    <h1 class="mt-4">Danh sách sản phẩm</h1>
+    <h1 class="mt-4">Sản Phẩm</h1>
     <ol class="breadcrumb mb-4">
-        <li class="breadcrumb-item"><a href="/">Trang chủ</a></li>
-        <li class="breadcrumb-item active">Danh sách sản phẩm</li>
+        <li class="breadcrumb-item"><a asp-action="Index" asp-controller="Home">Bảng điều khiển</a></li>
+        <li class="breadcrumb-item active">Danh Sách Sản Phẩm</li>
     </ol>
+
     <div class="card mb-12">
-        <div class="card-header">
-            <div class="row">
-                <div class="col-md-6 col-xs-12">
-                    <a class="btn btn-success" asp-action="Create" asp-controller="Product">Tạo mới</a>
+        <div class="card-header d-flex justify-content-between">
+            <form asp-action="Index" method="get">
+                <div class="form-outline my-2 d-flex">
+                    <input name="keyword" value="@ViewBag.Keyword" type="text" id="productSearchBox" placeholder="Tìm kiếm..." class="form-control  border-dark" />
+                    <input asp-for="PageSize" value="@Model.PageSize" type="hidden" />
+                    <select onchange="this.form.submit()" name="CategoryId" asp-items="@ViewBag.Categories" class="mx-2 border-dark rounded">
+                        <option>---Chọn Danh Mục---</option>
+                    </select>
+                    <button type="submit" class="btn btn-outline-dark ml-2">
+                        <i class="fas fa-search"></i>
+                    </button>
                 </div>
-                <div class="col-md-6 col-xs-12">
-                    <form asp-action="Index" method="get">
-                        <div class="row">
-                            <div class="col-md-4">
-                                <input type="text" value="@ViewBag.Keyword" name="keyword" class="form-control" />
-                            </div>
-                            <div class="col-md-4">
-                                <select name="categoryId" onchange="this.form.submit()" asp-items="@ViewBag.Categories" class="form-control">
-                                    <option>--Chọn danh mục--</option>
-                                </select>
-                            </div>
-                        </div>
-                    </form>
+                <div class="form-group d-flex flex-column mb-0 mt-3">
+                    <span class="m-1">Lọc theo trạng thái sản phẩm :</span>
+                    <div class="order_button d-flex ">
+                        <button asp-action="Index" class="btn btn-outline-secondary mr-2" style="min-width:140px">Tất cả</button>
+                        <button name="status" value="Active" class="btn btn-outline-secondary mr-1 ml-1" style="min-width:140px">Đang hoạt động</button>
+                        <button name="status" value="InActive" class="btn btn-outline-secondary mr-1 ml-1" style="min-width:140px">Dừng hoạt động</button>
+                    </div>
                 </div>
+            </form>
+
+            <div class="my-2">
+                <a asp-action="Create" asp-controller="Product" class="btn btn-outline-dark ">
+                    <i class="fas fa-plus mr-2"></i>
+                    Tạo Mới Sản Phẩm
+                </a>
             </div>
+
         </div>
-
-
         <div class="card-body">
             @if (ViewBag.SuccessMsg != null)
             {
-                <div id="msgAlert" class="alert alert-success" role="alert">
-                    @ViewBag.SuccessMsg
+                <div class="d-flex justify-content-center">
+                    <div id="msgAlert" class="alert alert-success w-25" role="alert">
+                        @ViewBag.SuccessMsg
+                    </div>
                 </div>
             }
+            <div class="d-flex w-25 align-items-center mb-3">
+                @await Component.InvokeAsync("ChangePageSize", Model)
+            </div>
             <div class="table-responsive">
-                <table class="table table-bordered">
-                    <thead>
-                        <tr>
-                            <th>
-                                Mã Sp
+                <table class="table table-bordered border-dark">
+                    <thead class="m-0 ">
+                        <tr class="d-flex list-product-dark text-white">
+                            <th class="tb-col" style="flex: 1" scope="col">Ảnh</th>
+                            <th class="tb-col" style="flex: 1.7" scope="col">
+                                Tên
                             </th>
-                            <th>
-                                Tên Sản Phẩm
-                            </th>
-                            <th>
-                                Giá Nhập
-                            </th>
-                            <th>
+                            <th class="tb-col" style="flex: 0.8" scope="col">
                                 Giá Bán
                             </th>
-                            <th>
-                                Số Lượng
+                            <th class="tb-col" style="flex: 0.8" scope="col">
+                                Giá Gốc
                             </th>
-
-                            <th></th>
+                            <th class="tb-col" style="flex: 0.5" scope="col">
+                                Kho
+                            </th>
+                            <th class="tb-col" style="flex: 0.7" scope="col">
+                                Xuất Xứ
+                            </th>
+                            <th class="tb-col" style="flex: 1.3" scope="col">
+                                Tác Vụ
+                            </th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach (var item in Model.Items)
                         {
-                        <tr>
-                            <td>
-                                @Html.DisplayFor(modelItem => item.Id)
-                            </td>
-                            <td>
-                                @Html.DisplayFor(modelItem => item.Name)
-                            </td>
-                            <td>
-                                @Html.DisplayFor(modelItem => item.OriginalPrice)
-                            </td>
-                            <td>
-                                @Html.DisplayFor(modelItem => item.Price)
-                            </td>
-                            <td>
-                                @Html.DisplayFor(modelItem => item.Stock)
-                            </td>
-
-                            <td>
-                                @Html.ActionLink("Sửa", "Edit", new { id = item.Id }) |
-                                @Html.ActionLink("Xem", "Details", new { id = item.Id }) |
-                                @Html.ActionLink("Xóa", "Delete", new { id = item.Id }) |
-                                @Html.ActionLink("Gán danh mục", "CategoryAssign", new { id = item.Id }) |
-                            </td>
-                        </tr>
+                            <tr class="d-flex list-product">
+                                <td class="pro-item" style="flex: 1">
+                                    <img width="100%" height="80px"
+                                         src="@Configuration["BaseImageAddress"]@item.ImagePath" alt="@item.Name" />
+                                </td>
+                                <td class="d-flex align-items-center justify-content-center text-center pro-item " style="flex: 1.7">
+                                    @Html.ActionLink(item.Name, "Update", new { id = item.Id })
+                                </td>
+                                <td class="d-flex align-items-center justify-content-center pro-item text-overflow priceFormat" style="flex: 0.8">
+                                    @Html.DisplayFor(modelItem => item.Price)
+                                </td>
+                                <td class="d-flex align-items-center justify-content-center pro-item text-overflow priceFormat" style="flex: 0.8">
+                                    @Html.DisplayFor(modelItem => item.OriginalPrice)
+                                </td>
+                                <td class="d-flex align-items-center justify-content-center pro-item" style="flex: 0.5">
+                                    @Html.DisplayFor(modelItem => item.Stock)
+                                </td>
+                                <td class="d-flex align-items-center justify-content-center pro-item" style="flex: 0.7">
+                                    @Html.DisplayFor(modelItem => item.OriginalCountry)
+                                </td>
+                                <td class="d-flex align-items-center justify-content-around pro-item" style="flex: 1.3">
+                                    @if (item.status != Status.InActive)
+                                    {
+                                        <a class="d-block btn btn-outline-info px-2" href="@Url.Action("Update","Product")/@item.Id">
+                                            Sửa
+                                        </a>
+                                        <a class="d-block btn btn-outline-primary px-2" href="Product/@item.Id/images">
+                                            Ảnh
+                                        </a>
+                                        @if (isManager)
+                                        {
+                                            <button onclick="getValue(@item.Id)" data-target="#exampleModalCenter" data-toggle="modal" class="d-block btn btn-outline-danger px-2">
+                                                Xóa
+                                            </button>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <a class="d-block btn btn-outline-info px-2 py-3 mr-1" href="@Url.Action("Update","Product")/@item.Id">
+                                            Sửa
+                                        </a>
+                                        <a class="d-block btn btn-outline-primary px-2 py-3 mr-1" href="Product/@item.Id/images">
+                                            Ảnh
+                                        </a>
+                                        @if (isManager)
+                                        {
+                                            <button onclick="getValue(@item.Id)" data-target="#activeModalCenter" data-toggle="modal" class="d-block btn btn-outline-danger px-2 py-1">
+                                                Kích hoạt
+                                            </button>
+                                        }
+                                    }
+                                </td>
+                            </tr>
                         }
                     </tbody>
                 </table>
             </div>
             @await Component.InvokeAsync("Pager", Model)
+
+            <!-- Button trigger modal -->
+            <!-- Modal -->
+            <div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="exampleModalCenterTitle">Xóa sản phẩm</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            Bạn có chắc chắn muốn xóa sản sản phẩm này?
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
+                            <button type="submit" class="btn btn-danger" data-dismiss="modal" id="delete_submit_btn">Xóa</button>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+            @*Modal Kích hoạt*@
+            <div class="modal fade" id="activeModalCenter" tabindex="-1" role="dialog" aria-labelledby="activeModalCenterTitle" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="activeModalCenterTitle">kích hoạt sản phẩm</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            Bạn có chắc chắn muốn kích hoạt sản sản phẩm này?
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Hủy</button>
+                            <button type="submit" class="btn btn-danger" data-dismiss="modal" id="active_submit_btn">Kích hoạt</button>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
+@section Scripts{
+    <script>
+        setTimeout(() => $('#msgAlert').fadeOut('slow'), 1500)
+    </script>
+    <script>
+        var delete_id = -1;
+        const getValue = (id) => delete_id = id;
+        $('#delete_submit_btn').on('click', () => {
+
+            $.ajax(
+                {
+                    type: "POST",
+                    url: "Product/Delete",
+                    dataType: "text",
+                    data: { id: delete_id },
+                    async: true,
+                    success: function (response) {
+                        location.reload();
+
+                    },
+                    failure: function (response) {
+                        alert('false')
+
+                    },
+                    error: function (response) {
+                        alert('error')
+
+                    }
+                });
+        });
+        $('#active_submit_btn').on('click', () => {
+            
+            $.ajax(
+                {
+                    type: "POST",
+                    url: "Product/Delete",
+                    dataType: "text",
+                    data: { id: delete_id },
+                    async: true,
+                    success: function (response) {
+                        location.reload();
+                       
+                    },
+                    failure: function (response) {
+                        alert('false')
+
+                    },
+                    error: function (response) {
+                        alert('error')
+
+                    }
+                });
+        })
+        const makeFormatPrice = (element) => {
+            const price = parseInt(element.textContent);
+            const newPrice = price.toLocaleString('it-IT', { style: 'currency', currency: 'VND' })
+            element.textContent = newPrice
+        }
+
+        const prices = document.querySelectorAll('.priceFormat')
+        if (prices) {
+            prices.forEach(item => {
+                makeFormatPrice(item)
+            })
+        }
+    </script>
+
+
+}

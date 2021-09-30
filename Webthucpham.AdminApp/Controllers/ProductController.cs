@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.Configuration;
 using Webthucpham.Api;
+using Webthucpham.Data.Enums;
 using Webthucpham.Utilities.Constants;
 using Webthucpham.ViewModels.Catalog.Products;
 using Webthucpham.ViewModels.Common;
@@ -16,39 +17,33 @@ namespace Webthucpham.AdminApp.Controllers
     public class ProductController : Controller
     {
         private readonly IProductApiClient _productApiClient;
-        private readonly IConfiguration _configuration;
-        public readonly ICategoryApiClient _categoryApiClient;
-         
+        private readonly IConfiguration _config;
+        private readonly ICategoryApiClient _categoryApiClient;
         public ProductController(IProductApiClient productApiClient,
-            IConfiguration configuration, ICategoryApiClient categoryApiClient)
+            IConfiguration config,
+            ICategoryApiClient categoryApiClient)
         {
-            _configuration = configuration;
+            _config = config;
             _productApiClient = productApiClient;
             _categoryApiClient = categoryApiClient;
         }
-        public async Task<IActionResult> Index(string keyword, int? categoryId, int pageIndex = 1, int pageSize = 10)
+
+
+        public async Task<IActionResult> Index(GetProductRequest request, string status)
         {
-            var languageId = HttpContext.Session.GetString(SystemConstants.AppSettings.DefaultLanguageId);
 
-            var request = new GetManageProductPagingRequest()
+            var data = await _productApiClient.GetPaging(request, status);
+            ViewBag.Keyword = request.Keyword;
+            var categories = await _categoryApiClient.GetAll();
+            if (categories != null)
             {
-                Keyword = keyword,
-                PageIndex = pageIndex,
-                PageSize = pageSize,
-                LanguageId = languageId,
-                CategoryId = categoryId
-            };
-            var data = await _productApiClient.GetPagings(request);
-            ViewBag.Keyword = keyword;
-
-
-            var categories = await _categoryApiClient.GetAll(languageId);
-            ViewBag.Categories = categories.Select(x => new SelectListItem()
-            {
-                Text = x.Name,
-                Value = x.Id.ToString(),
-                Selected = categoryId.HasValue && categoryId.Value == x.Id
-            });
+                ViewBag.Categories = categories.Select(x => new SelectListItem()
+                {
+                    Text = x.Name,
+                    Value = x.Id.ToString(),
+                    Selected = request.CategoryId.HasValue && request.CategoryId.Value == x.Id
+                });
+            }
 
             if (TempData["result"] != null)
             {
@@ -56,138 +51,214 @@ namespace Webthucpham.AdminApp.Controllers
             }
             return View(data);
         }
+
         [HttpGet]
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
-            return View();
+            var categories = await GetCategoryAssignRequest();
+            ProductCreateRequest productCreateRequest = new ProductCreateRequest()
+            {
+                CategoriesAssignRequest = categories
+            };
+            return View(productCreateRequest);
         }
+
         [HttpPost]
         [Consumes("multipart/form-data")]
         public async Task<IActionResult> Create([FromForm] ProductCreateRequest request)
         {
-            if (!ModelState.IsValid)
-                return View(request);
+            var categories = await GetCategoryAssignRequest();
 
-            var result = await _productApiClient.CreateProduct(request);
-            if (result)
+            if (!ModelState.IsValid)
             {
-                TempData["result"] = "Thêm mới sản phẩm thành công";
-                return RedirectToAction("Index");
+                request.CategoriesAssignRequest = categories;
+                return View(request);
             }
 
-            ModelState.AddModelError("", "Thêm sản phẩm thất bại");
+            var product = await _productApiClient.Create(request);
+
+            if (product != null)
+            {
+                var categoryRequest = new CategoryAssignRequest()
+                {
+                    Categories = categories,
+                    Id = product.Id,
+                    SelectedCategories = request.SelectedId
+                };
+
+                var categoryAssignResult = await _productApiClient.CategoryAssign(categoryRequest);
+                if (categoryAssignResult.IsSuccessed)
+                {
+                    TempData["result"] = "Tạo sản phẩm thành công!";
+                    return RedirectToAction("Index");
+                }
+
+            }
+            ModelState.AddModelError("", "Tạo sản phẩm thất bại!");
+            request.CategoriesAssignRequest = categories;
             return View(request);
-        }
-        // CATEGORY
-
-
-        [HttpGet]
-        public async Task<IActionResult> CategoryAssign(int id)
-        {
-            var categoryAssignRequest = await GetCategoryAssignRequest(id);
-            return View(categoryAssignRequest);
         }
 
         [HttpPost]
-        public async Task<IActionResult> CategoryAssign(CategoryAssignRequest request)
+        public async Task Delete(int id)
         {
-            if (!ModelState.IsValid)
-                return View();
-
-            var result = await _productApiClient.CategoryAssign(request.Id, request);
-
-            if (result.IsSuccessed)
+            if (id > 0)
             {
-                TempData["result"] = "Cập nhật danh mục thành công";
-                return RedirectToAction("Index");
-            }
+                var result = await _productApiClient.Delete(id);
+                var product = await _productApiClient.GetById(id);
 
-            ModelState.AddModelError("", result.Message);
-            var roleAssignRequest = await GetCategoryAssignRequest(request.Id);
-
-            return View(roleAssignRequest);
-        }
-
-        private async Task<CategoryAssignRequest> GetCategoryAssignRequest(int id)
-        {
-            var languageId = HttpContext.Session.GetString(SystemConstants.AppSettings.DefaultLanguageId);  
-
-            var productObj = await _productApiClient.GetById(id, languageId);
-            var categories = await _categoryApiClient.GetAll(languageId);
-            var categoryAssignRequest = new CategoryAssignRequest();
-            foreach (var role in categories)
-            {
-                categoryAssignRequest.Categories.Add(new SelectItem()
+                if (product.status != Status.Active)
                 {
-                    Id = role.Id.ToString(),
-                    Name = role.Name,
-                    Selected = productObj.Categories.Contains(role.Name)
-                });
+                    if (result)
+                    {
+                        TempData["result"] = "Xóa thành công";
+                        RedirectToAction("Index");
+                    }
+                    else
+                    {
+                        TempData["error"] = "Xóa thất bại";
+                        RedirectToAction("Index");
+                    }
+                }
+                else
+                {
+                    if (result)
+                    {
+                        TempData["result"] = "Kích hoạt thành công";
+                        RedirectToAction("Index");
+                    }
+                    else
+                    {
+                        TempData["error"] = "kích hoạt thất bại";
+                        RedirectToAction("Index");
+                    }
+                }
             }
-            return categoryAssignRequest;
+            RedirectToAction("Error", "Home");
         }
-        //UPDATE PRODUCT
-        [HttpGet]
-        public async Task<IActionResult> Edit(int id)
-        {
-            var languageId = HttpContext.Session.GetString(SystemConstants.AppSettings.DefaultLanguageId);
 
-            var product = await _productApiClient.GetById(id, languageId);
-            var editVm = new ProductUpdateRequest()
+
+        [HttpGet]
+        public async Task<IActionResult> Update(int id)
+        {
+            var categoryAssignRequest = await GetCategoryAssignRequest(id);
+            var product = await _productApiClient.GetById(id);
+            product.CategoriesAssignRequest = categoryAssignRequest.Categories;
+            product.SelectedId = categoryAssignRequest.SelectedCategories;
+            return View(product);
+        }
+
+
+        [HttpPut("product/{productId}/images/{imageId}/thumbnail")]
+        public async Task<IActionResult> ChangeThumbnail(int imageId, int productId)
+        {
+            if (imageId > 0)
             {
-                Id = product.Id,
-                Description = product.Description,
-                Details = product.Details,
-                Name = product.Name,
-                SeoAlias = product.SeoAlias,
-                SeoDescription = product.SeoDescription,
-                SeoTitle = product.SeoTitle
-            };
-            return View(editVm);
+                var result = await _productApiClient.ChangeThumbnail(imageId, productId);
+                if (result)
+                    TempData["result"] = "Cập nhật thành công!";
+                return Redirect("/");
+            }
+
+            return RedirectToAction("Error", "Home");
+        }
+
+        [HttpGet("product/{id}/images")]
+        public async Task<IActionResult> Images(int id, [FromQuery] PagingRequestBase request)
+        {
+
+            if (!ModelState.IsValid || id == 0)
+            {
+                return RedirectToAction("Error", "Home");
+            }
+
+            var images = await _productApiClient.GetProductImages(id, request);
+            ViewBag.ProductId = id;
+            if (TempData["result"] != null)
+            {
+                ViewBag.SuccessMsg = TempData["result"];
+            }
+            if (TempData["error"] != null)
+            {
+                ViewBag.ErrorMsg = TempData["error"];
+            }
+            return View(images);
         }
 
         [HttpPost]
         [Consumes("multipart/form-data")]
-        public async Task<IActionResult> Edit([FromForm] ProductUpdateRequest request)
+        public async Task<IActionResult> Update([FromForm] ProductUpdateRequest request)
         {
+            var categoryAssignRequest = await GetCategoryAssignRequest(request.Id);
             if (!ModelState.IsValid)
+            {
+                request.CategoriesAssignRequest = categoryAssignRequest.Categories;
+                ModelState.AddModelError("", "Cập nhập thông tin sản phẩm không thành công!");
                 return View(request);
-
-            var result = await _productApiClient.UpdateProduct(request);
-            if (result)
-            {
-                TempData["result"] = "Cập nhật sản phẩm thành công";
-                return RedirectToAction("Index");
             }
 
-            ModelState.AddModelError("", "Cập nhật sản phẩm thất bại");
-            return View(request);
-        }
-          //DELETE 
-        [HttpGet]
-        public IActionResult Delete(int id)
-        {
-            return View(new ProductDeleteRequest()
-            {
-                Id = id
-            });
-
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> Delete(ProductDeleteRequest request)
-        {
-            if (!ModelState.IsValid)
-                return View();
-
-            var result = await _productApiClient.DeleteProduct(request.Id);
+            var result = await _productApiClient.Update(request);
             if (result)
             {
-                TempData["result"] = "Xóa Sản Phẩm Thành Công";
-                return RedirectToAction("Index");
+                var categoryRequest = new CategoryAssignRequest()
+                {
+                    Categories = request.CategoriesAssignRequest,
+                    Id = request.Id,
+                    SelectedCategories = request.SelectedId
+                };
+
+                var categoryAssignResult = await _productApiClient.CategoryAssign(categoryRequest);
+                if (categoryAssignResult.IsSuccessed)
+                {
+                    TempData["result"] = "Cập nhật sản phẩm thành công!";
+                    return RedirectToAction("Index");
+                }
+
             }
-            ModelState.AddModelError("", "Xóa Không Thành Công");
+            request.CategoriesAssignRequest = categoryAssignRequest.Categories;
+            ModelState.AddModelError("", "Cập nhật thông tin sản phẩm thất bại!");
             return View(request);
+        }
+
+
+        private async Task<CategoryAssignRequest> GetCategoryAssignRequest(int id)
+        {
+            var productViewModel = await _productApiClient.GetById(id);
+            var categories = await _categoryApiClient.GetAll();
+            var categoryAssignRequest = new CategoryAssignRequest();
+            categoryAssignRequest.Id = id;
+            List<string> selectedCategories = new List<string>();
+            foreach (var category in categories)
+            {
+                categoryAssignRequest.Categories.Add(new SelectItemDynamic<int>()
+                {
+                    Id = category.Id,
+                    Name = category.Name,
+                    Selected = productViewModel.Categories.Contains(category.Id.ToString())
+                });
+                if (productViewModel.Categories.Contains(category.Id.ToString()))
+                {
+                    selectedCategories.Add(category.Id.ToString());
+                }
+            }
+            categoryAssignRequest.SelectedCategories = selectedCategories.ToArray();
+            return categoryAssignRequest;
+        }
+        private async Task<List<SelectItemDynamic<int>>> GetCategoryAssignRequest()
+        {
+            var categories = await _categoryApiClient.GetAll();
+            var categoryAssignRequest = new CategoryAssignRequest();
+            foreach (var category in categories)
+            {
+                categoryAssignRequest.Categories.Add(new SelectItemDynamic<int>()
+                {
+                    Id = category.Id,
+                    Name = category.Name,
+                    Selected = false
+                });
+
+            }
+            return categoryAssignRequest.Categories;
         }
     }
 }

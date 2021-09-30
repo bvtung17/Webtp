@@ -1,0 +1,122 @@
+﻿@using Webthucpham.ViewModels.Common;
+@model PageResponse<Webthucpham.ViewModels.System.Clients.ClientViewModel>;
+@using Webthucpham.ViewModels.System.Clients;
+
+@{
+    ViewData["Title"] = "Danh Sách Khách Hàng";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+}
+
+@section Scripts{
+    <script>
+        setTimeout(() => $('#msgAlert').fadeOut('slow'), 1500)
+    </script>
+}
+
+<div class="container-fluid">
+    <h1 class="mt-4">Khách Hàng</h1>
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item"><a asp-action="Index" asp-controller="Home">Bảng Điều Khiển</a></li>
+        <li class="breadcrumb-item active">Danh Sách Khách Hàng</li>
+    </ol>
+
+    <div class="card mb-12">
+        <div class="card-header d-flex justify-content-between">
+            <form asp-action="Index" method="get">
+                <div class="form-outline mb-4 d-flex">
+                    <input name="keyword" value="@ViewBag.Keyword" type="text" id="userSearchBox" placeholder="Tìm kiếm..." class="form-control  border-dark" />
+                    <input asp-for="PageSize" value="@Model.PageSize" type="hidden" />
+                    <button type="submit" class="btn btn-outline-dark ml-2">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+            </form>
+
+
+        </div>
+        <div class="card-body">
+            @if (ViewBag.SuccessMsg != null)
+            {
+                <div class="d-flex justify-content-center">
+                    <div id="msgAlert" class="alert alert-success w-25" role="alert">
+                        @ViewBag.SuccessMsg
+                    </div>
+                </div>
+            }
+            <div class="d-flex w-25 align-items-center mb-3">
+                @await Component.InvokeAsync("ChangePageSize", Model)
+            </div>
+            <div class="table-responsive">
+
+                <table class="table table-bordered text-center">
+                    <thead class="thead-dark text-white">
+                        <tr>
+                            <th>
+                                STT
+                            </th>
+                            <th>
+                                Tên
+                            </th>
+                            <th>
+                                Email
+                            </th>
+                            <th>
+                                Địa Chỉ
+                            </th>
+                            <th>
+                                Ngày Sinh
+                            </th>
+                            <th>
+                                Số Điện Thoại
+                            </th>
+                            <th>
+                                Số Đơn Hàng
+                            </th>
+                            <th>
+                                Tác Vụ
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for (var count = 0; count < Model.Items.Count; count++)
+                        {
+
+                            <tr class="bg-alternating ">
+                                <td>@(count + 1)</td>
+                                <td>
+                                    @Html.ActionLink(Model.Items[count].Name, "Details", new { id = Model.Items[count].Id })
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => Model.Items[count].Email)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => Model.Items[count].Address)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => Model.Items[count].Dob)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => Model.Items[count].PhoneNumber)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => Model.Items[count].OrderQuanttity)
+                                </td>
+                                <td class="btn-edit_del">
+                                    <a href="@Url.Action("Details","Client",  new { id = Model.Items[count].Id })" class="p-1 btn actions-btn btn-outline-info px-2">
+                                        Chi Tiết
+                                    </a>
+                                </td>
+
+                            </tr>
+                        }
+
+
+                    </tbody>
+                </table>
+            </div>
+
+            @await Component.InvokeAsync("Pager", Model)
+        </div>
+    </div>
+</div>

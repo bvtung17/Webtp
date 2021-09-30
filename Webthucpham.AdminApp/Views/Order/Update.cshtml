@@ -1,0 +1,333 @@
+﻿@model Webthucpham.ViewModels.Catalog.Orders.OrderViewModel
+@using Webthucpham.Data.Enums;
+@{
+    ViewData["Title"] = "Update";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@inject Microsoft.Extensions.Configuration.IConfiguration Configuration;
+
+<div class="container-fluid">
+    <h1 class="mt-4">Đơn hàng chi tiết</h1>
+    @* @if (Model.Status != OrderStatus.Success)
+        {*@
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item"><a asp-action="Index" asp-controller="Order">Danh sách đơn hàng</a></li>
+        <li class="breadcrumb-item active">Chi tiết đơn hàng</li>
+    </ol>
+    @*}
+        else { }*@
+    <div class="card mb-4">
+        <div class="card-header d-flex justify-content-between">
+            <a asp-action="Index" asp-controller="Order" id="" class="btn btn-outline-dark"><i class="fas fa-chevron-left back-list-product mr-2"></i>Về danh sách hóa đơn</a>
+            @if (Model.Status != OrderStatus.Success && Model.Status != OrderStatus.Canceled)
+            {
+                <div>
+                    <label class="m-0 btn btn-outline-dark d-flex align-items-center justify-content-center" for="orderUpdateStatus">
+                        <i class="far fa-save mr-2"></i>
+                        Lưu lại
+                    </label>
+                </div>
+            }
+        </div>
+
+        <div class="card-body">
+            <div class=" container">
+                <div class="d-none rounded fixed-top justify-content-center" id="cancelMsgWrap">
+                    <span id="cancelMsg" class="rounded"></span>
+                </div>
+                <div class="header">
+                    <div class="row ">
+                        <div class="col-6 d-flex justify-content-center">
+                            <img src="/css/img/logoproject.png" alt="cosmetics">
+                        </div>
+                        <div class="col-6 d-flex justify-content-center align-items-center">
+                            <div class="">
+                                <div class="form-group">
+                                    <span class="">Địa Chỉ : Hà Nội</span>
+                                </div>
+
+                                <div class="form-group">
+                                    <span class="">SĐT : 0988886296</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-12 text-center text-capitalize mb-5 mt-3 font-weight-bold display-4">
+                            Hóa đơn bán hàng
+                        </div>
+                    </div>
+                    <div class="row col-12 d-flex justify-content-between">
+                        <div class="col-8 d-flex justify-content-start">
+                            <div class="">
+                                <div class="form-group">
+                                    <span class="">Ngày Tạo : @Model.OrderDate</span>
+                                    <span asp-validation-for="OrderDate" class="text-danger"></span>
+                                </div>
+
+                                <div class="form-group">
+                                    <span class="">Người Đặt : @Model.UserNameOrder</span>
+                                    <span asp-validation-for="UserNameOrder" class="text-danger"></span>
+                                </div>
+                                <div class="form-group">
+                                    <span class="">Người Nhận : @Model.ShipName</span>
+                                    <span asp-validation-for="ShipName" class="text-danger"></span>
+                                </div>
+                                <div class="form-group">
+                                    <span class="">Địa Chỉ : @Model.ShipAddress</span>
+                                    <span asp-validation-for="ShipAddress" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-4 d-flex justify-content-start">
+                            <div class="">
+                                <div class="form-group ">
+                                    <span class="">Hóa Đơn Số : @Model.Id</span>
+                                    <span asp-validation-for="Id" class="text-danger"></span>
+                                </div>
+                                <div class="form-group">
+                                    <span class="">Người Nhận : @Model.ShipName</span>
+                                    <span asp-validation-for="ShipName" class="text-danger"></span>
+                                </div>
+                                <form asp-action="Update">
+                                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                                    <div class="form-group ">
+                                        <span asp-for="Status" class="control-label"> Trạng Thái : </span>
+                                        @if (Model.Status != OrderStatus.Canceled)
+                                        {
+                                            @if (Model.Status != OrderStatus.Success)
+                                            {
+                                                <div>
+                                                    <select asp-for="Status" id="orderStatus" style="padding:6px 12px">
+                                                        @if (Model.Status == OrderStatus.InProgress)
+                                                        {
+                                                            <option selected value="@OrderStatus.InProgress">Đang xử lý</option>
+                                                            <option value="@OrderStatus.Shipping">Đang giao hàng</option>
+                                                            <option value="@OrderStatus.Success">Thành công</option>
+                                                            <option value="@OrderStatus.Canceled" onchange="openModal('order-modal','order-cancel-submit',@Model.Id)">Hủy đơn</option>
+
+
+                                                        }
+                                                        @if (Model.Status == OrderStatus.Shipping)
+                                                        {
+                                                            <option selected value="@OrderStatus.Shipping">Đang giao hàng</option>
+                                                            <option value="@OrderStatus.Success">Thành công</option>
+                                                            <option value="@OrderStatus.Canceled" onchange="openModal('order-modal','order-cancel-submit',@Model.Id)">Hủy đơn</option>
+                                                        }
+
+                                                    </select>
+
+                                                </div>
+                                            }
+                                            else
+                                            {
+                                                <span class="">Đã hoàn thành</span>
+                                            }
+                                        }
+                                        else
+                                        {
+                                            <span class="">Đã hủy</span>
+                                        }
+                                        <span asp-validation-for="Status" class="text-danger"></span>
+                                    </div>
+                                    <div class="form-group d-none mb-0">
+                                        <input id="orderUpdateStatus" type="submit" value="Save" class="d-none btn btn-primary" />
+                                    </div>
+                                    <div class="form-group col-6 d-none mb-0">
+                                        <label asp-for="Id" class="control-label"></label>
+                                        <input disabled asp-for="Id" class="form-control mb-0" />
+                                        <span asp-validation-for="Id" class="text-danger"></span>
+                                    </div>
+                                </form>
+                                @if (Model.Status == OrderStatus.Canceled)
+                                {
+                                    <div class="form-group ">
+                                        <span class="text-break ">Lý do hủy đơn : @Model.CancelReason</span>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row d-flex justify-content-center col-12 bg-white m-0 p-0">
+                    <div class="form-group col-12">
+                        <div class="table-responsive">
+                            <table class="table  text-center bg-white">
+                                <thead class="thead-white text-dark">
+                                    <tr class="d-flex">
+                                        <th class="text-center" style="flex:7">
+                                            Mặt Hàng
+                                        </th>
+
+                                        <th class="text-center" style="flex:2">
+                                            Số Lượng
+                                        </th>
+                                        <th class="text-center" style="flex:2">
+                                            Đơn Giá
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody class=" border-bottom">
+                                    @foreach (var item in Model.OrderProducts)
+                                    {
+
+                                        <tr class="d-flex">
+
+                                            <td class=" d-flex align-items-center justify-content-center " style="flex:7">
+                                                <img class="img-thumbnail rounded ml-auto d-block " style="width:15%;height:75%" src="@Configuration["BaseImageAddress"]@item.ImagePath" alt="" />
+                                                <a href="/product/Update/@item.Id" class="product__item mx-auto text-decoration-none pl-2 " style="cursor:pointer;font-size:20px">@item.Name</a>
+                                            </td>
+                                            <td class="d-flex align-items-center justify-content-center" style="flex:2">
+                                                @item.Quantity
+                                            </td>
+                                            <td class="d-flex align-items-center justify-content-center priceFormat" style="flex:2">
+                                                @item.Price
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+
+                    </div>
+                    <div class="form-group col-12 d-flex justify-content-around">
+                        <h4 asp-for="Price" class="control-label col-9 font-weight-bold">Tổng Giá Trị : </h4>
+                        <h4 class="col-3 text-center font-weight-bold priceFormat">@Model.Price VNĐ</h4>
+                    </div>
+                </div>
+                <hr />
+                <div class="row col-12">
+                    <h3 class="col-12 text-capitalize text-center font-weight-bold">
+                        Cảm Ơn Quý Khách Và Hẹn Gặp Lại !
+                    </h3>
+                </div>
+            </div>
+            @*Modal*@
+            @*<div class="co-modal" id="myModal">
+                <div class="co-modal--content ">
+                    <div class="co-modal--title px-3">
+                        Bạn có chắc chắn muốn hủy đơn hàng này chứ?
+                    </div>
+                    <div>
+                        <textarea rows="3" class="w-100 mt-4" style="outline:none;" placeholder="Điền lý do bạn muốn hủy đơn hàng này" id="orderCancelReason"></textarea>
+                        <span class="text-danger" id="cancelOrderReason"></span>
+                    </div>
+                    <div class="co-modal--btns">
+                        <span class="btn btn-outline-dark co-modal--btn co-cancel-btn" onclick="handleOnCancel()">Hủy bỏ</span>
+                        <span class="btn btn-outline-danger co-modal--btn co-submit-btn" id="order-cancel-submit" onclick="onSubmitCancelOrder(this)">Xác nhận</span>
+                    </div>
+                </div>
+            </div>*@
+            @**@
+            <div class="modal fade" tabindex="-1" role="dialog">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                            <h4 class="modal-title">Bạn có chắc chắn muốn hủy đơn hàng này chứ?</h4>
+                        </div>
+                        <div class="modal-body">
+                            <textarea rows="3" class="w-100 mt-4" style="outline:none;" placeholder="Điền lý do bạn muốn hủy đơn hàng này" id="orderCancelReason"></textarea>
+                            <span class="text-danger" id="cancelOrderReason"></span>
+                        </div>
+                        <div class="modal-footer">
+                            <span class="btn btn-outline-dark co-modal--btn co-cancel-btn"  data-dismiss="modal" aria-label="Close" >Hủy bỏ</span>
+                            <span class="btn btn-outline-danger co-modal--btn co-submit-btn" id="order-cancel-submit" onclick="onSubmitCancelOrder(@Model.Id)">Xác nhận</span>
+                        </div>
+                    </div><!-- /.modal-content -->
+                </div><!-- /.modal-dialog -->
+            </div><!-- /.modal -->
+        </div>
+    </div>
+</div>
+
+
+
+@section Scripts{
+    <script>
+        () => {
+            const optionElements = document.querySelectorAll('#orderStatus option');
+            optionElements.forEach(item => item.setAttribute('style', 'padding: 6px 12px;display:block;'));
+        }
+    </script>
+    
+
+    <script>
+        const makeFormatPrice = (element) => {
+            const price = parseInt(element.textContent);
+            const newPrice = price.toLocaleString('it-IT', { style: 'currency', currency: 'VND' })
+            element.textContent = newPrice
+        }
+        const prices = document.querySelectorAll('.priceFormat')
+        if (prices) {
+            prices.forEach(item => {
+                makeFormatPrice(item)
+            })
+        }
+        $('#orderStatus').change(function () {
+            //đoạn mã sẽ được thực thi khi sự kiện change() xảy ra
+            var title = $(this).val();
+            if (title == "Canceled") { //Compare it and if true
+                $('.modal').modal('show');
+            }
+        })
+        const openModal = (modalId, submitId, data) => {
+            modal = document.querySelector(`#${modalId}`);
+            if (modal) {
+                modal.style.display = 'flex';
+                const submitBtn = document.querySelector(`#${submitId}`);
+                if (submitBtn && data) {
+                    submitBtn.setAttribute('data', data);
+                }
+            }
+        }
+        const handleOnCancel = () => {
+            document.querySelector('.modal.fade').style.display = 'none';
+            document.querySelector('.co-submit-btn').removeAttribute('data');
+        }
+        const onSubmitCancelOrder = (cancelId) => {
+            const cancelReason = document.querySelector('#orderCancelReason').value;
+            if (!cancelReason.trim()) {
+                document.querySelector('#cancelOrderReason').innerText = "Không được để trống lý do";
+                event.preventDefault();
+                return;
+            }
+            const orderId = cancelId;
+            if (orderId) {
+                $.ajax({
+                    method: 'PUT',
+                    url: `/client/cancelOrder`,
+                    dataType: 'text',
+                    data: {orderId, cancelReason },
+                    async: true,
+                    success: async function (response) {
+                        const { isSuccess, message } = JSON.parse(response);
+                        $('#cancelMsgWrap').removeClass('d-none').addClass('d-flex');
+                        if (isSuccess) {
+                            $('#cancelMsg').html(message).addClass('rounded alert alert-success')
+                        }
+                        else {
+                            $('#cancelMsg').html(message).addClass('rounded alert alert-danger')
+                        }
+                        await new Promise((resolve) => setTimeout(() => {
+                            $('#cancelMsgWrap').fadeOut('slow');
+                            resolve();
+                        }, 1500));
+                        $('#cancelMsg').html('')
+                        $('#cancelMsgWrap').removeClass('d-flex').addClass('d-none');
+                        handleOnCancel();
+                        location.reload();
+                    },
+                    failure: function (response) {
+                        alert('false')
+                    },
+                    error: function (response) {
+                        alert('error')
+                    }
+                })
+            }
+        }
+    </script>
+}

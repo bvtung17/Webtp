@@ -1,0 +1,36 @@
+﻿@model Webthucpham.ViewModels.Catalog.Categories.CategoryCreateRequest
+
+@{
+    ViewData["Title"] = "Tạo danh mục";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div class="container-fluid">
+    <h1 class="mt-4">Danh mục</h1>
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item"><a asp-action="Index" asp-controller="Category">Danh sách danh mục</a></li>
+        <li class="breadcrumb-item active">Tạo mới danh mục</li>
+    </ol>
+
+    <div class="card mb-4">
+        <div class="card-header d-flex justify-content-between">
+            <a asp-action="Index" asp-controller="Category" class="btn btn-outline-dark"><i class="fas fa-chevron-left back-list-product mr-2"></i>Quay lại danh sách danh mục</a>
+
+        </div>
+        <div class="card-body">
+            <div>
+                <form asp-action="Create" class="d-flex flex-column">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <div class="form-group">
+                        <label class="control-label">Tên danh mục: </label>
+                        <input asp-for="Name" class="form-control" />
+                        <span asp-validation-for="Name" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group d-flex justify-content-between">
+                        <input type="submit" value="Tạo mới" class="btn btn-primary" />
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

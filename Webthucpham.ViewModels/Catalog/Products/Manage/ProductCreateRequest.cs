@@ -8,7 +8,7 @@ using System.Text;
 using Webthucpham.Data.Enums;
 using Webthucpham.ViewModels.Common;
 
-namespace Webthucpham.ViewModels.Catalog.Products
+namespace Webthucpham.ViewModels.Catalog.Products.Manage
 {
     public class ProductCreateRequest
     {

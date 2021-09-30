@@ -10,8 +10,6 @@ using System.Threading.Tasks;
 using Webthucpham.Utilities.Constants;
 using Webthucpham.ViewModels.Catalog.Orders;
 using Webthucpham.ViewModels.Common;
-using Webthucpham.ViewModels.Sales;
-
 namespace Webthucpham.Api
 {
     public class OrderApiClient : BaseApiClient, IOrderApiClient

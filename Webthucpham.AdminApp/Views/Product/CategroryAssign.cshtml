@@ -1,0 +1,80 @@
+﻿@model Webthucpham.ViewModels.Catalog.Products.CategoryAssignRequest
+
+@{
+    ViewData["Title"] = "CategroryAssign";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>CategroryAssign</h1>
+
+<h4>CategoryAssignRequest</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="CategroryAssign">
+            @Html.HiddenFor(x => x.Id)
+            <div class="d-flex flex-wrap row">
+                @Html.ListBoxFor(model => model.SelectedCategories, new MultiSelectList(Model.ListCategory, "Id", "Name"), new { id = "multiSelectDropDown", multiple = "multiple" })
+            </div>
+            <input type="submit" />
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index"><i class="fas fa-chevron-left back-list-product mr-2"></i>Về danh sách</a>
+</div>
+
+
+@section Scripts{
+    <script type="text/javascript" src="~/js/chosen.jquery.min.js"></script>
+    <style>
+        li.active-result {
+            padding: 10px 6px !important;
+        }
+
+            li.active-result.highlighted {
+                background-color: rgba(0,0,0,0.15) !important;
+                background-image: unset !important;
+            }
+
+        ul.chosen-choices {
+            border-radius: 4px;
+            padding: 4px !important;
+            border: 1px solid #ced4da !important;
+        }
+
+        li.search-choice {
+            padding: 6px !important;
+        }
+
+            li.search-choice span {
+                margin-right: 10px;
+            }
+
+            li.search-choice a.search-choice-close {
+                top: 50% !important;
+                transform: translateY(-50%);
+            }
+    </style>
+    <script>
+        $('#updateProductBtnForm').on('Click').submit();
+
+        const handleOnChange = () => {
+            alert('test');
+        }
+
+        $(function () {
+            //normal dropdown
+            //$("#normalDropDown").chosen({
+            //    disable_search_threshold : 5
+            //});
+
+            //multiselect DropDown
+            $("#multiSelectDropDown").chosen({
+                width: "100%"
+            });
+        });
+
+    </script>
+}

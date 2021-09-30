@@ -1,0 +1,211 @@
+﻿@model Webthucpham.ViewModels.Catalog.Products.Manage.ProductUpdateRequest
+@using Webthucpham.Data.Enums;
+
+@{
+    ViewData["Title"] = "Details";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+}
+
+<div class="container-fluid">
+    <h1 class="mt-4">Sản Phẩm</h1>
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item"><a asp-action="Index" asp-controller="Product">Danh Sách Sản Phẩm</a></li>
+        <li class="breadcrumb-item active">Chi Tiết Sản Phẩm</li>
+    </ol>
+
+    <div class="card mb-4">
+        <div class="card-header d-flex justify-content-between">
+            <a asp-action="Index" asp-controller="Product" class="btn btn-outline-dark"><i class="fas fa-chevron-left back-list-product mr-2"></i>Về danh sách sản phẩm</a>
+            <div>
+                <label class="m-0 btn btn-outline-dark d-flex align-items-center justify-content-center" for="updateProductBtnForm">
+                    <i class="far fa-save mr-2"></i>
+                    Lưu lại
+                </label>
+            </div>
+        </div>
+        <div class="card-body">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <form asp-action="Update" enctype="multipart/form-data" method="post" id="productUpdateForm">
+
+                <input asp-for="Id" type="hidden" />
+                <div class="row">
+                    <div class=" col-6">
+                        <div class="form-group">
+                            <label asp-for="Name" class="control-label">Tên</label>
+                            <input asp-for="Name" class="form-control" />
+                            <span asp-validation-for="Name" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class=" col-6">
+                        <div class="form-group">
+                            <label asp-for="Price" class="control-label">Giá Bán</label>
+                            <input asp-for="Price" class="form-control priceFormat" />
+                            <span asp-validation-for="Price" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class=" d-flex justify-content-between form-group">
+                            <div style="flex:3">
+                                <label asp-for="OriginalPrice" class="control-label">Giá Gốc</label>
+                                <input asp-for="OriginalPrice" class="form-control priceFormat" />
+                                <span asp-validation-for="OriginalPrice" class="text-danger"></span>
+                            </div>
+                           
+                            
+                        </div>
+                    </div>
+
+                    <div class="col-6 ">
+                        <div class="form-group">
+                            <label asp-for="Categories" class="control-label">Danh Mục</label>
+                            @Html.HiddenFor(x => x.Id)
+                            <div class="">
+                                @Html.ListBoxFor(model => model.SelectedId, new MultiSelectList(Model.CategoriesAssignRequest, "Id", "Name"), new { id = "multiSelectDropDown", multiple = "multiple" })
+                            </div>
+                            <span asp-validation-for="SelectedId" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class=" col-6">
+                        <div class="form-group">
+                            <label asp-for="Stock" class="control-label">Kho</label>
+                            <input asp-for="Stock" class="form-control" />
+                            <span asp-validation-for="Stock" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class=" col-6">
+                        <div class="form-group">
+                            <label asp-for="DateCreated" class="control-label">Ngày Tạo</label>
+                            <input asp-for="DateCreated" class="form-control" disabled />
+                            <span asp-validation-for="DateCreated" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class=" col-6">
+                        <div class="form-group">
+                            <label asp-for="ViewCount" class="control-label">Lượt Xem</label>
+                            <input asp-for="ViewCount" class="form-control" disabled />
+                            <span asp-validation-for="ViewCount" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class=" col-6">
+                        <div class="form-group">
+                            <label asp-for="OriginalCountry" class="control-label">Xuất Xứ</label>
+                            <input asp-for="OriginalCountry" class="form-control" />
+                            <span asp-validation-for="OriginalCountry" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="d-flex w-100">
+                        <div class=" col-6">
+                            <div class="form-group">
+                                <label asp-for="Details" class="control-label">Chi Tiết</label>
+                                <textarea rows="3" id="productDetails" asp-for="Details" class="form-control"></textarea>
+                                <span asp-validation-for="Details" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="  col-6">
+                            <div class="form-group">
+                                <label asp-for="Description" class="control-label">Mô Tả</label>
+                                <textarea rows="3" id="productDescription" asp-for="Description" class="form-control"></textarea>
+                                <span asp-validation-for="Description" class="text-danger"></span>
+                            </div>
+                            <div class="w-100 justify-content-end">
+                                <div class="form-group">
+                                    <label asp-for="ThumbnailImage" class="control-label">Ảnh</label>
+                                    <div class="custom-file">
+                                        <input asp-for="ThumbnailImage" accept="image/*" class="custom-file-input" id="customFile">
+                                        <label class="custom-file-label" for="customFile">Sửa ảnh thu nhỏ</label>
+                                    </div>
+                                    <span asp-validation-for="ThumbnailImage" class="text-danger"></span>
+                                </div>
+                                <div>
+                                    <img id="impPrev" class="mw-100" style="height:auto" />
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+                <div class="form-group">
+                    <input type="submit" id="updateProductBtnForm" class="d-none" />
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+
+    <script src="https://cdn.ckeditor.com/ckeditor5/27.0.0/classic/ckeditor.js"></script>
+    <script>
+        ClassicEditor
+            .create(document.querySelector('#productDetails'))
+            .then(editor => {
+                console.log(editor);
+            })
+            .catch(error => {
+                console.error(error);
+            });
+        ClassicEditor
+            .create(document.querySelector('#productDescription'))
+            .then(editor => {
+                console.log(editor);
+            })
+            .catch(error => {
+                console.error(error);
+            });
+    </script>
+    <script type="text/javascript">
+        // Add the following code if you want the name of the file appear on select
+        $(".custom-file-input").on("change", function () {
+            var fileName = $(this).val().split("\\").pop();
+            $(this).siblings(".custom-file-label").addClass("selected").html(fileName);
+        });
+    </script>
+    <script type="text/javascript" src="~/js/chosen.jquery.min.js"></script>
+
+    <script>
+        const makeFormatPrice = (element) => {
+            const price = parseInt(element.textContent);
+            const newPrice = price.toLocaleString('it-IT', { style: 'currency', currency: 'VND' })
+            element.textContent = newPrice
+        }
+
+        const prices = document.querySelectorAll('.priceFormat')
+        if (prices) {
+            prices.forEach(item => {
+                makeFormatPrice(item)
+            })
+        }
+        $('#updateProductBtnForm').on('Click').submit();
+
+        const handleOnChange = () => {
+            alert('test');
+        }
+
+        $(function () {
+            //normal dropdown
+            //$("#normalDropDown").chosen({
+            //    disable_search_threshold : 5
+            //});
+
+            //multiselect DropDown
+            $("#multiSelectDropDown").chosen({
+                width: "100%"
+            });
+        });
+
+    </script>
+    <script type="text/javascript">
+        $('#customFile').change((e) => {
+            if (e.target.files && e.target.files[0]) {
+                var ImageDir = new FileReader();
+                ImageDir.onload = (a) => {
+                    $('#impPrev').attr('src', a.target.result);
+                }
+                ImageDir.readAsDataURL(e.target.files[0]);
+            }
+        })
+    </script>
+    
+}

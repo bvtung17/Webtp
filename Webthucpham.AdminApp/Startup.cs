@@ -12,6 +12,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Webthucpham.Api;
+using Webthucpham.ViewModels.Catalog.Orders;
+using Webthucpham.ViewModels.System.Clients;
 using Webthucpham.ViewModels.System.Users;
 
 namespace Webthucpham.AdminApp
@@ -50,12 +52,23 @@ namespace Webthucpham.AdminApp
             });
 
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
-
-            services.AddTransient<IUserApiClient, UserApiClient>();
-            services.AddTransient<IRoleApiClient, RoleApiClient>();
-            services.AddTransient<ILanguageApiClient, LanguageApiClient>();
+            services.AddTransient<ISlideApiClient, SlideApiClient>();
             services.AddTransient<IProductApiClient, ProductApiClient>();
             services.AddTransient<ICategoryApiClient, CategoryApiClient>();
+            services.AddScoped<IClientApi, ClientApi>();
+            services.AddTransient<ICartApiClient, CartApiClient>();
+            services.AddScoped<IClientOrderApi, ClientOrderApi>();
+            services.AddScoped<IClientApiProduct, ClientApiProduct>();
+            services.AddScoped<IOrderApiClient, OrderApiClient>();
+            
+
+            //Validation
+            services.AddControllers().AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<ClientCreateOrderValidator>());
+            services.AddControllers().AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<ClientLoginValidation>());
+            services.AddControllers().AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<ClientRegisterValidation>());
+            services.AddControllers().AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<ClientUpdateValidator>());
+
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
