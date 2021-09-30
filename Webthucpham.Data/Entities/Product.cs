@@ -8,7 +8,6 @@ namespace Webthucpham.Data.Entities
     public class Product
     {
         public int Id { get; set; }
-        public int CategoryId { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
         public string OriginalCountry { get; set; }
@@ -17,13 +16,14 @@ namespace Webthucpham.Data.Entities
         public string Details { get; set; }
         public int Stock { get; set; }
         public int ViewCount { get; set; }
-       
         public DateTime DateCreated { get; set; }
-
-        public Category Category { get; set; }
+      
+        public List<ProductInCategory> ProductInCategories { get; set; }
         public List<OrderDetail> OrderDetails { get; set; }
+       
         public List<ProductInCart> ProductInCarts { get; set; }
         public List<ProductImage> ProductImages { get; set; }
+    
         public Status status { get; set; }
     }
 }

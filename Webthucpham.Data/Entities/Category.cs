@@ -15,6 +15,7 @@ namespace Webthucpham.Data.Entities
         public int? ParentId { get; set; }
         public Status Status { get; set; }
         public DateTime CreatedDate { get; set; }
-        public List<Product> Products { get; set; }
+       
+        public List<ProductInCategory> ProductInCategories { get; set; }
     }
 }

@@ -11,13 +11,19 @@ namespace Webthucpham.Data.Configurations
     {
         public void Configure(EntityTypeBuilder<Product> builder)
         {
-            builder.ToTable("Product");
-            builder.HasKey(x => x.Id);
+            builder.ToTable("Products").HasKey(p => p.Id);
+
+            builder.Property(x => x.Id).UseIdentityColumn();
+
+            builder.Property(x => x.Name).IsRequired();
+
             builder.Property(x => x.Price).IsRequired();
-            builder.Property(x => x.OriginalPrice).IsRequired(); 
-            builder.Property(x => x.Stock).IsRequired().HasDefaultValue(0); // giá trị mặc định = 0
+
+            builder.Property(x => x.OriginalPrice).IsRequired();
+
+            builder.Property(x => x.Stock).IsRequired().HasDefaultValue(0);
+
             builder.Property(x => x.ViewCount).IsRequired().HasDefaultValue(0);
-            builder.HasOne(x => x.Category).WithMany(x => x.Products).HasForeignKey(x=>x.Category);
 
         }
     }

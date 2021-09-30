@@ -13,7 +13,7 @@ namespace Webthucpham.ViewModels.Catalog.Products
     public class ProductCreateRequest
     {
         public string Name { get; set; }
-        public int CategoryId { get; set; }
+       // public int CategoryId { get; set; }
         public string Description { get; set; }
         [DisplayName("Original Country")]
         public string OriginalCountry { get; set; }
@@ -31,6 +31,7 @@ namespace Webthucpham.ViewModels.Catalog.Products
         public List<SelectItemDynamic<int>> CategoriesAssignRequest { get; set; }
      = new List<SelectItemDynamic<int>>();
 
+        public string[] SelectedId { get; set; }
         public Status status { get; set; }
     }
 }

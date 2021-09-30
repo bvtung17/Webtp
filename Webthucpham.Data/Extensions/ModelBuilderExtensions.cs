@@ -83,7 +83,7 @@ namespace Webthucpham.Data.Extensions
             {
 
                 Name = "Bông Cải Trắng Đà Lạt Vietgap ",
-                CategoryId = 1,
+               
                 Description = "" +
             " Bông Cải Trắng Đà Lạt Vietgap ",
                 Details = "Bông 600G",
@@ -99,7 +99,7 @@ namespace Webthucpham.Data.Extensions
             {
 
                 Name = "Bông Cải Xanh Baby Broccolini Nhập Khẩu Úc  ",
-                CategoryId = 1,
+              
                 Description =
             " Bông Cải Xanh Baby Broccolini Nhập Khẩu Úc ",
                 Details = "Bông 200g",
@@ -114,7 +114,7 @@ namespace Webthucpham.Data.Extensions
             new Product
             {
                 Name = "VIETRAT- RAU DỀN HƯỚNG HỮU CƠ 300G",
-                CategoryId = 1,
+               
                 Description = "" +
                 " Bông Cải Trắng Đà Lạt Vietgap ",
                 Details = "Túi 300G",
@@ -126,8 +126,11 @@ namespace Webthucpham.Data.Extensions
                 OriginalCountry = "Việt Nam",
                 status = Status.Active
             });
-
-            modelBuilder.Entity<ProductImage>().HasData(
+            modelBuilder.Entity<ProductInCategory>().HasData(
+               new ProductInCategory() { ProductId = 1, CategoryId = 1 },
+               new ProductInCategory() { ProductId = 2, CategoryId = 1 },
+               new ProductInCategory() { ProductId = 3, CategoryId = 1 });
+           modelBuilder.Entity<ProductImage>().HasData(
                // Product Mercedes Benz
                new ProductImage()
                {

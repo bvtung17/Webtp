@@ -15,51 +15,89 @@ using System.IO;
 using Webthucpham.Application.Common;
 using Webthucpham.ViewModels.Catalog.ProductImages;
 using Webthucpham.ViewModels.Catalog.Products;
-using Webthucpham.Utilities.Constants;
 using Webthucpham.Data.Enums;
-using Webthucpham.ViewModels.Catalog.Products.Manage;
+
 
 namespace Webthucpham.Application.Catalog.Products
 {
     public class ProductService : IProductService // kế thừa
     {
-
-        private readonly WebthucphamDbContext _context; //đọc dataBase
-        private readonly IStorageService _storageService; // đọc
-        private const string USER_CONTENT_FOLDER_NAME = "user-content";
+        private readonly WebthucphamDbContext _context;
+        private readonly IStorageService _storageService;
         public ProductService(WebthucphamDbContext context, IStorageService storageService)
         {
-            _context = context; //gán 1 lần
+            _context = context;
             _storageService = storageService;
         }
 
-        //addView
-        public async Task AddViewcount(int productId)
+        public async Task<int> AddImage(int productId, ProductImageCreateRequest request)
         {
-            var product = await _context.Products.FindAsync(productId);
-            product.ViewCount += 1;
+
+            if (request.ImageFile == null)
+            {
+                throw new WebthucphamException("Error");
+            }
+            var image = new ProductImage()
+            {
+                Caption = request.Caption,
+                DateCreated = DateTime.Now,
+                FileSize = request.ImageFile.Length,
+                ImagePath = await SaveFile(request.ImageFile),
+                ProductId = productId,
+            };
+            _context.ProductImages.Add(image);
             await _context.SaveChangesAsync();
+            return image.Id;
+
         }
 
-        //Tạo sản phẩm
-        public async Task<int> Create(ProductCreateRequest request)
-        { 
+        public async Task<ApiResult<bool>> CategoryAssign(CategoryAssignRequest request)
+        {
+            var product = await _context.Products.FindAsync(request.Id);
+            if (product == null)
+            {
+                return new ApiErrorResult<bool>($"Cannot find product with id: {request.Id}");
+            }
+            var categories = await _context.Categories.Select(x => x.Id.ToString()).ToArrayAsync();
 
-             var product = new Product()
-             {
-                 CategoryId= request.CategoryId,
-                 Price = request.Price,
-                 Name = request.Name,
-                 OriginalCountry = request.OriginalCountry,
-                 OriginalPrice = request.OriginalPrice,
-                 Stock = request.Stock,
-                 Description = request.Description ?? "",
-                 Details = request.Details ?? "",
-                 ViewCount = 0,
-                 DateCreated = DateTime.Now,
-                 status = Status.Active
-             };
-            //Save image
+            foreach (var categoryId in categories)
+            {
+                var productInCategory = await _context.ProductInCategories.Where(x => x.CategoryId == int.Parse(categoryId) && x.ProductId == product.Id).FirstOrDefaultAsync();
+                var isAdd = request.SelectedCategories.Contains(categoryId);
+                if (!isAdd && productInCategory != null)
+                {
+                    _context.ProductInCategories.Remove(productInCategory);
+                }
+                else if (isAdd && productInCategory == null)
+                {
+                    await _context.ProductInCategories.AddAsync(new ProductInCategory()
+                    {
+                        CategoryId = int.Parse(categoryId),
+                        ProductId = request.Id
+                    });
+                }
+            }
+            await _context.SaveChangesAsync();
+            return new ApiSuccessResult<bool>();
+        }
+
+        public async Task<int> Create(ProductCreateRequest request)
+        {
+            var product = new Product()
+            {
+                Price = request.Price,
+                Name = request.Name,
+               
+                OriginalCountry = request.OriginalCountry,
+                OriginalPrice = request.OriginalPrice,
+                Stock = request.Stock,
+                Description = request.Description ?? "",
+                Details = request.Details ?? "",
+                ViewCount = 0,
+                DateCreated = DateTime.Now,
+                status = Status.Active
+            };
+
 
             if (request.ThumbnailImage != null)
             {
@@ -76,18 +114,41 @@ namespace Webthucpham.Application.Catalog.Products
                     }
                 };
             }
+
             _context.Products.Add(product);
+
             await _context.SaveChangesAsync();
+
+            if (request.SelectedId != null)
+            {
+                for (int count = 0; count < request.SelectedId.Length; count++)
+                {
+                    _context.ProductInCategories.Add(new ProductInCategory()
+                    {
+                        CategoryId = int.Parse(request.SelectedId[count]),
+                        ProductId = product.Id
+                    });
+                    await _context.SaveChangesAsync();
+                }
+            }
             return product.Id;
-   
-           
+
         }
-        //XÓA SẢN PHẨM
+
         public async Task<int?> Delete(int productId)
         {
             var product = await _context.Products.FindAsync(productId);
-            if (product == null) throw new WebthucphamException($"Không thể tìm thấy sản phẩm : {productId}");
+            if (product == null)
+            {
+                return null;
+            }
 
+            /*var images = await _context.ProductImages.Where(x => x.IsDefault == true && x.ProductId == productId).ToListAsync();
+
+            foreach (var item in images)
+            {
+                await _storageService.DeleteFileAsync(item.ImagePath);
+            }*/
             if (product.status == Status.Active)
             {
                 product.status = Status.InActive;
@@ -100,15 +161,11 @@ namespace Webthucpham.Application.Catalog.Products
             return await _context.SaveChangesAsync();
         }
 
-        //GET ALL
         public async Task<PageResponse<ProductViewModel>> GetAll(GetProductRequest request, string status)
         {
-            //using linq
             int PageIndex = request.PageIndex;
             int PageSize = request.PageSize;
             var totalRecords = 0;
-
-
             if (request.CategoryId == null)
             {
                 var result = from p in _context.Products
@@ -139,6 +196,7 @@ namespace Webthucpham.Application.Catalog.Products
                     Id = x.p.Id,
                     Name = x.p.Name,
                     Price = x.p.Price,
+                  
                     OriginalPrice = x.p.OriginalPrice,
                     DateCreated = x.p.DateCreated,
                     Description = x.p.Description,
@@ -156,15 +214,20 @@ namespace Webthucpham.Application.Catalog.Products
                     PageIndex = PageIndex,
                     PageSize = PageSize
                 };
+
                 return responseData;
+
             }
+
             var query = from p in _context.Products
-                        join c in _context.Categories on p.CategoryId equals c.Id
+                        join pic in _context.ProductInCategories on p.Id equals pic.ProductId
+                        join c in _context.Categories on pic.CategoryId equals c.Id
                         join pi in _context.ProductImages on p.Id equals pi.ProductId into ppi
                         from pi in ppi.DefaultIfEmpty()
                         where pi.IsDefault
-                        select new { p, c, pi };
-            query = query.Where(p => p.c.Id == request.CategoryId);
+                        select new { p, pic, c, pi };
+
+            query = query.Where(p => p.pic.CategoryId == request.CategoryId);
             switch (status)
             {
                 case "InActive":
@@ -191,6 +254,7 @@ namespace Webthucpham.Application.Catalog.Products
                     Id = x.p.Id,
                     Name = x.p.Name,
                     Price = x.p.Price,
+                  
                     OriginalPrice = x.p.OriginalPrice,
                     DateCreated = x.p.DateCreated,
                     Description = x.p.Description,
@@ -212,280 +276,6 @@ namespace Webthucpham.Application.Catalog.Products
             };
 
             return response;
-
-        }
-
-        //Lay id san pham
-        public async Task<ProductUpdateRequest> GetById(int id)
-        {
-            var product = await _context.Products.FirstOrDefaultAsync(x => x.Id == id);
-            if (product == null)
-            {
-                return null;
-            }
-            //var queryCtgs = from p in _context.Products
-            //                join c in _context.Categories on p.CategoryId equals c.Id
-            //                select new { p, c };
-            //var categoryId =  queryCtgs.Where(x => x.p.Id == id).Select(x => x.c.Id);
-            var productViewModel = new ProductUpdateRequest()
-            {
-                Id = product.Id,
-                CategoryId = product.CategoryId,
-                DateCreated = product.DateCreated,
-                Description = product.Description,
-                Details = product.Details,
-                Name = product.Name,
-                OriginalCountry = product.OriginalCountry,
-                OriginalPrice = product.OriginalPrice,
-                Price = product.Price,
-                Stock = product.Stock,
-                ViewCount = product.ViewCount,
-                status = product.status
-            };
-            return productViewModel;
-
-        }
-
-        //private async Task<List<string>> GetProductInCategories(int id)
-        //{
-        //    var categoryNames = await (from c in _context.Categories
-        //                               join pic in _context.ProductInCategories on c.Id equals pic.CategoryId
-        //                               where pic.ProductId == id
-        //                               select c.Id.ToString()).ToListAsync();
-        //    return categoryNames;
-
-        //}
-
-        // update san pham
-        public async Task<int> Update(ProductUpdateRequest request)
-        {
-            var product = await _context.Products.FirstOrDefaultAsync(x => x.Id == request.Id);
-            if (product == null)
-                throw new WebthucphamException($"Cannot found product width id: {request.Id}");
-
-            product.Name = request.Name;
-            product.OriginalCountry = request.OriginalCountry;
-           
-            product.Description = request.Description;
-            product.Details = request.Details;
-            product.OriginalPrice = request.OriginalPrice;
-            product.Price = request.Price;
-            product.Stock = request.Stock;
-
-            _context.Products.Attach(product);
-
-            if (request.ThumbnailImage != null)
-            {
-                var thumbnail = await _context.ProductImages.FirstOrDefaultAsync(x => x.IsDefault == true && x.ProductId == request.Id);
-                if (thumbnail != null)
-                {
-                    thumbnail.FileSize = request.ThumbnailImage.Length;
-                    thumbnail.ImagePath = await SaveFile(request.ThumbnailImage);
-                    _context.ProductImages.Update(thumbnail);
-                }
-            }
-            await _context.SaveChangesAsync();
-            return 1 /*1 is success*/;
-
-        }
-
-        // cập nhập giá
-        public async Task<bool> UpdatePrice(int productId, decimal newPrice)
-        {
-            var product = await _context.Products.FindAsync(productId);
-            if (product == null) throw new WebthucphamException($"Không thể tìm thấy sản phẩm với Id: {productId}");
-            product.Price = newPrice;
-            return await _context.SaveChangesAsync() > 0;
-        }
-
-        // cập nhập số lượng
-        public async Task<bool> UpdateStock(int productId, int addedQuantity)
-        {
-            var product = await _context.Products.FindAsync(productId);
-            if (product == null) throw new WebthucphamException($"Không thể tìm thấy sản phẩm với Id: {productId}");
-            product.Stock += addedQuantity;
-            return await _context.SaveChangesAsync() > 0;
-        }
-
-        //IMAGES
-
-        // GET ID ẢNH
-        public async Task<ProductImageViewModel> GetImageById(int imageId)
-        {
-            var image = await _context.ProductImages.FindAsync(imageId);
-            if (image == null)
-            {
-                throw new WebthucphamException($"Không tìm thấy ảnh theo id {imageId}");
-            }
-            var viewModel = new ProductImageViewModel()
-            {
-                Caption = image.Caption,
-                DateCreated = image.DateCreated,
-                FileSize = image.FileSize,
-                Id = image.Id,
-                ImagePath = image.ImagePath,
-                IsDefault = image.IsDefault,
-                ProductId = image.ProductId,
-                SortOrder = image.SortOrder
-            };
-            return viewModel;
-
-        }
-        //THÊM ẢNH
-        public async Task<int> AddImage(int productId, ProductImageCreateRequest request)
-        {
-
-            if (request.ImageFile == null)
-            {
-                throw new WebthucphamException("Error");
-            }
-            var image = new ProductImage()
-            {
-                Caption = request.Caption,
-                DateCreated = DateTime.Now,
-                FileSize = request.ImageFile.Length,
-                ImagePath = await SaveFile(request.ImageFile),
-                ProductId = productId,
-            };
-            _context.ProductImages.Add(image);
-            await _context.SaveChangesAsync();
-            return image.Id;
-        }
-        //lấy list ảnh
-        public async Task<List<ProductImageViewModel>> GetListImage(int productId)
-        {
-            var images = await _context.ProductImages
-                .Where(x => x.ProductId == productId)
-                .Select(x => new ProductImageViewModel()
-                {
-                    Id = x.Id,
-                    ProductId = x.ProductId,
-                    Caption = x.Caption,
-                    DateCreated = x.DateCreated,
-                    FileSize = x.FileSize,
-                    ImagePath = x.ImagePath,
-                    IsDefault = x.IsDefault,
-                    SortOrder = x.SortOrder
-                }
-                )
-                .ToListAsync();
-            return images;
-        }
-
-
-        //CẬP NHẬP ẢNH
-        public async Task<int> UpdateImage(int imageId, ProductImageUpdateRequest request)
-        {
-            var productImage = await _context.ProductImages.FindAsync(imageId);
-            if (productImage == null)
-            {
-                throw new WebthucphamException($"Không tìm thấy ảnh theo id {imageId}");
-            }
-            //Save image
-            if (request.ImageFile != null)
-            {
-                productImage.ImagePath = await this.SaveFile(request.ImageFile);
-                productImage.FileSize = request.ImageFile.Length;
-            }
-            _context.ProductImages.Update(productImage);
-            return await _context.SaveChangesAsync();
-        }
-        //XÓA ẢNH
-        public async Task<int> RemoveImage( int imageId)
-        {
-            var productImage = await _context.ProductImages.FindAsync(imageId);
-            if (productImage == null)
-            {
-                throw new WebthucphamException($"Không tìm thấy ảnh theo id {imageId}");
-            }
-            _context.ProductImages.Remove(productImage);
-           return await _context.SaveChangesAsync();
-        }
-        //LƯU FILE
-        private async Task<string> SaveFile(IFormFile file)
-        {
-            var originalFileName = ContentDispositionHeaderValue.Parse(file.ContentDisposition).FileName.Trim('"');
-            var fileName = $"{Guid.NewGuid()}{Path.GetExtension(originalFileName)}";
-            await _storageService.SaveFileAsync(file.OpenReadStream(), fileName);
-            return "/"+ USER_CONTENT_FOLDER_NAME+"/"+fileName;
-        }
-        public async Task<List<ProductViewModel>> GetFeaturedProducts()
-        {
-
-            //1 : select join
-            var products = await _context.Products.Where(x => x.Id > 0).Take(8).OrderByDescending(x => x.DateCreated).Select(x => new ProductViewModel()
-            {
-                Id = x.Id,
-                Name = x.Name,
-                Price = x.Price,
-                OriginalPrice = x.OriginalPrice
-
-            }).ToListAsync();
-
-            return products;
-        }
-
-      
-        public async Task<bool?> UpdateViewCount(int productId)
-        {
-            var product = await _context.Products.FindAsync(productId);
-            if (product == null) return null;
-            product.ViewCount += 1;
-            return await _context.SaveChangesAsync() > 0;
-        }
-        public async Task<bool?> UpdateStock(ProductEditRequest request)
-        {
-            var product = await _context.Products.FirstOrDefaultAsync(x => x.Id == request.Id);
-            if (product == null)
-                return null;
-            product.Stock += request.addedStock;
-            return await _context.SaveChangesAsync() > 0;
-        }
-
-        public async Task<ApiResult<bool>> RemoveImage(int productId, int imageId)
-        {
-            var image = await _context.ProductImages.FindAsync(imageId);
-            var product = await _context.Products.FindAsync(productId);
-            if (image == null || product == null) return new ApiErrorResult<bool>("Không tìm thấy image");
-
-            var countProductImage = await _context.ProductImages.Where(x => x.ProductId == productId).CountAsync();
-
-            if (countProductImage > 1 && image.IsDefault)
-            {
-                var ThumbnailNew = await _context.ProductImages.Where(x => x.Id != imageId && x.ProductId == productId).FirstOrDefaultAsync();
-                ThumbnailNew.IsDefault = true;
-                _context.ProductImages.Attach(ThumbnailNew);
-            }
-
-            if (countProductImage == 1)
-            {
-
-                return new ApiSuccessResult<bool>() { IsSuccessed = true, ResultObj = false, Message = "Không thể xóa hết ảnh của sản phẩm!" };
-            }
-
-            _context.ProductImages.Remove(image);
-            await _context.SaveChangesAsync();
-            return new ApiSuccessResult<bool>()
-            {
-                IsSuccessed = true,
-                Message = "Xóa thành công",
-                ResultObj = true
-            };
-        }
-
-        public Task<ApiResult<bool>> CategoryAssign(CategoryAssignRequest request)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<PageResponse<ProductImageViewModel>> GetImages(int productId, PagingRequestBase request)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<ApiResult<ClientProductViewModel>> ClientGetProductDetail(int id)
-        {
-            throw new NotImplementedException();
         }
 
         public async Task<PageResponse<ProductViewModel>> SearchProductClient(GetProductRequest request)
@@ -529,7 +319,7 @@ namespace Webthucpham.Application.Catalog.Products
                     Id = x.p.Id,
                     Name = x.p.Name,
                     Price = x.p.Price,
-              
+                   
                     OriginalPrice = x.p.OriginalPrice,
                     DateCreated = x.p.DateCreated,
                     Description = x.p.Description,
@@ -555,9 +345,9 @@ namespace Webthucpham.Application.Catalog.Products
             {
                 var Category = await _context.Categories.Where(x => x.Id == request.CategoryId).FirstOrDefaultAsync();
 
-                var pic = _context.Products.Where(x => x.CategoryId == request.CategoryId);
+                var pic = _context.ProductInCategories.Where(x => x.CategoryId == request.CategoryId);
                 var query = from pc in pic
-                            join p in _context.Products on pc.Id equals p.Id
+                            join p in _context.Products on pc.ProductId equals p.Id
                             join pi in _context.ProductImages on p.Id equals pi.ProductId
                             where pi.IsDefault
                             select new { p, pi };
@@ -593,7 +383,7 @@ namespace Webthucpham.Application.Catalog.Products
                     Id = x.p.Id,
                     Name = x.p.Name,
                     Price = x.p.Price,
-                   
+                 
                     OriginalPrice = x.p.OriginalPrice,
                     DateCreated = x.p.DateCreated,
                     Description = x.p.Description,
@@ -617,8 +407,251 @@ namespace Webthucpham.Application.Catalog.Products
             }
         }
 
-        public async Task<bool> ChangeThumbnail(int productId, int imageId)
+        public async Task<ProductUpdateRequest> GetById(int id)
+        {
+
+            var product = await _context.Products.FirstOrDefaultAsync(x => x.Id == id);
+
+            if (product == null)
             {
+                return null;
+            }
+            var queryCtgs = from pic in _context.ProductInCategories
+                            join c in _context.Categories on pic.CategoryId equals c.Id
+                            select new { pic, c };
+            var categories = await queryCtgs.Where(x => x.pic.ProductId == id).Select(x => x.c).ToListAsync() as IEnumerable<Category>;
+
+            var categoryIds = await GetProductInCategories(id);
+
+            var productViewModel = new ProductUpdateRequest()
+            {
+                Id = product.Id,
+                DateCreated = product.DateCreated,
+                Description = product.Description,
+                Details = product.Details,
+               
+                Name = product.Name,
+                OriginalCountry = product.OriginalCountry,
+                OriginalPrice = product.OriginalPrice,
+                Price = product.Price,
+                Stock = product.Stock,
+                ViewCount = product.ViewCount,
+                Categories = categoryIds,
+                CategoryList = categories,
+                status = product.status
+            };
+            return productViewModel;
+        }
+        private async Task<List<string>> GetProductInCategories(int id)
+        {
+            var categoryNames = await (from c in _context.Categories
+                                       join pic in _context.ProductInCategories on c.Id equals pic.CategoryId
+                                       where pic.ProductId == id
+                                       select c.Id.ToString()).ToListAsync();
+            return categoryNames;
+
+        }
+        public async Task<List<ProductViewModel>> GetFeaturedProducts()
+        {
+            // Update when have manage categories
+            var products = await _context.Products.Where(x => x.Id > 0).Take(8).OrderByDescending(x => x.DateCreated).Select(x => new ProductViewModel()
+            {
+                Id = x.Id,
+                Name = x.Name,
+                Price = x.Price,
+                OriginalPrice = x.OriginalPrice
+
+            }).ToListAsync();
+
+            return products;
+        }
+
+        public async Task<ProductImageViewModel> GetImageById(int id)
+        {
+            var image = await _context.ProductImages.FirstOrDefaultAsync(x => x.Id == id);
+            if (image == null) return null;
+            var productImageViewModel = new ProductImageViewModel()
+            {
+                Id = image.Id,
+                Caption = image.Caption,
+                DateCreated = image.DateCreated,
+                FileSize = image.FileSize,
+                ImagePath = image.ImagePath,
+                IsDefault = image.IsDefault,
+                ProductId = image.ProductId,
+                SortOrder = image.SortOrder
+            };
+            return productImageViewModel;
+        }
+
+        public async Task<List<ProductImageViewModel>> GetListImage(int productId)
+        {
+            var images = await _context.ProductImages
+                .Where(x => x.ProductId == productId)
+                .Select(x => new ProductImageViewModel()
+                {
+                    Id = x.Id,
+                    ProductId = x.ProductId,
+                    Caption = x.Caption,
+                    DateCreated = x.DateCreated,
+                    FileSize = x.FileSize,
+                    ImagePath = x.ImagePath,
+                    IsDefault = x.IsDefault,
+                    SortOrder = x.SortOrder
+                }
+                )
+                .ToListAsync();
+            return images;
+        }
+        public async Task<PageResponse<ProductImageViewModel>> GetImages(int productId, PagingRequestBase request)
+        {
+
+            var product = await _context.Products.Where(x => x.Id == productId).FirstOrDefaultAsync();
+
+            if (product == null)
+            {
+                return null;
+            }
+
+            var query = from pi in _context.ProductImages where pi.ProductId == productId select pi;
+            var records = await query.CountAsync();
+            var images = await query.Select(x => new ProductImageViewModel()
+            {
+                Id = x.Id,
+                Caption = x.Caption,
+                DateCreated = x.DateCreated,
+                FileSize = x.FileSize,
+                ImagePath = x.ImagePath,
+                IsDefault = x.IsDefault,
+                ProductId = x.ProductId,
+                SortOrder = x.SortOrder
+            }).Skip((request.PageIndex - 1) * request.PageSize).Take(request.PageSize).ToListAsync();
+            var response = new PageResponse<ProductImageViewModel>()
+            {
+                Items = images,
+                PageIndex = request.PageIndex,
+                PageSize = request.PageSize,
+                TotalRecords = records
+            };
+            return response;
+        }
+        public async Task<ApiResult<bool>> RemoveImage(int productId, int imageId)
+        {
+            var image = await _context.ProductImages.FindAsync(imageId);
+            var product = await _context.Products.FindAsync(productId);
+            if (image == null || product == null) return new ApiErrorResult<bool>("Không tìm thấy image");
+
+            var countProductImage = await _context.ProductImages.Where(x => x.ProductId == productId).CountAsync();
+
+            if (countProductImage > 1 && image.IsDefault)
+            {
+                var ThumbnailNew = await _context.ProductImages.Where(x => x.Id != imageId && x.ProductId == productId).FirstOrDefaultAsync();
+                ThumbnailNew.IsDefault = true;
+                _context.ProductImages.Attach(ThumbnailNew);
+            }
+
+            if (countProductImage == 1)
+            {
+
+                return new ApiSuccessResult<bool>() { IsSuccessed = true, ResultObj = false, Message = "Không thể xóa hết ảnh của sản phẩm!" };
+            }
+
+            _context.ProductImages.Remove(image);
+            await _context.SaveChangesAsync();
+            return new ApiSuccessResult<bool>()
+            {
+                IsSuccessed = true,
+                Message = "Xóa thành công",
+                ResultObj = true
+            };
+        }
+
+        public async Task<int> Update(ProductUpdateRequest request)
+        {
+            var product = await _context.Products.FirstOrDefaultAsync(x => x.Id == request.Id);
+            if (product == null)
+                throw new WebthucphamException($"Cannot found product width id: {request.Id}");
+
+            product.Name = request.Name;
+            product.OriginalCountry = request.OriginalCountry;
+           
+            product.Description = request.Description;
+            product.Details = request.Details;
+            product.OriginalPrice = request.OriginalPrice;
+            product.Price = request.Price;
+            product.Stock = request.Stock;
+
+            _context.Products.Attach(product);
+
+            if (request.ThumbnailImage != null)
+            {
+                var thumbnail = await _context.ProductImages.FirstOrDefaultAsync(x => x.IsDefault == true && x.ProductId == request.Id);
+                if (thumbnail != null)
+                {
+                    thumbnail.FileSize = request.ThumbnailImage.Length;
+                    thumbnail.ImagePath = await SaveFile(request.ThumbnailImage);
+                    _context.ProductImages.Update(thumbnail);
+                }
+            }
+            await _context.SaveChangesAsync();
+            return 1 /*1 is success*/;
+
+        }
+
+        public async Task<int> UpdateImage(int imageId, ProductImageUpdateRequest request)
+        {
+
+            var productImage = await _context.ProductImages.FindAsync(imageId);
+            if (productImage == null)
+            {
+                return 0;
+            }
+            if (request.ImageFile != null)
+            {
+                productImage.ImagePath = await SaveFile(request.ImageFile);
+                productImage.FileSize = request.ImageFile.Length;
+            }
+            productImage.Caption = request.Caption;
+            _context.ProductImages.Update(productImage);
+            return await _context.SaveChangesAsync();
+        }
+
+        public async Task<bool?> UpdatePrice(int productId, decimal newPrice)
+        {
+            var product = await _context.Products.FirstOrDefaultAsync(x => x.Id == productId);
+            if (product == null)
+                return null;
+            product.Price = newPrice;
+            return await _context.SaveChangesAsync() > 0;
+        }
+
+        public async Task<bool?> UpdateStock(int productId, int addedStock)
+        {
+            var product = await _context.Products.FirstOrDefaultAsync(x => x.Id == productId);
+            if (product == null)
+                return null;
+            product.Stock += addedStock;
+            return await _context.SaveChangesAsync() > 0;
+        }
+
+        public async Task<bool?> UpdateViewCount(int productId)
+        {
+            var product = await _context.Products.FindAsync(productId);
+            if (product == null) return null;
+            product.ViewCount += 1;
+            return await _context.SaveChangesAsync() > 0;
+        }
+
+        private async Task<string> SaveFile(IFormFile file)
+        {
+            var originalFileName = ContentDispositionHeaderValue.Parse(file.ContentDisposition).FileName.Trim('"');
+            var fileName = $"{Guid.NewGuid()}{Path.GetExtension(originalFileName)}";
+            await _storageService.SaveFileAsync(file.OpenReadStream(), fileName);
+            return fileName;
+        }
+
+        public async Task<bool> ChangeThumbnail(int productId, int imageId)
+        {
             var product = await _context.Products.Where(x => x.Id == productId).FirstOrDefaultAsync();
 
             if (product == null) return false;
@@ -645,20 +678,24 @@ namespace Webthucpham.Application.Catalog.Products
 
         }
 
-        public async Task<bool?> UpdatePrice(ProductEditRequest request)
+        public async Task<ApiResult<ClientProductViewModel>> ClientGetProductDetail(int id)
         {
-            var product = await _context.Products.FirstOrDefaultAsync(x => x.Id == request.Id);
+            var product = await _context.Products.Where(p => p.Id == id).FirstOrDefaultAsync();
             if (product == null)
-                return null;
-            product.Price = request.newPrice;
-            return await _context.SaveChangesAsync() > 0;
-        }
-        public async Task<bool?> UpdateViewCount(ProductEditRequest request)
-        {
-            var product = await _context.Products.FindAsync(request.Id);
-            if (product == null) return null;
-            product.ViewCount += 1;
-            return await _context.SaveChangesAsync() > 0;
+            {
+                return new ApiErrorResult<ClientProductViewModel>("Sản phẩm không tồn tại");
+            }
+
+            var clientProduct = new ClientProductViewModel()
+            {
+                Id = id,
+                Description = product.Description,
+                Name = product.Name,
+                Price = product.Price,
+                Images = await _context.ProductImages.Where(x => x.ProductId == id).Select(pi => pi.ImagePath).ToListAsync()
+            };
+
+            return new ApiSuccessResult<ClientProductViewModel>(clientProduct);
         }
     }
 }

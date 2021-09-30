@@ -16,9 +16,9 @@ namespace Webthucpham.Application.Catalog.Products
         Task<int> Update(ProductUpdateRequest request);
         Task<int?> Delete(int productId);
         //Task<PageResponse<ProductViewModel>> GetAllPaging(GetProductRequest query);
-        Task<bool?> UpdatePrice(ProductEditRequest request);
-        Task<bool?> UpdateViewCount(ProductEditRequest request);
-        Task<bool?> UpdateStock(ProductEditRequest request);
+        Task<bool?> UpdatePrice(int productId, decimal newPrice);
+        Task<bool?> UpdateViewCount(int productId);
+        Task<bool?> UpdateStock(int productId, int addedStock);
         Task<ProductUpdateRequest> GetById(int id);
         Task<int> AddImage(int productId, ProductImageCreateRequest request);
         Task<ApiResult<bool>> RemoveImage(int productId, int imageId);
@@ -34,6 +34,7 @@ namespace Webthucpham.Application.Catalog.Products
         Task<ApiResult<ClientProductViewModel>> ClientGetProductDetail(int id);
 
         Task<PageResponse<ProductViewModel>> SearchProductClient(GetProductRequest request);
+
 
     }
 }
