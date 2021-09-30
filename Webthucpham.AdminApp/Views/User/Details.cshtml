@@ -1,66 +1,125 @@
-﻿@model Webthucpham.ViewModels.System.Users.UserVm
-
+﻿@model Webthucpham.ViewModels.Systems.Users.UserViewModel
 @{
-    ViewData["Title"] = "Chi Tiết";
+    ViewData["Title"] = "User details";
     Layout = "~/Views/Shared/_Layout.cshtml";
+    var isManager = ViewBag.IsManager;
+    var customIsManager = ViewBag.CustomIsManager;
 }
-<div class="container-fluid px-4">
-    <h1 class="mt-4">Thông Tin Người Dùng</h1>
+
+
+<div class="container-fluid">
+    <h1 class="mt-4">Người Dùng</h1>
     <ol class="breadcrumb mb-4">
-        <li class="breadcrumb-item"><a href="/">Trang Chủ</a></li>
-        <li class="breadcrumb-item active">Thông Tin Người Dùng</li>
+        <li class="breadcrumb-item"><a asp-action="Index" asp-controller="User">Danh Sách Người Dùng</a></li>
+        <li class="breadcrumb-item active">Chi Tiết Người Dùng</li>
     </ol>
 
     <div class="card mb-4">
-        <div class="card-header">
-            <i class="fas fa-table me-1"></i>
-            <a class="btn btn-success" asp-action="Index" asp-controller="User">Về Danh Sách</a>
-
+        <div class="card-header d-flex justify-content-start">
+            <a asp-action="Index" asp-controller="User" class="btn btn-outline-dark"><i class="fas fa-chevron-left back-list-product mr-2"></i>Về danh sách người dùng</a>
         </div>
-        <dl class="row">
-            <dt class="col-sm-2">
-                @Html.DisplayNameFor(model => model.Id)
-            </dt>
-            <dd class="col-sm-10">
-                @Html.DisplayFor(model => model.Id)
-            </dd>
-            <dt class="col-sm-2">
-                @Html.DisplayNameFor(model => model.FirstName)
-            </dt>
-            <dd class="col-sm-10">
-                @Html.DisplayFor(model => model.FirstName)
-            </dd>
-            <dt class="col-sm-2">
-                @Html.DisplayNameFor(model => model.LastName)
-            </dt>
-            <dd class="col-sm-10">
-                @Html.DisplayFor(model => model.LastName)
-            </dd>
-            <dt class="col-sm-2">
-                @Html.DisplayNameFor(model => model.PhoneNumber)
-            </dt>
-            <dd class="col-sm-10">
-                @Html.DisplayFor(model => model.PhoneNumber)
-            </dd>
-            <dt class="col-sm-2">
-                @Html.DisplayNameFor(model => model.UserName)
-            </dt>
-            <dd class="col-sm-10">
-                @Html.DisplayFor(model => model.UserName)
-            </dd>
-            <dt class="col-sm-2">
-                @Html.DisplayNameFor(model => model.Email)
-            </dt>
-            <dd class="col-sm-10">
-                @Html.DisplayFor(model => model.Email)
-            </dd>
-            <dt class="col-sm-2">
-                @Html.DisplayNameFor(model => model.Dob)
-            </dt>
-            <dd class="col-sm-10">
-                @Html.DisplayFor(model => model.Dob)
-            </dd>
-        </dl>
+        <div class="card-body">
+            <div class="">
+                <form asp-action="Edit" class="row col-12" id="user-update-form">
+                    <input asp-for="Id" type="hidden" />
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+
+                    <div class="form-group col-6">
+                        <label asp-for="UserName" class="control-label font-weight-bold">Tên Người Dùng</label>
+                        <input asp-for="UserName" disabled class="form-control" />
+                        <span asp-validation-for="UserName" class="text-danger"></span>
+                    </div>
+
+                    @if (isManager)
+                    {
+
+                        <div class="col-6">
+                            <div class="form-group ">
+                                <label class="control-label  font-weight-bold">Vai Trò</label>
+                                <div class="d-flex align-items-center">
+                                    @for (int i = 0; i < Model.RoleAssignRequest.Count; i++)
+                                    {
+                                        <label class="d-flex  align-items-center mr-2">
+                                            <span class="mr-2">
+                                                @Model.RoleAssignRequest[i].Name
+                                            </span>
+                                            <input type="hidden" asp-for="RoleAssignRequest[i].Name" value="@Model.RoleAssignRequest[i].Name" />
+                                            <input type="hidden" asp-for="RoleAssignRequest[i].Id" value="@Model.RoleAssignRequest[i].Id" />
+                                            @if (!customIsManager)
+                                            {
+
+                                                <input type="checkbox" asp-for="RoleAssignRequest[i].Selected" class="ml-2" />
+                                            }
+
+
+                                        </label>
+
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    }
+
+
+                    <div class="form-group col-6">
+                        <label asp-for="Name" class="control-label font-weight-bold">Tên</label>
+                        @if (isManager)
+                        {
+                            <input asp-for="Name" class="form-control" />
+                        }
+                        else
+                        {
+                            <input asp-for="Name" disabled class="form-control" />
+
+                        }
+                        <span asp-validation-for="Name" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group col-6">
+                        <label asp-for="Email" class="control-label font-weight-bold">Địa Chỉ Email</label>
+                        <input asp-for="Email" disabled class="form-control" />
+                        <span asp-validation-for="Email" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group col-6">
+                        <label asp-for="Dob" class="control-label font-weight-bold">Ngày Sinh</label>
+                        @if (isManager)
+                        {
+                            <input asp-for="Dob" class="form-control" />
+                        }
+                        else
+                        {
+                            <input asp-for="Dob" disabled class="form-control" />
+
+                        }
+
+                        <span asp-validation-for="Dob" class="text-danger"></span>
+                    </div>
+                    <div class="form-group col-6">
+                        <label asp-for="PhoneNumber" class="control-label font-weight-bold">Số Điện Thoại</label>
+                        @if (isManager)
+                        {
+                            <input asp-for="PhoneNumber" class="form-control" />
+                        }
+                        else
+                        {
+                            <input asp-for="PhoneNumber" disabled class="form-control" />
+                        }
+                        <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+                    </div>
+
+                </form>
+                @if (isManager)
+                {
+                    <div class="d-flex justify-content-center">
+                        <input type="submit" value="Lưu" class="btn btn-outline-dark mr-4 px-4" form="user-update-form" />
+                    </div>
+                }
+            </div>
+        </div>
     </div>
 </div>
+
+
 

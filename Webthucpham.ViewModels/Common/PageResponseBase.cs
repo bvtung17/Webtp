@@ -20,5 +20,7 @@ namespace Webthucpham.ViewModels.Common
                 return (int)Math.Ceiling(pageCount);
             }
         }
+        public Guid CurrentLoggedId { get; set; }
+        public string CurrentRoles { get; set; }
     }
 }
