@@ -23,6 +23,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Webthucpham.Api\Webthucpham.Api.csproj" />
     <ProjectReference Include="..\Webthucpham.Data\Webthucpham.Data.csproj" />
     <ProjectReference Include="..\Webthucpham.Utilities\Webthucpham.Utilities.csproj" />
     <ProjectReference Include="..\Webthucpham.ViewModels\Webthucpham.ViewModels.csproj" />

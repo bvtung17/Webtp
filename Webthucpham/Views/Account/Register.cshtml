@@ -29,18 +29,13 @@
             <button type="button" class="close" data-dismiss="alert">×</button>
         </div>
         <div class="control-group">
-            <label class="control-label" for="inputFname1">First name <sup>*</sup></label>
+            <label class="control-label" for="inputFname1">Name <sup>*</sup></label>
             <div class="controls">
-                <input type="text" asp-for="FirstName" placeholder="First Name">
-                <span asp-validation-for="FirstName" class="text-error"></span>
+                <input type="text" asp-for="Name" placeholder="Name">
+                <span asp-validation-for="Name" class="text-error"></span>
             </div>
         </div>
-        <div class="control-group">
-            <label class="control-label" for="inputLnam">Last name <sup>*</sup></label>
-            <div class="controls">
-                <input type="text" asp-for="LastName" placeholder="Last Name">
-            </div>
-        </div>
+       
         <div class="control-group">
             <label class="control-label" for="input_email">Date <sup>*</sup></label>
             <div class="controls">

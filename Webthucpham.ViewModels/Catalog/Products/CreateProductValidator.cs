@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Webthucpham.ViewModels.Catalog.Products;
+using Webthucpham.ViewModels.Catalog.Products.Manage;
 
 namespace Webthucpham.ViewModels.Catalogs.Products
 {

@@ -4,7 +4,6 @@ using System.Text;
 using System.Threading.Tasks;
 using Webthucpham.ViewModels.Catalog.Orders;
 using Webthucpham.ViewModels.Common;
-using Webthucpham.ViewModels.Sales;
 using Webthucpham.ViewModels.System.Clients;
 
 namespace Webthucpham.Application.Catalog.Clients

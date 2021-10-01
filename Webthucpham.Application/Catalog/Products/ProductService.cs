@@ -16,7 +16,7 @@ using Webthucpham.Application.Common;
 using Webthucpham.ViewModels.Catalog.ProductImages;
 using Webthucpham.ViewModels.Catalog.Products;
 using Webthucpham.Data.Enums;
-
+using Webthucpham.ViewModels.Catalog.Products.Manage;
 
 namespace Webthucpham.Application.Catalog.Products
 {

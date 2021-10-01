@@ -11,7 +11,6 @@ using Webthucpham.Data.Enums;
 using Webthucpham.Utilities.Exceptions;
 using Webthucpham.ViewModels.Catalog.Orders;
 using Webthucpham.ViewModels.Common;
-using Webthucpham.ViewModels.Sales;
 
 namespace Webthucpham.Application.Catalog.Orders
 {

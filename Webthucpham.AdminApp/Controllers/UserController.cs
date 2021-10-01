@@ -88,8 +88,7 @@ namespace Webthucpham.AdminApp.Controllers
                 {
                     Dob = user.Dob,
                     Email = user.Email,
-                    FirstName = user.FirstName,
-                    LastName = user.LastName,
+                     Name =user.Name,
                     PhoneNumber = user.PhoneNumber,
                     Id = id
                 };

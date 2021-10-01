@@ -12,9 +12,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Webthucpham.Application\Webthucpham.Application.csproj" />
-    <ProjectReference Include="..\Webthucpham.Data\Webthucpham.Data.csproj" />
-    <ProjectReference Include="..\Webthucpham.Utilities\Webthucpham.Utilities.csproj" />
-    <ProjectReference Include="..\Webthucpham.ViewModels\Webthucpham.ViewModels.csproj" />
   </ItemGroup>
 
 </Project>

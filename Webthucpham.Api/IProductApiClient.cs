@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Webthucpham.ViewModels.Catalog.ProductImages;
 using Webthucpham.ViewModels.Catalog.Products;
+using Webthucpham.ViewModels.Catalog.Products.Manage;
 using Webthucpham.ViewModels.Common;
 
 namespace Webthucpham.Api

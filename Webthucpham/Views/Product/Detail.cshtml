@@ -1,161 +1,85 @@
-﻿@model ProductDetailViewModel
+﻿@model Webthucpham.ViewModels.Catalog.Products.ClientProductViewModel;
 @{
     ViewData["Title"] = "Detail";
     Layout = "~/Views/Shared/_Layout.cshtml";
-    var culture = CultureInfo.CurrentCulture;
+    var baseUrl = "https://localhost:5001/user-content/";
 }
-@inject Microsoft.Extensions.Configuration.IConfiguration Configuration;
-@inject LazZiya.ExpressLocalization.ISharedCultureLocalizer _loc;
 
-<ul class="breadcrumb">
-    <li><a href="/"><localize>Home</localize></a> <span class="divider">/</span></li>
-    @*<li><a href="/@_loc["categoryUrl"]/@Model.Category.Id">@Model.Category.Name</a> <span class="divider">/</span></li>*@
-    <li class="active">@Model.Product.Name</li>
-</ul>
 
-<div class="row">
-    <div id="gallery" class="span3">
-        <a href="@(Configuration["BaseAddress"] + Model.Product.ThumbnailImage)" title="@Model.Product.Name">
-            <img src="@(Configuration["BaseAddress"] + Model.Product.ThumbnailImage)" style="width:100%" alt="@Model.Product.Name" />
-        </a>
-        <div id="differentview" class="moreOptopm carousel slide">
-            <div class="carousel-inner">
-                <div class="item active">
-                    <a href="themes/images/products/large/f1.jpg"> <img style="width:29%" src="themes/images/products/large/f1.jpg" alt="" /></a>
-                    <a href="themes/images/products/large/f2.jpg"> <img style="width:29%" src="themes/images/products/large/f2.jpg" alt="" /></a>
-                    <a href="themes/images/products/large/f3.jpg"> <img style="width:29%" src="themes/images/products/large/f3.jpg" alt="" /></a>
-                </div>
-                <div class="item">
-                    <a href="themes/images/products/large/f3.jpg"> <img style="width:29%" src="themes/images/products/large/f3.jpg" alt="" /></a>
-                    <a href="themes/images/products/large/f1.jpg"> <img style="width:29%" src="themes/images/products/large/f1.jpg" alt="" /></a>
-                    <a href="themes/images/products/large/f2.jpg"> <img style="width:29%" src="themes/images/products/large/f2.jpg" alt="" /></a>
-                </div>
+@section Scripts{
+    <script>
+        const element = document.querySelector('#displayImg')
+        document.querySelector('#productImageList').style.height = `${element.clientHeight}px`;
+        element.onload = () => {
+            document.querySelector('#productImageList').style.height = `${element.clientHeight}px`;
+        }
+    </script>
+    <script>
+        const changeImage = (e) => {
+            $('.product-detail-img-active').removeClass('product-detail-img-active');
+            e.classList.add('product-detail-img-active')
+            const src = e.src;
+            document.getElementById('displayImg').src = src;
+        }
+    </script>
+}
+<div id="main">
+    <div class="container">
+        <div class="product product__wrapper d-flex">
+            @* Msg *@
+            <div id="notificationWrap" class="w-25 position-fixed d-flex items-center" style="top:40px; left:50%; transform:translateX(-50%); z-index:100;">
+                <span id="notificationMsg" class="alert alert-success w-100 d-none" role="alert">
+                </span>
             </div>
-            <!--
-            <a class="left carousel-control" href="#myCarousel" data-slide="prev">‹</a>
-            <a class="right carousel-control" href="#myCarousel" data-slide="next">›</a>
-            -->
-        </div>
+            @*Ảnh sản phẩm  *@
 
-        <div class="btn-toolbar">
-            <div class="btn-group">
-                <span class="btn"><i class="icon-envelope"></i></span>
-                <span class="btn"><i class="icon-print"></i></span>
-                <span class="btn"><i class="icon-zoom-in"></i></span>
-                <span class="btn"><i class="icon-star"></i></span>
-                <span class="btn"><i class=" icon-thumbs-up"></i></span>
-                <span class="btn"><i class="icon-thumbs-down"></i></span>
-            </div>
-        </div>
-    </div>
-    <div class="span6">
-        <h3>@Model.Product.Name</h3>
-        <small>@Model.Product.Description</small>
-        <hr class="soft" />
-        <form class="form-horizontal qtyFrm">
-            <div class="control-group">
-                <label class="control-label"><span>$222.00</span></label>
-                <div class="controls">
-                    <input type="number" class="span1" placeholder="Qty." />
-                    <button type="submit" class="btn btn-large btn-primary pull-right"> <localize>Add to</localize> <i class=" icon-shopping-cart"></i></button>
-                </div>
-            </div>
-        </form>
+            @* Thông Tin sản Phẩm Chi Tiết *@
+            <div class="product_infoWrapper d-flex mt-4">
+                <div class="w-50 d-flex flex-column px-2">
+                    <div class="position-relative">
+                        <div class="position-absolute w-25 product-imgs-small" id="productImageList">
+                            @for (int i = 0; i < Model.Images.Count; i++)
+                            {
+                                if (i == 0)
+                                {
+                                    <img class="w-100 d-block  product-detail-img product-detail-img-active" onclick="changeImage(this)" src="@baseUrl@Model.Images[i]" />
+                                }
+                                else
+                                {
+                                    <img class="w-100 d-block  product-detail-img py-2" onclick="changeImage(this)" src="@baseUrl@Model.Images[i]" />
 
-        <hr class="soft" />
-        <h4>100 items in stock</h4>
-        <form class="form-horizontal qtyFrm pull-right">
-            <div class="control-group">
-                <label class="control-label"><span>Color</span></label>
-                <div class="controls">
-                    <select class="span2">
-                        <option>Black</option>
-                        <option>Red</option>
-                        <option>Blue</option>
-                        <option>Brown</option>
-                    </select>
-                </div>
-            </div>
-        </form>
-        <hr class="soft clr" />
-        <p>
-            @Html.Raw(Model.Product.Details)
-        </p>
-        <a class="btn btn-small pull-right" href="#detail"><localize>More Details</localize></a>
-        <br class="clr" />
-        <a href="#" name="detail"></a>
-        <hr class="soft" />
-    </div>
+                                }
 
-    <div class="span9">
-        <ul id="productDetail" class="nav nav-tabs">
-            <li class="active"><a href="#home" data-toggle="tab"><localize>Product Details</localize></a></li>
-            <li><a href="#profile" data-toggle="tab"><localize>Related Products</localize></a></li>
-        </ul>
-        <div id="myTabContent" class="tab-content">
-            <div class="tab-pane fade active in" id="home">
-                <h4>Product Information</h4>
-                @Html.Raw(Model.Product.Details)
-            </div>
-            <div class="tab-pane fade" id="profile">
-                <div id="myTab" class="pull-right">
-                    <a href="#listView" data-toggle="tab"><span class="btn btn-large"><i class="icon-list"></i></span></a>
-                    <a href="#blockView" data-toggle="tab"><span class="btn btn-large btn-primary"><i class="icon-th-large"></i></span></a>
-                </div>
-                <br class="clr" />
-                <hr class="soft" />
-                <div class="tab-content">
-                    <div class="tab-pane" id="listView">
-                        <div class="row">
-                            <div class="span2">
-                                <img src="themes/images/products/4.jpg" alt="" />
-                            </div>
-                            <div class="span4">
-                                <h3>New | Available</h3>
-                                <hr class="soft" />
-                                <h5>Product Name </h5>
-                                <p>
-                                    Nowadays the lingerie industry is one of the most successful business spheres.We always stay in touch with the latest fashion tendencies -
-                                    that is why our goods are so popular..
-                                </p>
-                                <a class="btn btn-small pull-right" href="product_details.html">View Details</a>
-                                <br class="clr" />
-                            </div>
-                            <div class="span3 alignR">
-                                <form class="form-horizontal qtyFrm">
-                                    <h3> $222.00</h3>
-                                    <label class="checkbox">
-                                        <input type="checkbox">  Adds product to compair
-                                    </label><br />
-                                    <div class="btn-group">
-                                        <a href="product_details.html" class="btn btn-large btn-primary"> Add to <i class=" icon-shopping-cart"></i></a>
-                                        <a href="product_details.html" class="btn btn-large"><i class="icon-zoom-in"></i></a>
-                                    </div>
-                                </form>
-                            </div>
+                            }
+
                         </div>
-                        <hr class="soft" />
+
+                        <img class="w-100 d-block" id="displayImg" src="@baseUrl@Model.Images[0]" />
                     </div>
-                    <div class="tab-pane active" id="blockView">
-                        <ul class="thumbnails">
-                            <li class="span3">
-                                <div class="thumbnail">
-                                    <a href="product_details.html"><img src="themes/images/products/10.jpg" alt="" /></a>
-                                    <div class="caption">
-                                        <h5>Manicure &amp; Pedicure</h5>
-                                        <p>
-                                            Lorem Ipsum is simply dummy text.
-                                        </p>
-                                        <h4 style="text-align:center"><a class="btn" href="product_details.html"> <i class="icon-zoom-in"></i></a> <a class="btn" href="#">Add to <i class="icon-shopping-cart"></i></a> <a class="btn btn-primary" href="#">&euro;222.00</a></h4>
-                                    </div>
-                                </div>
-                            </li>
-                        </ul>
-                        <hr class="soft" />
+
+                </div>
+                @* Option sp *@
+                <div class="product_info w-50 px-2 d-flex flex-column">
+                    <div class="product_meta">
+                        <h1 class="productMeta__Title justify-content-start">@Model.Name</h1>
+                        <div class="my-3">
+                            <span class="productMeta__Price price text--subdued priceFormat">@Model.Price</span>
+                        </div>
+                    </div>
+                    @* From product *@
+                    <div class="sectionFooter">
+                        <div class="wrapper">
+                            <a href="#" onclick="handleAddToCart({ Id: @Model.Id, ProductName: `@Model.Name`, ProductPrice: @Model.Price, Quantity: 1, ProductImage: '@Model.Images[0]' })" class=" w-100 d-block"><span>MUA NGAY <span class="priceFormat">@Model.Price</span></span></a>
+                        </div>
+                    </div>
+                    <div class="mt-4 text-center">
+                        <h3 class="text-center font-weight-bold">Thông tin sản phẩm</h3>
+                        @Html.Raw(@Model.Description)
                     </div>
                 </div>
-                <br class="clr">
+
             </div>
         </div>
+
     </div>
 </div>

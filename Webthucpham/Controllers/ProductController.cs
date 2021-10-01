@@ -9,41 +9,39 @@ using Webthucpham.ViewModels.Catalog.Products;
 
 namespace Webthucpham.Controllers
 {
-    public class ProductController : Controller
+    public class ProductController : ClientBaseController
     {
-        private readonly IProductApiClient _productApiClient;
+        private readonly IClientApiProduct _clientApiProduct;
         private readonly ICategoryApiClient _categoryApiClient;
-
-        public ProductController(IProductApiClient productApiClient, ICategoryApiClient categoryApiClient)
+        private readonly IClientApi _clientApi;
+        public ProductController(IClientApiProduct clientApiProduct, ICategoryApiClient categoryApiClient, IClientApi clientApi) : base(clientApi)
         {
-            _productApiClient = productApiClient;
+            _clientApiProduct = clientApiProduct;
             _categoryApiClient = categoryApiClient;
+            _clientApi = clientApi;
         }
 
-        public async Task<IActionResult> Detail(int id, string culture)
+        [HttpGet("product/{id}")]
+
+        public async Task<IActionResult> Detail([FromRoute] int id)
         {
-            var product = await _productApiClient.GetById(id, culture);
-            return View(new ProductDetailViewModel()
+            if (id < 1)
             {
-                Product = product
-                //Category = await _categoryApiClient.GetById(culture, product.Id)
-            });
+                return RedirectToAction("Error", "Home");
+            }
+            var response = await _clientApiProduct.GetProuctDetail(id);
+
+            if (!response.IsSuccessed)
+            {
+                return RedirectToAction("Error", "Home");
+            }
+            await CreateUserViewBag();
+            CreateCartViewBag();
+            var productCategory = await _categoryApiClient.GetHomeProductCategories();
+            ViewBag.Categories = productCategory;
+            return View(response.ResultObj);
         }
 
-        public async Task<IActionResult> Category(int id, string culture, int page = 1)
-        {
-            var products = await _productApiClient.GetPagings(new GetManageProductPagingRequest()
-            {
-                CategoryId = id,
-                PageIndex = page,
-                LanguageId = culture,
-                PageSize = 10
-            });
-            return View(new ProductCategoryViewModel()
-            {
-                Category = await _categoryApiClient.GetById(culture, id),
-                Products = products
-            }); ;
-        }
+
     }
 }

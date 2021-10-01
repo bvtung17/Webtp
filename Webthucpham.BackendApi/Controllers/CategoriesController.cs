@@ -17,7 +17,8 @@ namespace Webthucpham.BackendApi.Controllers
     {
         private readonly ICategoryService _categoryService;
 
-        public CategoriesController (ICategoryService categoryService)
+        public CategoriesController(
+            ICategoryService categoryService)
         {
             _categoryService = categoryService;
         }
@@ -29,18 +30,34 @@ namespace Webthucpham.BackendApi.Controllers
             return Ok(categories);
         }
 
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetById( int id)
-        {
-            var category = await _categoryService.GetById(id);
-            return Ok(category);
-        }
         [HttpGet("paging")]
         public async Task<IActionResult> GetAllPaging([FromQuery] PaginateRequest request, string status)
         {
             var categories = await _categoryService.GetAllPaging(request, status);
             return Ok(categories);
         }
+
+        [HttpGet("productincategory")]
+        public async Task<IActionResult> GetProductInCategory([FromQuery] PaginateRequest request, int categoryId)
+        {
+            var categories = await _categoryService.GetProductInCategory(request, categoryId);
+            return Ok(categories);
+        }
+
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetById(int id)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var category = await _categoryService.GetById(id);
+            if (category == null)
+            {
+                return BadRequest($"Cannot find category with id: {id}");
+            }
+            return Ok(category);
+        }
+
         [HttpPost]
         [Authorize]
         public async Task<IActionResult> Create([FromBody] CategoryCreateRequest request)
@@ -48,14 +65,17 @@ namespace Webthucpham.BackendApi.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
             var categoryId = await _categoryService.Create(request);
-            if (categoryId ==0)
+            if (categoryId == 0)
             {
-                return BadRequest(ModelState);
+                return BadRequest();
             }
+
             var product = await _categoryService.GetById(categoryId);
+
             return CreatedAtAction(nameof(GetById), new { Id = categoryId }, categoryId);
         }
-        [HttpPost]
+
+        [HttpPut]
         [Authorize]
         public async Task<IActionResult> Edit([FromBody] CategoryUpdateRequest request)
         {
@@ -64,9 +84,28 @@ namespace Webthucpham.BackendApi.Controllers
             var result = await _categoryService.Edit(request);
             if (!result)
             {
-                return BadRequest(ModelState);
+                return BadRequest();
             }
             return Ok();
+        }
+
+        [HttpDelete("{id}")]
+        [Authorize]
+        public async Task<IActionResult> Delete(int id)
+        {
+
+            var result = await _categoryService.Delete(id);
+            if (!result)
+            {
+                return BadRequest();
+            }
+            return Ok();
+        }
+        [HttpGet("products")]
+        public async Task<IActionResult> GetProductCategories()
+        {
+            var productCategories = await _categoryService.GetProductCategories();
+            return Ok(productCategories);
         }
     }
 }

@@ -6,7 +6,7 @@ using Webthucpham.ViewModels.Common;
 
 namespace Webthucpham.ViewModels.System.Users
 {
-    public class UserVm
+    public class UserViewModel
     {
         public Guid Id { get; set; }
 

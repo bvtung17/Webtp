@@ -13,6 +13,7 @@ using Webthucpham.Api;
 using Webthucpham.Utilities.Constants;
 using Webthucpham.ViewModels.Catalog.ProductImages;
 using Webthucpham.ViewModels.Catalog.Products;
+using Webthucpham.ViewModels.Catalog.Products.Manage;
 using Webthucpham.ViewModels.Common;
 
 namespace Webthucpham.Api

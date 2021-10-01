@@ -18,7 +18,7 @@ namespace Webthucpham.Api
 
         public async Task<List<SlideVm>> GetAll()
         {
-            return await GetListAsync<SlideVm>("/api/slides");
+            return null ;
         }
     }
 }

@@ -61,7 +61,7 @@ namespace Webthucpham.Api
             
         }
         //GET ID USE
-        public async Task<ApiResult<UserVm>> GetById(Guid id)
+        public async Task<ApiResult<UserViewModel>> GetById(Guid id)
         {
             var sessions = _httpContextAccessor.HttpContext.Session.GetString("Token");
             var client = _httpClientFactory.CreateClient();
@@ -70,14 +70,14 @@ namespace Webthucpham.Api
             var response = await client.GetAsync($"/api/users/{id}");
             var body = await response.Content.ReadAsStringAsync();
             if (response.IsSuccessStatusCode)
-                return JsonConvert.DeserializeObject<ApiSuccessResult<UserVm>>(body);
+                return JsonConvert.DeserializeObject<ApiSuccessResult<UserViewModel>>(body);
 
-            return JsonConvert.DeserializeObject<ApiErrorResult<UserVm>>(body);
+            return JsonConvert.DeserializeObject<ApiErrorResult<UserViewModel>>(body);
 
         }
 
         //GET USER
-        public async Task<ApiResult<PageResponse<UserVm>>> GetUsersPagings(GetUserPagingRequest request)
+        public async Task<ApiResult<PageResponse<UserViewModel>>> GetUsersPagings(GetUserPagingRequest request)
         {
             var sessions = _httpContextAccessor.HttpContext.Session.GetString("Token");
             var client = _httpClientFactory.CreateClient();
@@ -86,7 +86,7 @@ namespace Webthucpham.Api
             var response = await client.GetAsync($"/api/users/paging?pageIndex=" +
                 $"{request.PageIndex}&pageSize={request.PageSize}&keyword={request.Keyword}");
             var body = await response.Content.ReadAsStringAsync();
-            var users = JsonConvert.DeserializeObject<ApiSuccessResult<PageResponse<UserVm>>>(body);
+            var users = JsonConvert.DeserializeObject<ApiSuccessResult<PageResponse<UserViewModel>>>(body);
             return users;
         }
         //ĐĂNG KÝ

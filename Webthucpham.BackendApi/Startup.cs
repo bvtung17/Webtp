@@ -1,13 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -27,7 +24,7 @@ using Webthucpham.Application.Utilities.Slides;
 using Webthucpham.Data.EF;
 using Webthucpham.Data.Entities;
 using Webthucpham.Utilities.Constants;
-using Webthucpham.ViewModels.Catalog.Products;
+using Webthucpham.ViewModels.Catalog.Products.Manage;
 using Webthucpham.ViewModels.Catalogs.Products;
 using Webthucpham.ViewModels.System.Clients;
 using Webthucpham.ViewModels.System.Users;
@@ -49,9 +46,11 @@ namespace Webthucpham.BackendApi
             services.AddDbContext<WebthucphamDbContext>(options =>
             options.UseSqlServer(Configuration.GetConnectionString(SystemConstants.MainConnectionString)));
             //Identy
+            // Identity
             services.AddIdentity<User, Role>()
                 .AddEntityFrameworkStores<WebthucphamDbContext>()
                 .AddDefaultTokenProviders();
+
             //DECLARE DI
             services.AddTransient<IProductService, ProductService>();
             services.AddTransient<IClientService, ClientService>();
@@ -75,12 +74,14 @@ namespace Webthucpham.BackendApi
             services.AddControllers().AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<ClientRegisterValidation>());
             services.AddControllers().AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<UpdateProductValidator>());
 
-            services.AddControllers()
-                .AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<LoginRequestValidator>());
+            string connectionString = Configuration.GetConnectionString("WebthucphamDb");
+            services.AddDbContext<WebthucphamDbContext>(options => options.UseSqlServer(connectionString));
 
+            // Register the Swagger generator, defining 1 or more Swagger documents
             services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "Swagger WebShop Solution", Version = "v1" });
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "Cosmetics Online Shop", Version = "v1" });
+
                 c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
                 {
                     Description = @"JWT Authorization header using the Bearer scheme. \r\n\r\n
@@ -110,6 +111,7 @@ namespace Webthucpham.BackendApi
                       }
                     });
             });
+
             string issuer = Configuration.GetValue<string>("Tokens:Issuer");
             string signingKey = Configuration.GetValue<string>("Tokens:Key");
             byte[] signingKeyBytes = System.Text.Encoding.UTF8.GetBytes(signingKey);
@@ -119,22 +121,22 @@ namespace Webthucpham.BackendApi
                 opt.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
                 opt.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
             })
-            .AddJwtBearer(options =>
-            {
-                options.RequireHttpsMetadata = false;
-                options.SaveToken = true;
-                options.TokenValidationParameters = new TokenValidationParameters()
+                .AddJwtBearer(options =>
                 {
-                    ValidateIssuer = true,
-                    ValidIssuer = issuer,
-                    ValidateAudience = true,
-                    ValidAudience = issuer,
-                    ValidateLifetime = true,
-                    ValidateIssuerSigningKey = true,
-                    ClockSkew = System.TimeSpan.Zero,
-                    IssuerSigningKey = new SymmetricSecurityKey(signingKeyBytes)
-                };
-            });
+                    options.RequireHttpsMetadata = false;
+                    options.SaveToken = true;
+                    options.TokenValidationParameters = new TokenValidationParameters()
+                    {
+                        ValidateIssuer = true,
+                        ValidIssuer = issuer,
+                        ValidateAudience = true,
+                        ValidAudience = issuer,
+                        ValidateLifetime = true,
+                        ValidateIssuerSigningKey = true,
+                        ClockSkew = TimeSpan.Zero,
+                        IssuerSigningKey = new SymmetricSecurityKey(signingKeyBytes)
+                    };
+                });
         }
 
 
@@ -151,18 +153,24 @@ namespace Webthucpham.BackendApi
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
-            app.UseHttpsRedirection();
+            //app.UseHttpsRedirection();
             app.UseStaticFiles();
+
             app.UseAuthentication();
-            app.UseRouting();
-
-            app.UseAuthorization();
-
+            // Enable middleware to serve generated Swagger as a JSON endpoint.
             app.UseSwagger();
+
+            // Enable middleware to serve swagger-ui (HTML, JS, CSS, etc.),
+            // specifying the Swagger JSON endpoint.
             app.UseSwaggerUI(c =>
             {
-                c.SwaggerEndpoint("/swagger/v1/swagger.json", "Swagger WebThucPham V1");
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "Cosmetics Online Shop API V1");
             });
+
+
+            app.UseRouting();
+            app.UseAuthorization();
+
 
             app.UseEndpoints(endpoints =>
             {

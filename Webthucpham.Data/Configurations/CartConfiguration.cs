@@ -14,7 +14,7 @@ namespace Webthucpham.Data.Configurations
            
                 builder.ToTable("Carts").HasKey(c => c.Id);
                 builder.Property(x => x.ClientId).IsRequired(false);
-            
+                builder.HasOne(c => c.Client).WithMany(cl => cl.Carts).HasForeignKey(cl => cl.ClientId);
         }
     }
 }

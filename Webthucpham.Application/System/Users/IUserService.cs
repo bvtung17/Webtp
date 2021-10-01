@@ -10,19 +10,18 @@ namespace Webthucpham.Application.System.Users
 {
     public interface IUserService
     {
-        Task<ApiResult<string>> Authencate(LoginRequest request);
+        Task<ApiResult<string>> Authenticate(LoginRequest request);
 
         Task<ApiResult<bool>> Register(RegisterRequest request);
 
-        Task<ApiResult<bool>> Update(Guid id, UserUpdateRequest request);
+        Task<ApiResult<PageResponse<UserViewModel>>> GetUserPaging(GetUserPagingRequest request);
 
-        Task<ApiResult<PageResponse<UserVm>>> GetUsersPaging(GetUserPagingRequest request);
+        Task<ApiResult<bool>> Update(Guid id, UserViewModel request);
 
-        Task<ApiResult<UserVm>> GetById(Guid id);
+        Task<ApiResult<UserViewModel>> GetById(Guid id);
 
         Task<ApiResult<bool>> Delete(Guid id);
+        Task<ApiResult<bool>> RoleAssign(RoleAssignRequest request);
 
-        Task<ApiResult<bool>> RoleAssign(Guid id, RoleAssignRequest request);
-       
     }
 }

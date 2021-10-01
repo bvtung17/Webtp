@@ -1,49 +1,70 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Globalization;
+﻿using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
-using LazZiya.ExpressLocalization;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Webthucpham.Api;
 using Webthucpham.Models;
-using Webthucpham.Utilities.Constants;
+using Webthucpham.ViewModels.Catalog.Products;
 
 namespace Webthucpham.Controllers
 {
-    public class HomeController : Controller
+    public class HomeController : ClientBaseController
     {
         private readonly ILogger<HomeController> _logger;
-        private readonly ISharedCultureLocalizer _loc;
         private readonly ISlideApiClient _slideApiClient;
         private readonly IProductApiClient _productApiClient;
-        public HomeController(ILogger<HomeController> logger, ISharedCultureLocalizer loc
-            , ISlideApiClient slideApiClient,
-            IProductApiClient productApiClient)
+        private readonly ICategoryApiClient _categoryApiClient;
+       
+        public HomeController(
+            ILogger<HomeController> logger,
+            ISlideApiClient slideApiClient,
+            IProductApiClient productApiClient,
+            ICategoryApiClient categoryApiClient, IClientApi clientApi) : base(clientApi)
         {
-            _logger = logger;   
-            _loc = loc;
+            _logger = logger;
             _slideApiClient = slideApiClient;
             _productApiClient = productApiClient;
+            _categoryApiClient = categoryApiClient;
+           
         }
 
         public async Task<IActionResult> Index()
         {
-            var culture = CultureInfo.CurrentCulture.Name;
-            var viewModel = new HomeViewModel
+            var clientId = User.Claims.ToList().Where(x => x.Type == "Id").FirstOrDefault();
+            var logout = HttpContext.Session.GetString("Token") == null && clientId != null;
+            if (logout)
+                return RedirectToAction("Logout", "User");
+            await CreateUserViewBag();
+            var slides = await _slideApiClient.GetAll();
+            ////var banners = await _bannerApiClient.GetAll();
+            var homeViewModel = new HomeViewModel()
             {
-                Slides = await _slideApiClient.GetAll(),
-                FeaturedProducts = await _productApiClient.GetFeaturedProducts(culture, SystemConstants.ProductSettings.NumberOfFeaturedProducts),
-                 LatestProducts = await _productApiClient.GetLatestProducts(culture, SystemConstants.ProductSettings.NumberOfLatestProducts),
+                Slides = slides,
             };
-
-            return View(viewModel);
+            CreateCartViewBag();
+            var productCategory = await _categoryApiClient.GetHomeProductCategories();
+            ViewBag.Categories = productCategory;
+            return View(homeViewModel);
         }
 
+        [HttpGet("Search/{categoryId}"), HttpGet("Search")]
+        public async Task<IActionResult> Search(GetProductRequest request)
+        {
+            var clientId = User.Claims.ToList().Where(x => x.Type == "Id").FirstOrDefault();
+            var logout = HttpContext.Session.GetString("Token") == null && clientId != null;
+            if (logout)
+                return RedirectToAction("Logout", "User");
+            await CreateUserViewBag();
+
+            var products = await _productApiClient.SearchProduct(request);
+
+            ViewBag.request = request;
+            var productCategory = await _categoryApiClient.GetHomeProductCategories();
+            ViewBag.Categories = productCategory;
+            return View(products);
+        }
         public IActionResult Privacy()
         {
             return View();
@@ -55,16 +76,6 @@ namespace Webthucpham.Controllers
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
 
-        public IActionResult SetCultureCookie(string cltr, string returnUrl)
-        {
-            Response.Cookies.Append(
-                CookieRequestCultureProvider.DefaultCookieName,
-                CookieRequestCultureProvider.MakeCookieValue(new RequestCulture(cltr)),
-                new CookieOptions { Expires = DateTimeOffset.UtcNow.AddYears(1) }
-                );
-
-            return LocalRedirect(returnUrl);
-        }
 
     }
 }

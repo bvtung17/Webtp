@@ -9,6 +9,7 @@ using Webthucpham.Application.Catalog.Products;
 using Webthucpham.ViewModels.Catalog.ProductImages;
 using Webthucpham.ViewModels.Catalog.Products;
 using Webthucpham.ViewModels.Common;
+using Webthucpham.ViewModels.Catalog.Products.Manage;
 
 namespace Webthucpham.BackendApi.Controllers
 {

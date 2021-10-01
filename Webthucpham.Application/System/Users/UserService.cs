@@ -1,4 +1,5 @@
-﻿ using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
@@ -25,83 +26,111 @@ namespace Webthucpham.Application.System.Users
         private readonly RoleManager<Role> _roleManager;
         private readonly IConfiguration _config;
         private readonly WebthucphamDbContext _context;
-        public UserService(UserManager<User> userManager, SignInManager<User> signInManager,
-            RoleManager<Role> roleManager, IConfiguration config, WebthucphamDbContext context)
+        public UserService(UserManager<User> userMananger,
+            SignInManager<User> signInManaager,
+            RoleManager<Role> roleManager,
+            IConfiguration config,
+            IHttpContextAccessor httpContextAccessor,
+            WebthucphamDbContext context
+            )
         {
-            _userManager = userManager;
-            _signInManager = signInManager;
+            _userManager = userMananger;
+            _signInManager = signInManaager;
             _roleManager = roleManager;
             _config = config;
             _context = context;
         }
-        // đăng nhập
-        public async Task<ApiResult<string>> Authencate(LoginRequest request)
+
+        public async Task<ApiResult<string>> Authenticate(LoginRequest request)
         {
-            var user = await _userManager.FindByNameAsync(request.UserName);
-            if (user == null)
+
+            try
             {
-                return new ApiErrorResult<string>("Tài khoản không tồn tại");
-               
-            }
-            var result = await _signInManager.PasswordSignInAsync(user, request.Password, request.RememberMe, true);
-            if (!result.Succeeded)
-            {
-                return null;
-            }
-            var roles = await _userManager.GetRolesAsync(user);
-            var claims = new[]
-            {
+                var user = await _context.Users.Where(x => request.UserName == x.UserName).SingleOrDefaultAsync();
+                if (user == null) return new ApiErrorResult<string>("User is not exists!");
+
+                var result = await _signInManager.PasswordSignInAsync(user, request.Password, request.RememberMe, true);
+                if (!result.Succeeded)
+                {
+                    return new ApiErrorResult<string>("Password is wrong!");
+                }
+
+                var roles = await _userManager.GetRolesAsync(user);
+                var claims = new[]
+                {
                 new Claim(ClaimTypes.Email,user.Email),
                 new Claim(ClaimTypes.GivenName,user.Name),
                 new Claim("Role",string.Join(";",roles)),
                 new Claim(ClaimTypes.Name,user.Name),
                 new Claim(ClaimTypes.NameIdentifier,user.Id.ToString()),
             };
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Tokens:Key"]));
-            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+                var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Tokens:Key"]));
+                var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+                var token = new JwtSecurityToken(_config["Tokens:Issuer"],
+                    _config["Tokens:Issuer"],
+                    claims,
+                    expires: DateTime.Now.AddHours(3),
+                    signingCredentials: creds);
 
-            var token = new JwtSecurityToken(_config["Tokens:Issuer"],
-                _config["Tokens:Issuer"],
-                claims,
-                expires: DateTime.Now.AddHours(3),
-                signingCredentials: creds);
+                var apiResult = new ApiResult<string>()
+                {
+                    IsSuccessed = true,
+                    ResultObj = new JwtSecurityTokenHandler().WriteToken(token)
+                };
+                return apiResult;
+            }
+            catch (Exception)
+            {
 
-            return new ApiSuccessResult<string>(new JwtSecurityTokenHandler().WriteToken(token));
+                return new ApiErrorResult<string>("Lỗi đăng nhập");
+            }
+
+
         }
 
-        //Đăng ký
-        public async Task<ApiResult<bool>> Register(RegisterRequest request)
+        public async Task<ApiResult<bool>> Delete(Guid id)
         {
 
-            var user = await _userManager.FindByNameAsync(request.UserName);
-            if (user != null)
+            var user = await _userManager.FindByIdAsync(id.ToString());
+            if (user == null)
+                return new ApiErrorResult<bool>("User is not exists!");
+
+            var result = await _userManager.DeleteAsync(user);
+
+            if (!result.Succeeded)
             {
-                return new ApiErrorResult<bool>("Tài khoản đã tồn tại");
+                return new ApiErrorResult<bool>();
             }
-            if (await _userManager.FindByEmailAsync(request.Email) != null)
+            return new ApiSuccessResult<bool>();
+
+
+        }
+
+        public async Task<ApiResult<UserViewModel>> GetById(Guid id)
+        {
+            var user = await _userManager.FindByIdAsync(id.ToString());
+            if (user == null)
+                return new ApiErrorResult<UserViewModel>("User is not exists!");
+
+            var roles = await _userManager.GetRolesAsync(user);
+
+            var userViewModel = new UserViewModel()
             {
-                return new ApiErrorResult<bool>("Email đã tồn tại");
-            }
-            user = new User()
-            {
-                Dob = request.Dob,
-                Email = request.Email,
-                Name = request.Name,
-                UserName = request.UserName,
-                PhoneNumber = request.PhoneNumber
+                Dob = user.Dob,
+                Email = user.Email,
+                Id = user.Id,
+                Name = user.Name,
+                PhoneNumber = user.PhoneNumber,
+                UserName = user.UserName,
+                Roles = roles
             };
-            var result = await _userManager.CreateAsync(user, request.Password);
-            ; // tryen user pass
-            if (result.Succeeded)
-            {
-                return new ApiSuccessResult<bool>();
-            }
-            return new ApiErrorResult<bool>("Đăng ký không thành công");
+
+            return new ApiSuccessResult<UserViewModel>(userViewModel);
         }
-        //Get user
-        public async Task<ApiResult<PageResponse<UserVm>>> GetUsersPaging(GetUserPagingRequest request)
+
+        public async Task<ApiResult<PageResponse<UserViewModel>>> GetUserPaging(GetUserPagingRequest request)
         {
-             var query = _userManager.Users;
+            var query = _userManager.Users;
             if (!string.IsNullOrEmpty(request.Keyword))
             {
                 query = query.Where(x => x.UserName.Contains(request.Keyword)
@@ -112,7 +141,7 @@ namespace Webthucpham.Application.System.Users
 
             var data = await query.Skip((request.PageIndex - 1) * request.PageSize)
                 .Take(request.PageSize)
-                .Select(x => new UserVm()
+                .Select(x => new UserViewModel()
                 {
                     Dob = x.Dob,
                     Email = x.Email,
@@ -122,83 +151,72 @@ namespace Webthucpham.Application.System.Users
                     UserName = x.UserName
                 }).ToListAsync();
 
-            //4. Select and projection
-            var pagedResult = new PageResponse<UserVm>()
+            var pageResponse = new PageResponse<UserViewModel>()
             {
+                Items = data,
                 TotalRecords = totalRow,
-                PageIndex = request.PageIndex,
+                PageIndex = (request.PageIndex - 1) * request.PageSize,
                 PageSize = request.PageSize,
-                Items = data
             };
-            return new ApiSuccessResult<PageResponse<UserVm>>(pagedResult);
 
+            var apiResult = new ApiSuccessResult<PageResponse<UserViewModel>>(pageResponse);
+
+
+            return apiResult;
 
         }
 
-        //Get Id USER
-        public async Task<ApiResult<UserVm>> GetById(Guid id)
+        public async Task<ApiResult<bool>> Register(RegisterRequest request)
         {
-            var user = await _userManager.FindByIdAsync(id.ToString());
-            if (user == null)
-            {
-                return new ApiErrorResult<UserVm>("User không tồn tại");
-            }
-            var roles = await _userManager.GetRolesAsync(user);
-            var userVm = new UserVm()
-            {
-                Dob = user.Dob,
-                Email = user.Email,
-                Id = user.Id,
-                Name = user.Name,
-                PhoneNumber = user.PhoneNumber,
-                UserName = user.UserName,
-                Roles = roles
+            var user = await _userManager.FindByNameAsync(request.UserName);
 
+
+            if (user != null)
+                return new ApiErrorResult<bool>("Tài khoản đã tồn tại!");
+
+            user = await _userManager.FindByEmailAsync(request.Email);
+
+            if (user != null)
+                return new ApiErrorResult<bool>("Email đã tồn tại!");
+
+            var hasher = new PasswordHasher<User>();
+            user = new User()
+            {
+                Dob = request.Dob,
+                Name = request.Name,
+                Email = request.Email,
+                UserName = request.UserName,
+                PhoneNumber = request.PhoneNumber,
             };
-            return new ApiSuccessResult<UserVm>(userVm);
-        }
-        
-        //Update
-        public async Task<ApiResult<bool>> Update(Guid id, UserUpdateRequest request)
-        {
-            var user = await _userManager.FindByIdAsync(id.ToString());
-            user.Dob = request.Dob;
-            user.Name = request.Name;
-            user.PhoneNumber = request.PhoneNumber;
 
             try
             {
+                _context.Users.Add(user);
+                await _context.SaveChangesAsync();
+                user.PasswordHash = hasher.HashPassword(user, request.Password);
                 _context.Users.Attach(user);
                 await _context.SaveChangesAsync();
+                var role = await _context.Roles.Where(x => x.Name == "Staff").FirstOrDefaultAsync();
+                var userRole = new IdentityUserRole<Guid>()
+                {
+                    RoleId = role.Id,
+                    UserId = user.Id
+                };
+                _context.UserRoles.Add(userRole);
+                await _context.SaveChangesAsync();
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                Console.WriteLine(e);
 
-                return new ApiErrorResult<bool>("Update is not success!");
+                return new ApiErrorResult<bool>("Có lỗi trong quá trình tạo tài khoàn");
             }
-
             return new ApiSuccessResult<bool>();
         }
-        //DELETE USER
 
-        public async Task<ApiResult<bool>> Delete(Guid id)
+        public async Task<ApiResult<bool>> RoleAssign(RoleAssignRequest request)
         {
-            var user = await _userManager.FindByIdAsync(id.ToString());
-            if (user == null)
-            {
-                return new ApiErrorResult<bool>("User không tồn tại");
-            }
-            var result = await _userManager.DeleteAsync(user);
-            if (result.Succeeded)
-                return new ApiSuccessResult<bool>();
-            return new ApiErrorResult<bool>("Xóa không thành công");
-        }
-
-
-        //PHÂN QUYỀN
-        public async Task<ApiResult<bool>> RoleAssign(Guid id, RoleAssignRequest request)
-        {
-            var user = await _userManager.FindByIdAsync(id.ToString());
+            var user = await _userManager.FindByIdAsync(request.Id.ToString());
             var userId = user.Id.ToString();
             //if (user == null)
             //{
@@ -242,6 +260,28 @@ namespace Webthucpham.Application.System.Users
             }
 
             return new ApiSuccessResult<bool>();
+        }
+
+        public async Task<ApiResult<bool>> Update(Guid id, UserViewModel request)
+        {
+            var user = await _userManager.FindByIdAsync(id.ToString());
+            user.Dob = request.Dob;
+            user.Name = request.Name;
+            user.PhoneNumber = request.PhoneNumber;
+
+            try
+            {
+                _context.Users.Attach(user);
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception)
+            {
+
+                return new ApiErrorResult<bool>("Update is not success!");
+            }
+
+            return new ApiSuccessResult<bool>();
+
         }
     }
 }

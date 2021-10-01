@@ -46,10 +46,10 @@ namespace Webthucpham.Data.EF
 
            
             modelBuilder.ApplyConfiguration(new UserConfiguration());
-            
-           
 
-            modelBuilder.Entity<IdentityUserClaim<Guid>>().ToTable("AppUserClaims");
+
+
+
             modelBuilder.Entity<IdentityUserClaim<Guid>>().ToTable("UserClaims").HasKey(x => x.Id);
             modelBuilder.Entity<IdentityUserRole<Guid>>().ToTable("UserRoles").HasKey(x => new { x.UserId, x.RoleId });
             modelBuilder.Entity<IdentityUserLogin<Guid>>().ToTable("UserLogins").HasKey(x => x.UserId);

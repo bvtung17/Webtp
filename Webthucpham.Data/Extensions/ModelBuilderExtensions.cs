@@ -12,13 +12,6 @@ namespace Webthucpham.Data.Extensions
     {
         public static void Seed(this ModelBuilder modelBuilder)
         {
-            // tạo app config
-            modelBuilder.Entity<AppConfig>().HasData(
-               new AppConfig() { Key = "HomeTile", Value = "This is home page of Web" },
-               new AppConfig() { Key = "HomeKeyword", Value = "This is keyword of Web" },
-               new AppConfig() { Key = "HomeDescription", Value = "This is desscription of Web" }
-               );
-
             // tạo Category ( danh mục)
             modelBuilder.Entity<Category>().HasData(
                   // danh mục sản phẩm 1
@@ -29,7 +22,8 @@ namespace Webthucpham.Data.Extensions
                       Name = "Rau Ăn Lá",
                       SortOrder = 1,
                       Status = Status.Active,
-                      ParentId = 1,
+
+
                   },
                  new Category
                  {
@@ -38,7 +32,7 @@ namespace Webthucpham.Data.Extensions
                      Name = "Rau Ăn Củ",
                      SortOrder = 2,
                      Status = Status.Active,
-                     ParentId = 1,
+
                  },
 
                  new Category
@@ -64,21 +58,10 @@ namespace Webthucpham.Data.Extensions
                      Name = "Sản phẩm khuyến mại",
                      SortOrder = 5,
                      Status = Status.Active
-                 },
+                 });
             // tạo Product
+           
             modelBuilder.Entity<Product>().HasData(
-             new Product() // product 1 
-             {
-                 Id = 1,
-                 DateCreated = DateTime.Now,
-                 OriginalPrice = 100000,
-                 Price = 200000,
-                 Stock = 0,
-                 ViewCount = 0,
-
-             }));
-            modelBuilder.Entity<Product>().HasData(
-            // Mercedes-Benz
             new Product
             {
 
@@ -126,10 +109,7 @@ namespace Webthucpham.Data.Extensions
                 OriginalCountry = "Việt Nam",
                 status = Status.Active
             });
-            modelBuilder.Entity<ProductInCategory>().HasData(
-               new ProductInCategory() { ProductId = 1, CategoryId = 1 },
-               new ProductInCategory() { ProductId = 2, CategoryId = 1 },
-               new ProductInCategory() { ProductId = 3, CategoryId = 1 });
+        
            modelBuilder.Entity<ProductImage>().HasData(
                // Product Mercedes Benz
                new ProductImage()
@@ -165,12 +145,16 @@ namespace Webthucpham.Data.Extensions
                    IsDefault = true,
                    SortOrder = 3
                });
+           modelBuilder.Entity<ProductInCategory>().HasData(
+           new ProductInCategory() { ProductId = 1, CategoryId = 1 },
+           new ProductInCategory() { ProductId = 2, CategoryId = 2 },
+           new ProductInCategory() { ProductId = 3, CategoryId = 3 });
             // tao admin voi Identity
             var roleID1 = new Guid("C78E8003-1877-44F1-A4E8-EBFEC06C3279");
             var roleID2 = new Guid("C78E8003-2000-44F1-A4E8-EBFEC06C3279");
             var adminID = new Guid("447EB2AE-81CA-4EBF-A4A0-D085DEF1879A");
             var staffID = new Guid("447EB2AE-2000-4EBF-A4A0-D085DEF1239A");
-            var clientID = new Guid("17F617A6-DB8F-4D13-8E88-15D9A7AB7927");
+            var clientID = new Guid("6B36789E-1898-481C-940D-8C7DBD22F832");
             modelBuilder.Entity<Role>().HasData(new Role
             {
                 Id = adminID,
@@ -212,7 +196,17 @@ namespace Webthucpham.Data.Extensions
                      RoleId = roleID2,
                      UserId = staffID
                  });
+            modelBuilder.Entity<Client>().HasData(
+                new Client()
+                {
+                    Id = clientID,
+                    Name = "Khách Hàng 1",
+                    Email = "kh1@gmail.com",
+                    Address = "111 Tây Thạnh - Tân Phú - Hồ Chí Minh",
+                    Password = "123456",
+                    Status = Status.Active
 
+                });
             modelBuilder.Entity<Order>().HasData(
                 // Client 1
                 new Order()
