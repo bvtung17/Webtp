@@ -5,6 +5,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="LazZiya.ExpressLocalization" Version="4.0.2" />
+    <PackageReference Include="LazZiya.TagHelpers" Version="4.0.1" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="5.0.8">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -15,6 +17,16 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="5.0.0" />
+    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="3.1.5" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="wwwroot\themes\less\oregional\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Webthucpham.Api\Webthucpham.Api.csproj" />
+    <ProjectReference Include="..\Webthucpham.Application\Webthucpham.Application.csproj" />
   </ItemGroup>
 
 </Project>

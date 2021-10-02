@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Webthucpham.ViewModels.Catalog.ProductImages
+namespace Webthucpham.ViewModels.Catalog.Products
 {
     public class ProductUpdateRequest
     {
@@ -17,5 +17,6 @@ namespace Webthucpham.ViewModels.Catalog.ProductImages
         public string SeoAlias { get; set; }
         public string LanguageId { set; get; }
         public IFormFile ThumbnailImage { get; set; }
+        public bool? IsFeatured { get; set; }
     }
 }

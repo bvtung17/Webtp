@@ -4,29 +4,31 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using Webthucpham.Application.Catalog.Products;
 using Webthucpham.ViewModels.Catalog.ProductImages;
+using Webthucpham.ViewModels.Catalog.Products;
 
 namespace Webthucpham.BackendApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+
     public class ProductsController : ControllerBase
     {
-        private readonly IPublicProductService _pubicProductService;
-        private readonly IManageProductService _manageProductService;
-        public ProductsController(IPublicProductService pubicProductService, IManageProductService manageProductService)
+   
+        private readonly IProductService _productService;
+        public ProductsController(IProductService productService)
         {
-            _pubicProductService = pubicProductService;
 
-            _manageProductService = manageProductService;
+            _productService = productService;
         }
 
-        //http://locahost:port/product/PageIndex=1&pagesize=10&CategoryId=
-        [HttpGet("public-paging/{languageId}")]
-        public async Task<IActionResult> GetAllPaging(string languageId, [FromQuery] GetPublicProductPagingRequest request) // lay tu query
+        //http://locahost:port/product/PageIndex=1
+        [HttpGet("paging")]
+        public async Task<IActionResult> GetAllPaging([FromQuery] GetManageProductPagingRequest request) // lay tu query
         {
-            var products = await _pubicProductService.GetAllByCategoryId(languageId, request);
+            var products = await _productService.GetAllPaging(request);
             return Ok(products);
         }
 
@@ -37,7 +39,7 @@ namespace Webthucpham.BackendApi.Controllers
         [HttpGet("{productId}/{languageId}")]
         public async Task<IActionResult> GetById(int productId, string languageId)
         {
-            var product = await _manageProductService.GetById(productId, languageId);
+            var product = await _productService.GetById(productId, languageId);
             if (product == null)
             {
                 return BadRequest("Không tìm thấy sản phẩm");
@@ -45,41 +47,65 @@ namespace Webthucpham.BackendApi.Controllers
             return Ok(product);
         }
 
+        [HttpGet("featured/{languageId}/{take}")]
+        [AllowAnonymous]
+        public async Task<IActionResult> GetFeaturedProducts(int take,string languageId)
+        {
+            var product = await _productService.GetFeaturedProducts(languageId, take);
+          
+            return Ok(product);
+        }
+        [HttpGet("latest/{languageId}/{take}")]
+        [AllowAnonymous]
+        public async Task<IActionResult> GetLatestProducts(int take, string languageId)
+        {
+            var product = await _productService.GetLatestProducts(languageId, take);
+
+            return Ok(product);
+        }
+
         //phuong thuc create product
         [HttpPost]
+        [Consumes("multipart/form-data")]
+        [Authorize]
         public async Task<IActionResult> Create([FromForm] ProductCreateRequest request)
         {
-
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
-            var productId = await _manageProductService.Create(request);
+            var productId = await _productService.Create(request);
             if (productId == 0)
             {
                 return BadRequest();
             }
-            var product = await _manageProductService.GetById(productId, request.LanguageId);
+            var product = await _productService.GetById(productId, request.LanguageId);
             return CreatedAtAction(nameof(GetById), new { id = productId }, product);
         }
 
         //phuong thuc UpDATE product
-        [HttpPut]
-        public async Task<IActionResult> Update([FromForm] ProductUpdateRequest request)
+        [HttpPut("{productId}")]
+        [Consumes("multipart/form-data")]
+        [Authorize]
+        public async Task<IActionResult> Update([FromRoute] int productId, [FromForm] ProductUpdateRequest request)
         {
-            var affecterResult = await _manageProductService.Update(request);
-            if (affecterResult == 0)
+            if (!ModelState.IsValid)
             {
-                return BadRequest();
+                return BadRequest(ModelState);
             }
+            request.Id = productId;
+            var affectedResult = await _productService.Update(request);
+            if (affectedResult == 0)
+                return BadRequest();
             return Ok();
         }
 
         //phuong thuc Delete product
         [HttpDelete("{productId}")]
+        [Authorize] 
         public async Task<IActionResult> Delete(int productId)
         {
-            var affecterResult = await _manageProductService.Delete(productId);
+            var affecterResult = await _productService.Delete(productId);
             if (affecterResult == 0)
             {
                 return BadRequest();
@@ -88,9 +114,10 @@ namespace Webthucpham.BackendApi.Controllers
         }
         //phuong thuc UpDATE PRICE
         [HttpPatch("{productId}/{newPrice}")]
+        [Authorize]
         public async Task<IActionResult> UpdatePrice(int productId, decimal newPrice)
         {
-            var isSuccesfull = await _manageProductService.UpdatePrice(productId, newPrice);
+            var isSuccesfull = await _productService.UpdatePrice(productId, newPrice);
             if (isSuccesfull)
             {
                 return Ok();
@@ -102,6 +129,7 @@ namespace Webthucpham.BackendApi.Controllers
 
         //phuong thuc create IMAGE
         [HttpPost("{productId}/image)")]
+        [Authorize]
         public async Task<IActionResult> CreateImage(int productId,  [FromForm] ProductImageCreateRequest request)
         {
 
@@ -109,17 +137,18 @@ namespace Webthucpham.BackendApi.Controllers
             {
                 return BadRequest(ModelState);
             }
-            var imageId = await _manageProductService.AddImage(productId, request);
+            var imageId = await _productService.AddImage(productId, request);
             if (imageId == 0)
             {
                 return BadRequest();
             }
-            var image = await _manageProductService.GetImageById(imageId);
+            var image = await _productService.GetImageById(imageId);
             return CreatedAtAction(nameof(GetImageById), new { id = imageId }, image);
         }
 
         // UPDATE IMAGE
         [HttpPut("{productId}/image/{imageId})")]
+        [Authorize]
         public async Task<IActionResult> UpdateImage(int imageId, [FromForm] ProductUpdateImageRequest request)
         {
 
@@ -127,17 +156,18 @@ namespace Webthucpham.BackendApi.Controllers
             {
                 return BadRequest(ModelState);
             }
-            var result = await _manageProductService.UpdateImage(imageId, request);
+            var result = await _productService.UpdateImage(imageId, request);
             if (result == 0)
             {
                 return BadRequest();
             }
-            var image = await _manageProductService.GetImageById(imageId);
+            var image = await _productService.GetImageById(imageId);
             return Ok();
         }
 
         // DELETE IMAGE
         [HttpDelete("{productId}/image/{imageId})")]
+        [Authorize]
         public async Task<IActionResult> RemoveImage(int imageId)
         {
 
@@ -145,12 +175,12 @@ namespace Webthucpham.BackendApi.Controllers
             {
                 return BadRequest(ModelState);
             }
-            var result = await _manageProductService.RemoveImage(imageId);
+            var result = await _productService.RemoveImage(imageId);
             if (result == 0)
             {
                 return BadRequest();
             }
-            var image = await _manageProductService.GetImageById(imageId);
+            var image = await _productService.GetImageById(imageId);
             return Ok();
         }
 
@@ -161,13 +191,27 @@ namespace Webthucpham.BackendApi.Controllers
         [HttpGet("{productId}/image/{imageId}")]
         public async Task<IActionResult> GetImageById(int productId, int imageId)
         {
-            var image = await _manageProductService.GetImageById( imageId);
+            var image = await _productService.GetImageById( imageId);
             if (image == null)
             {
                 return BadRequest("Không tìm thấy sản phẩm");
             }
             return Ok(image);
         }
+        //CATEGORY
+        [HttpPut("{id}/categories")]
+        [Authorize]
+        public async Task<IActionResult> CategoryAssign(int id, [FromBody] CategoryAssignRequest request)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
 
+            var result = await _productService.CategoryAssign(id, request);
+            if (!result.IsSuccessed)
+            {
+                return BadRequest(result);
+            }
+            return Ok(result);
+        }
     }
 }
